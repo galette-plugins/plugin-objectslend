@@ -1,6 +1,6 @@
 ---
 title: Documentation
-description: Object lending and renting
+description: Prêt et location d'objets
 ---
 
 Ce plugin fournit :
@@ -16,10 +16,10 @@ Ce plugin fournit :
 
 Tout d'abord, téléchargez le plugin :
 
-* [Get latest ObjectsLend
-  plugin!](https://github.com/galette-plugins/plugin-objectslend/releases/latest)
-* [Get ObjectsLend plugin nightly
-  build!](https://github.com/galette-plugins/plugin-objectslend/releases/tag/nightly)
+* [Obtenir le dernier plugin ObjectsLend
+  !](https://github.com/galette-plugins/plugin-objectslend/releases/latest)
+* [Obtenir la nightly du plugin ObjectysLend
+  !](https://github.com/galette-plugins/plugin-objectslend/releases/tag/nightly)
 
 Extrayez l'archive téléchargée dans le dossier `plugins` de Galette. Par
 exemple, sous linux (en remplaçant `{url}` et `{version}` par les valeurs
@@ -60,9 +60,9 @@ depuis la page d'un objet.
 
 Plusieurs préférences vous permettent de modifier le comportement du plugin.
 
-![The plugin preferences](images/plugin_preferences.png)
+![Les préférences du plugin](images/plugin_preferences.png)
 
-![The images preferences](images/images_preferences.png)
+![Les préférences des images](images/images_preferences.png)
 
 ![The display preferences](images/display_preferences.png)
 
@@ -73,7 +73,7 @@ objets et la taille des miniatures.
 
 Il est possible d'activer l'affichage des photos en pleine taille.
 
-> **Note** — Added in version 0.5.
+> **Note** — Ajouté dans la version 0.5.
 > 
 > Les photos envoyées avec une version antérieure du plugin étaient
 > systématiquement retaillées, et seule la miniature était stockée. Si vous
