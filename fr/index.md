@@ -1,10 +1,10 @@
 ---
 title: Galette ObjectsLend
-description: Object lending and renting
+description: Prêt et location d'objets
 ---
 
-A [Galette](https://galette.eu) plugin to manage objects, and to lend or rent
-them to members.
+Un plugin [Galette](https://galette.eu) pour gérer les objets, et pour les
+prêter ou les louer aux membres.
 
 Ce plugin fournit :
 
