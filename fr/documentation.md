@@ -47,7 +47,7 @@ Galette.
 Des statuts par défaut sont fournis à l'installation, mais ils pourraient ne pas
 convenir à vos besoins, vous pourrez bien sûr définir les vôtres.
 
-![The list of object status](images/status.png)
+![La liste des statuts d'objet](images/status.png)
 
 Définissez des statuts, créez des catégories et des objets ; les utilisateurs
 pourront emprunter des objets avec une raison, puis pourront les rendre avec le
@@ -64,7 +64,7 @@ Plusieurs préférences vous permettent de modifier le comportement du plugin.
 
 ![Les préférences des images](images/images_preferences.png)
 
-![The display preferences](images/display_preferences.png)
+![Les préférences d'affichage](images/display_preferences.png)
 
 Depuis cet écran, vous pourrez définir si les adhérents peuvent emprunter des
 objets ou non, si cela doit donner lieu à une nouvelle contribution (ainsi que
