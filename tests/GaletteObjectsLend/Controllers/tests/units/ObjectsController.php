@@ -313,4 +313,30 @@ class ObjectsController extends GaletteRoutingTestCase
         $this->assertCount(2, $this->getRents());
     }
 
+    /**
+     * Giving back requires an "in stock" status, and a lent object
+     */
+    public function testReturnInvalid(): void
+    {
+        $this->setPrefs(false);
+        $this->logSuperAdmin();
+
+        //object is not lent
+        $test_response = $this->app->handle($this->returnRequest());
+        $this->assertSame(301, $test_response->getStatusCode());
+        $this->expectFlashData(['error_detected' => ['This object cannot be returned.']]);
+        $this->expectLogEntry(Analog::WARNING, 'Trying to return an object that is not lent');
+        $this->assertCount(0, $this->getRents());
+
+        //wrong status
+        $member_one = $this->getMemberOne();
+        $this->lendObject($member_one->id);
+        $test_response = $this->app->handle(
+            $this->returnRequest(['status' => (string)$this->lent_status])
+        );
+        $this->assertSame(301, $test_response->getStatusCode());
+        $this->expectFlashData(['error_detected' => ['This object cannot be returned.']]);
+        $this->expectLogEntry(Analog::WARNING, 'Trying to return an object that is not lent');
+        $this->assertCount(1, $this->getRents());
+    }
 }

@@ -896,13 +896,38 @@ class ObjectsController extends AbstractPluginController
                 );
         }
 
+        $last_rent = $object->getCurrentRent();
+        if (
+            $last_rent === null
+            || $last_rent->in_stock
+            || !$this->isAllowedStatus((int)($post['status'] ?? 0), LendStatus::getActiveStockStatuses($this->zdb))
+        ) {
+            Analog::log(
+                'Trying to return an object that is not lent or with an invalid status! (Object '
+                . $id . ', user ' . $this->login->login . ')',
+                Analog::WARNING
+            );
+
+            $this->flash->addMessage(
+                'error_detected',
+                _T("This object cannot be returned.", "objectslend")
+            );
+
+            return $response
+                ->withStatus(301)
+                ->withHeader(
+                    'Location',
+                    $this->routeparser->urlFor('objectslend_objects')
+                );
+        }
+
         // close olds object rents
         LendRent::closeAllRentsForObject($object_id, '');
 
         // Ajout d'un nouveau statut "objet loué"
         $rent = new LendRent();
         $rent->object_id = $object_id;
-        $rent->status_id = $post['status'];
+        $rent->status_id = (int)$post['status'];
         $rent->store();
 
         $this->flash->addMessage(
