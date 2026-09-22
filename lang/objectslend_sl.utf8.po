@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: translations@galette.eu\n"
 "POT-Creation-Date: 2024-02-08 22:16+0100\n"
-"PO-Revision-Date: 2026-07-16 06:22+0000\n"
+"PO-Revision-Date: 2026-09-22 17:08+0000\n"
 "Last-Translator: Jože Felicijan <joze@felicijan.com>\n"
 "Language-Team: Slovenian <https://hosted.weblate.org/projects/galette/"
 "objectslend-plugin/sl/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3;\n"
-"X-Generator: Weblate 2026.8.dev0\n"
+"X-Generator: Weblate 2026.10.dev0\n"
 
 #. TRANS: this is a filename
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:58
@@ -418,7 +418,7 @@ msgstr "Ime/opis"
 #: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:259
 #: ../tempcache/list_lent_object.html.twig:66
 msgid "Id"
-msgstr "ID"
+msgstr "Id"
 
 #: ../tempcache/status_edit.html.twig:69 ../tempcache/take_object.html.twig:372
 #: ../tempcache/take_object.html.twig:435
@@ -586,7 +586,7 @@ msgid ""
 "Will permit to see fullsize image clicking on thumbnails.<br/>If disabled, "
 "only thumbnails will be displayed, but full images are still kept."
 msgstr ""
-"Omogoča ogled slike v polni velikosti s klikom na sličice.<be/>Če je možnost "
+"Omogoča ogled slike v polni velikosti s klikom na sličice.<br/>Če je možnost "
 "onemogočena, bodo prikazane samo sličice, vendar se bodo slike v polni "
 "velikosti še vedno ohranile."
 
