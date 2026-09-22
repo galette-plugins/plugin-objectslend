@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace GaletteObjectsLend\Controllers\tests\units;
 
+use Analog\Analog;
 use Galette\Tests\GaletteRoutingTestCase;
 use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Entity\LendRent;
@@ -104,6 +105,21 @@ class ObjectsController extends GaletteRoutingTestCase
         $this->assertTrue($prefs->store($values));
     }
 
+    /**
+     * Lend test object to a member, bypassing controller
+     *
+     * @param int $member_id Member ID
+     */
+    private function lendObject(int $member_id): void
+    {
+        $rent = new LendRent();
+        $rent->object_id = $this->object_id;
+        $rent->status_id = $this->lent_status;
+        $rent->adherent_id = $member_id;
+        //make sure the rent is older than the ones created from controller
+        $rent->date_begin = (new \DateTime('-1 day'))->format('Y-m-d H:i:s');
+        $this->assertTrue($rent->store());
+    }
 
     /**
      * Get rents of test object, most recent first
@@ -179,7 +195,49 @@ class ObjectsController extends GaletteRoutingTestCase
         $this->assertSame($member_one->id, $rents[0]->adherent_id);
     }
 
+    /**
+     * An object already lent cannot be borrowed again
+     */
+    public function testTakeLentObject(): void
+    {
+        $this->setPrefs(true);
+        $member_one = $this->getMemberOne();
+        $this->lendObject($member_one->id);
 
+        $mdata = $this->dataAdherentTwo();
+        $this->getMemberTwo();
+        $this->assertTrue($this->login->login($mdata['login_adh'], $mdata['mdp_adh']));
+        $test_response = $this->app->handle($this->takeRequest([]));
+        $this->assertSame(
+            ['Location' => [$this->routeparser->urlFor('objectslend_objects')]],
+            $test_response->getHeaders()
+        );
+        $this->expectFlashData(['error_detected' => ['This object cannot be borrowed.']]);
+        $this->expectLogEntry(Analog::WARNING, 'Trying to borrow an unavailable object');
+
+        //current lend has not been closed
+        $rents = $this->getRents();
+        $this->assertCount(1, $rents);
+        $this->assertSame($member_one->id, $rents[0]->adherent_id);
+        $this->assertSame('', $rents[0]->date_end ?? '');
+    }
+
+    /**
+     * Borrowing requires a "not in stock" status
+     */
+    public function testTakeWithInStockStatus(): void
+    {
+        $this->setPrefs(false);
+
+        $this->logSuperAdmin();
+        $test_response = $this->app->handle(
+            $this->takeRequest(['status' => (string)$this->instock_status])
+        );
+        $this->assertSame(301, $test_response->getStatusCode());
+        $this->expectFlashData(['error_detected' => ['This object cannot be borrowed.']]);
+        $this->expectLogEntry(Analog::WARNING, 'Trying to borrow an unavailable object');
+        $this->assertCount(0, $this->getRents());
+    }
 
 
 

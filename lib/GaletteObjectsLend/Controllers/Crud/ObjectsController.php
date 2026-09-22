@@ -550,7 +550,8 @@ class ObjectsController extends AbstractPluginController
         $deps = [
             'rents'     => true,
             'last_rent' => true,
-            'member'    => true
+            'member'    => true,
+            'category'  => true
         ];
         $object = new LendObject(
             $this->zdb,
@@ -605,7 +606,7 @@ class ObjectsController extends AbstractPluginController
             $params['require_calendar'] = true;
             $params['rent_price'] = str_replace([ ',', ' '], [ '.', ''], $object->rent_price); //FIXME :/
 
-            if ($last_rent !== null && !$last_rent->in_stock) {
+            if (!$object->isActive() || ($last_rent !== null && !$last_rent->in_stock)) {
                 //redirect to objects list
                 $this->flash->addMessage(
                     'warning_detected',
@@ -700,13 +701,44 @@ class ObjectsController extends AbstractPluginController
                 );
         }
 
+        $object = new LendObject(
+            $this->zdb,
+            $object_id,
+            ['rents' => true, 'last_rent' => true, 'category' => true]
+        );
+        $last_rent = $object->getCurrentRent();
+        if (
+            $object->getId() === null
+            || !$object->isActive()
+            || ($last_rent !== null && !$last_rent->in_stock)
+            || !$this->isAllowedStatus((int)($post['status'] ?? 0), LendStatus::getActiveTakeAwayStatuses($this->zdb))
+        ) {
+            Analog::log(
+                'Trying to borrow an unavailable object or with an invalid status! (Object '
+                . $id . ', user ' . $this->login->login . ')',
+                Analog::WARNING
+            );
+
+            $this->flash->addMessage(
+                'error_detected',
+                _T("This object cannot be borrowed.", "objectslend")
+            );
+
+            return $response
+                ->withStatus(301)
+                ->withHeader(
+                    'Location',
+                    $this->routeparser->urlFor('objectslend_objects')
+                );
+        }
+
         // close olds object rents
         LendRent::closeAllRentsForObject($object_id, '');
 
         // Ajout d'un nouveau statut "objet loué"
         $rent = new LendRent();
         $rent->object_id = $object_id;
-        $rent->status_id = $post['status'];
+        $rent->status_id = (int)$post['status'];
         $rent->date_forecast = $post['expected_return'];
 
         if (!empty($post[Adherent::PK]) && ($this->login->isAdmin() || $this->login->isStaff())) {
@@ -900,6 +932,22 @@ class ObjectsController extends AbstractPluginController
                     $this->routeparser->urlFor('objectslend_objects')
                 );
         }
+    }
+
+    /**
+     * Is status part of allowed ones?
+     *
+     * @param int          $status_id Status ID
+     * @param LendStatus[] $statuses  Allowed statuses
+     */
+    private function isAllowedStatus(int $status_id, array $statuses): bool
+    {
+        foreach ($statuses as $status) {
+            if ($status->status_id === $status_id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // /CRUD - Update
