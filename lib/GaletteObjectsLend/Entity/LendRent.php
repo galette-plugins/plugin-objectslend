@@ -207,7 +207,7 @@ class LendRent
                 ->join(
                     PREFIX_DB . Adherent::TABLE,
                     PREFIX_DB . Adherent::TABLE . '.id_adh = ' . PREFIX_DB . LEND_PREFIX . self::TABLE . '.adherent_id',
-                    '*',
+                    ['prenom_adh', 'nom_adh', 'pseudo_adh', 'email_adh'],
                     'left'
                 )
                 ->join(
