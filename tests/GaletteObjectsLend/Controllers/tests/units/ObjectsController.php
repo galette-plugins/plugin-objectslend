@@ -152,6 +152,25 @@ class ObjectsController extends GaletteRoutingTestCase
         );
     }
 
+    /**
+     * Build a return request
+     *
+     * @param array<string,mixed> $data Posted data
+     */
+    private function returnRequest(array $data = []): \Slim\Psr7\Request
+    {
+        $request = $this->createRequest(
+            route_name: 'objectslend_object_doreturn',
+            route_args: ['id' => (string)$this->object_id],
+            method: 'POST'
+        );
+        return $request->withParsedBody(
+            $data + [
+                'status' => (string)$this->instock_status,
+                'mode' => ''
+            ]
+        );
+    }
 
     /**
      * A simple member cannot borrow in the name of someone else
@@ -239,7 +258,59 @@ class ObjectsController extends GaletteRoutingTestCase
         $this->assertCount(0, $this->getRents());
     }
 
+    /**
+     * Staff can always give an object back
+     */
+    public function testAdminReturnWhenMemberRentDisabled(): void
+    {
+        $this->setPrefs(false);
+        $member_one = $this->getMemberOne();
+        $this->lendObject($member_one->id);
 
+        $this->logSuperAdmin();
+        $test_response = $this->app->handle($this->returnRequest());
+        $this->assertSame(301, $test_response->getStatusCode());
+        $this->expectFlashData(['success_detected' => ['Test object has been returned :)']]);
 
+        $rents = $this->getRents();
+        $this->assertCount(2, $rents);
+        $this->assertTrue($rents[0]->in_stock);
+    }
+
+    /**
+     * A member can only give back objects they hold
+     */
+    public function testMemberReturnObjectHeldByAnotherMember(): void
+    {
+        $this->setPrefs(true);
+        $member_one = $this->getMemberOne();
+        $this->lendObject($member_one->id);
+
+        $mdata = $this->dataAdherentTwo();
+        $this->getMemberTwo();
+        $this->assertTrue($this->login->login($mdata['login_adh'], $mdata['mdp_adh']));
+        $test_response = $this->app->handle($this->returnRequest());
+        $this->assertSame(301, $test_response->getStatusCode());
+        $this->expectFlashData(['error_detected' => ['You do not have rights to return objects!']]);
+        $this->expectLogEntry(Analog::WARNING, 'Trying to return an object without appropriate rights!');
+        $this->assertCount(1, $this->getRents());
+    }
+
+    /**
+     * A member gives back an object they hold
+     */
+    public function testMemberReturnOwnObject(): void
+    {
+        $this->setPrefs(true);
+        $mdata = $this->dataAdherentOne();
+        $member_one = $this->getMemberOne();
+        $this->lendObject($member_one->id);
+
+        $this->assertTrue($this->login->login($mdata['login_adh'], $mdata['mdp_adh']));
+        $test_response = $this->app->handle($this->returnRequest());
+        $this->assertSame(301, $test_response->getStatusCode());
+        $this->expectFlashData(['success_detected' => ['Test object has been returned :)']]);
+        $this->assertCount(2, $this->getRents());
+    }
 
 }

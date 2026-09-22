@@ -630,8 +630,7 @@ class ObjectsController extends AbstractPluginController
             $params['date_forecast'] = $date_forecast->format(__('Y-m-d'));
         } else {
             if (
-                !$lendsprefs->{Preferences::PARAM_ENABLE_MEMBER_RENT_OBJECT}
-                || !($this->login->isAdmin() || $this->login->isStaff() || $this->login->id == $object->getIdAdh())
+                !$this->canGiveBack($object, $lendsprefs)
             ) {
                 Analog::log(
                     'Trying to return an object without appropriate rights! (Object '
@@ -875,8 +874,7 @@ class ObjectsController extends AbstractPluginController
         );
 
         if (
-            !$lendsprefs->{Preferences::PARAM_ENABLE_MEMBER_RENT_OBJECT}
-            || !($this->login->isAdmin() || $this->login->isStaff() || $this->login->id == $object->getIdAdh())
+            !$this->canGiveBack($object, $lendsprefs)
         ) {
             Analog::log(
                 'Trying to return an object without appropriate rights! (Object '
@@ -932,6 +930,26 @@ class ObjectsController extends AbstractPluginController
                     $this->routeparser->urlFor('objectslend_objects')
                 );
         }
+    }
+
+    /**
+     * Can current user give back an object?
+     *
+     * Staff and admins always can; members only when they are allowed
+     * to borrow objects and hold the object.
+     *
+     * @param LendObject  $object     Object
+     * @param Preferences $lendsprefs Plugin preferences
+     */
+    private function canGiveBack(LendObject $object, Preferences $lendsprefs): bool
+    {
+        if ($this->login->isAdmin() || $this->login->isStaff()) {
+            return true;
+        }
+
+        return $lendsprefs->{Preferences::PARAM_ENABLE_MEMBER_RENT_OBJECT}
+            && $object->getIdAdh() !== null
+            && $this->login->id == $object->getIdAdh();
     }
 
     /**
