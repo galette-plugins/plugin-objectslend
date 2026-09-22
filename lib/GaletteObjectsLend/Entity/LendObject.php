@@ -14,6 +14,7 @@ use Analog\Analog;
 use ArrayObject;
 use Galette\Core\Db;
 use Galette\Entity\Adherent;
+use Galette\Util\Html;
 use GaletteObjectsLend\Filters\ObjectsList;
 use GaletteObjectsLend\Repository\Objects;
 
@@ -457,15 +458,39 @@ class LendObject
                 break;
         }
 
-        if ($process === false) {
-            return $this->$field;
+        if ($field === 'description') {
+            $value = $this->getDescriptionHtml();
+        } else {
+            $value = htmlspecialchars((string)($this->$field ?? ''), ENT_QUOTES);
+        }
+        $search = trim($filters->filter_str ?? '', '%');
+        if ($process === false || $search === '') {
+            return $value;
         }
 
-        return preg_replace(
-            '/(' . trim($filters->filter_str ?? '', '%') . ')/iu',
-            '<span class="search">$1</span>',
-            $this->$field
-        );
+        //highlight text only, never inside HTML tags
+        $parts = preg_split('/(<[^>]*>)/', $value, -1, PREG_SPLIT_DELIM_CAPTURE);
+        if ($parts === false) {
+            return $value;
+        }
+        $pattern = '/(' . preg_quote(htmlspecialchars($search, ENT_QUOTES), '/') . ')/iu';
+        foreach ($parts as $i => $part) {
+            if ($part === '' || $part[0] === '<') {
+                continue;
+            }
+            $parts[$i] = preg_replace($pattern, '<span class="search">$1</span>', $part) ?? $part;
+        }
+        return implode('', $parts);
+    }
+
+    /**
+     * Get description as sanitized HTML
+     *
+     * Description may contain HTML, it must be cleaned before being displayed.
+     */
+    public function getDescriptionHtml(): string
+    {
+        return Html::clean($this->description ?? '');
     }
 
     /**

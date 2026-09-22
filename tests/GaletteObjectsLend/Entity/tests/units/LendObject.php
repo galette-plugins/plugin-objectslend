@@ -243,4 +243,55 @@ class LendObject extends GaletteTestCase
         $this->inactive_category_id = $category->getId();
         $this->assertGreaterThan(0, $this->inactive_category_id);
     }
+
+    /**
+     * Test search highlighting is escaped
+     */
+    public function testHighlight(): void
+    {
+        $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
+        $object->name = '<script>alert("name")</script> (test)';
+        $object->description = 'A & B';
+
+        $filters = new \GaletteObjectsLend\Filters\ObjectsList();
+        $this->assertSame(
+            '&lt;script&gt;alert(&quot;name&quot;)&lt;/script&gt; (test)',
+            $object->displayName($filters)
+        );
+        $this->assertSame('A &amp; B', $object->displayDescription($filters));
+
+        //regexp special chars are not interpreted
+        $filters->field_filter = \GaletteObjectsLend\Repository\Objects::FILTER_NAME;
+        $filters->filter_str = '(test';
+        $this->assertSame(
+            '&lt;script&gt;alert(&quot;name&quot;)&lt;/script&gt; <span class="search">(test</span>)',
+            $object->displayName($filters)
+        );
+        $filters->filter_str = '(test)';
+        $this->assertSame(
+            '&lt;script&gt;alert(&quot;name&quot;)&lt;/script&gt; <span class="search">(test)</span>',
+            $object->displayName($filters)
+        );
+        //search matches escaped content, and highlighting does not break it
+        $filters->filter_str = 'script>';
+        $this->assertSame(
+            '&lt;<span class="search">script&gt;</span>alert(&quot;name&quot;)&lt;/<span class="search">script&gt;</span> (test)',
+            $object->displayName($filters)
+        );
+        $filters->filter_str = 'a & b';
+        $this->assertSame('<span class="search">A &amp; B</span>', $object->displayDescription($filters));
+
+        //description may contain HTML, which is sanitized
+        $object->description = '<p>Nice <strong>object</strong></p><script>alert("description")</script>';
+        $filters->filter_str = null;
+        $this->assertSame('<p>Nice <strong>object</strong></p>', $object->displayDescription($filters));
+        $this->assertSame('<p>Nice <strong>object</strong></p>', $object->getDescriptionHtml());
+        $filters->filter_str = 'strong';
+        $this->assertSame('<p>Nice <strong>object</strong></p>', $object->displayDescription($filters));
+        $filters->filter_str = 'object';
+        $this->assertSame(
+            '<p>Nice <strong><span class="search">object</span></strong></p>',
+            $object->displayDescription($filters)
+        );
+    }
 }

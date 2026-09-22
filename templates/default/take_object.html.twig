@@ -27,7 +27,7 @@
     {% if lendsprefs.VIEW_DESCRIPTION %}
             <div class="inline field">
                 <label>{{ _T("Description:", "objectslend") }}</label>
-                {{ object.description }}
+                {{ object.getDescriptionHtml()|raw }}
             </div>
     {% endif %}
 
