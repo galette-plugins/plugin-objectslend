@@ -67,12 +67,6 @@ parameters:
 			path: lib/GaletteObjectsLend/IO/PdfObjects.php
 
 		-
-			message: '#^Property GaletteObjectsLend\\PluginGaletteObjectslend\:\:\$zdb is never written, only read\.$#'
-			identifier: property.onlyRead
-			count: 1
-			path: lib/GaletteObjectsLend/PluginGaletteObjectslend.php
-
-		-
 			message: '#^Call to function array_merge\(\) on a separate line has no effect\.$#'
 			identifier: function.resultUnused
 			count: 1

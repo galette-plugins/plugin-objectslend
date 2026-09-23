@@ -33,7 +33,9 @@ use GaletteObjectsLend\Entity\Preferences;
 class PluginGaletteObjectslend extends GalettePlugin implements InstallableInterface, MenuProviderInterface
 {
     #[Inject]
-    private readonly Db $zdb; //@phpstan-ignore property.uninitializedReadonly (injected from DI)
+    private readonly Db $zdb; //@phpstan-ignore property.uninitializedReadonly, property.onlyRead (injected from DI)
+    #[Inject]
+    private readonly Login $login; //@phpstan-ignore property.uninitializedReadonly, property.onlyRead (injected from DI)
 
     /**
      * Extra menus entries
@@ -42,8 +44,6 @@ class PluginGaletteObjectslend extends GalettePlugin implements InstallableInter
      */
     public function getMenus(): array
     {
-        /** @var Login $login */
-        global $login;
         $menus = [];
 
         $menus['galetteplugin_objectslends'] = [
@@ -65,7 +65,7 @@ class PluginGaletteObjectslend extends GalettePlugin implements InstallableInter
             ]
         ];
 
-        if ($login->isAdmin() || $login->isStaff()) {
+        if ($this->login->isAdmin() || $this->login->isStaff()) {
             $menus['galetteplugin_objectslends']['items'] = array_merge(
                 $menus['galetteplugin_objectslends']['items'],
                 [
