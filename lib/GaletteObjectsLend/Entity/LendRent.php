@@ -20,12 +20,12 @@ use Galette\Entity\Adherent;
  * @author Mélissa Djebel <melissa.djebel@gmx.net>
  * @author Johan Cwiklinski <johan@x-tnd.be>
  *
- * @property int     $rent_id
- * @property int     $object_id
+ * @property ?int    $rent_id
+ * @property ?int    $object_id
  * @property ?string $date_begin
  * @property ?string $date_forecast
  * @property ?string $date_end
- * @property int     $status_id
+ * @property ?int    $status_id
  * @property ?int    $adherent_id
  * @property string  $comments
  * @property bool    $in_stock

@@ -39,9 +39,9 @@ use GaletteObjectsLend\Repository\Objects;
  * @property string        $cat_name
  * @property string        $status_text
  * @property string        $date_begin
- * @property Adherent      $member
+ * @property ?Adherent     $member
  * @property string        $date_forecast
- * @property array         $rents
+ * @property ?LendRent[]   $rents
  * @property int           $category_id
  * @property string        $nom_adh
  * @property string        $prenom_adh
