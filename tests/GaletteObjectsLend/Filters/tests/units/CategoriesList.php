@@ -84,8 +84,7 @@ class CategoriesList extends GaletteTestCase
         $filters->active_filter = 42;
         $this->expectLogEntry(
             Analog::WARNING,
-            '[CategoriesList] Value for active filter should be either 0, 1 or 2 (42 given)
-'
+            '[GaletteObjectsLend\Filters\CategoriesList] Value for active_filter should be one of 0, 1, 2 (42 given)'
         );
         $this->assertSame(\GaletteObjectsLend\Repository\Categories::INACTIVE_CATEGORIES, $filters->active_filter);
 

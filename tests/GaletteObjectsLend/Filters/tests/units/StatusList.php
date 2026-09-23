@@ -79,7 +79,7 @@ class StatusList extends GaletteTestCase
         $filters->active_filter = 42;
         $this->expectLogEntry(
             Analog::WARNING,
-            '[StatusList] Value for active filter should be either 1 or 2 (42 given)'
+            '[GaletteObjectsLend\Filters\StatusList] Value for active_filter should be one of 0, 1, 2 (42 given)'
         );
         $this->assertSame(\GaletteObjectsLend\Repository\Status::INACTIVE, $filters->active_filter);
 
@@ -94,7 +94,7 @@ class StatusList extends GaletteTestCase
         $filters->stock_filter = 42;
         $this->expectLogEntry(
             Analog::WARNING,
-            '[StatusList] Value for stock filter should be either 1, 2 or 0 (42 given)'
+            '[GaletteObjectsLend\Filters\StatusList] Value for stock_filter should be one of 0, 1, 2 (42 given)'
         );
         $this->assertSame(\GaletteObjectsLend\Repository\Status::OUT_STOCK, $filters->stock_filter);
 

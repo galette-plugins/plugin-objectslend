@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace GaletteObjectsLend\Filters;
 
-use Analog\Analog;
 use Galette\Core\Pagination;
 use GaletteObjectsLend\Repository\Categories;
 
@@ -24,23 +23,12 @@ use GaletteObjectsLend\Repository\Categories;
  * @property ?bool        $not_empty
  * @property ?ObjectsList $objects_filters
  */
-
 class CategoriesList extends Pagination
 {
-    //filters
-    private ?string $filter_str;
-    private ?int $active_filter;
-    private ?bool $not_empty;
-    private ?ObjectsList $objects_filters;
+    use ListFilters;
 
-
-    /** @var array<string> */
-    protected array $categorylist_fields = [
-        'filter_str',
-        'active_filter',
-        'not_empty',
-        'objects_filters'
-    ];
+    private ?bool $not_empty = null;
+    private ?ObjectsList $objects_filters = null;
 
     /**
      * Default constructor
@@ -64,87 +52,34 @@ class CategoriesList extends Pagination
     public function reinit(): void
     {
         parent::reinit();
-        $this->filter_str = null;
-        $this->active_filter = null;
+        $this->reinitListFilters();
         $this->not_empty = null;
         $this->objects_filters = null;
     }
 
     /**
-     * Global getter method
+     * Filtering properties of the class, besides filter_str and active_filter
      *
-     * @param string $name name of the property we want to retrieve
-     *
-     * @return mixed the called property
+     * @return array<string>
      */
-    public function __get(string $name): mixed
+    protected function getOwnFilters(): array
     {
-        if (in_array($name, $this->pagination_fields)) {
-            return parent::__get($name);
-        } else {
-            if (in_array($name, $this->categorylist_fields)) {
-                return $this->$name;
-            }
-        }
-
-        throw new \RuntimeException(
-            sprintf(
-                'Unable to get property "%s::%s"!',
-                __CLASS__,
-                $name
-            )
-        );
+        return ['not_empty', 'objects_filters'];
     }
 
     /**
-     * Global setter method
+     * Set a filtering property of the class
      *
-     * @param string $name  name of the property we want to assign a value to
-     * @param mixed  $value a relevant value for the property
+     * @param string $name  Property name
+     * @param mixed  $value Value
      */
-    public function __set(string $name, mixed $value): void
+    protected function setOwnFilter(string $name, mixed $value): bool
     {
-
-        if (in_array($name, $this->pagination_fields)) {
-            parent::__set($name, $value);
-        } else {
-            Analog::log(
-                '[CategoriesList] Setting property `' . $name . '`',
-                Analog::DEBUG
-            );
-
-            switch ($name) {
-                case 'filter_str':
-                case 'not_empty':
-                    $this->$name = $value;
-                    break;
-                case 'active_filter':
-                    switch ($value) {
-                        case Categories::ALL_CATEGORIES:
-                        case Categories::ACTIVE_CATEGORIES:
-                        case Categories::INACTIVE_CATEGORIES:
-                            $this->active_filter = (int)$value;
-                            break;
-                        default:
-                            Analog::log(
-                                '[CategoriesList] Value for active filter should be either '
-                                . Categories::ALL_CATEGORIES . ', ' . Categories::ACTIVE_CATEGORIES . ' or '
-                                . Categories::INACTIVE_CATEGORIES . ' (' . $value . ' given)',
-                                Analog::WARNING
-                            );
-                            break;
-                    }
-                    break;
-                default:
-                    throw new \RuntimeException(
-                        sprintf(
-                            'Unable to set property "%s::%s"!',
-                            __CLASS__,
-                            $name
-                        )
-                    );
-            }
+        if ($name !== 'not_empty') {
+            return false;
         }
+        $this->not_empty = $value === null ? null : (bool)$value;
+        return true;
     }
 
     /**

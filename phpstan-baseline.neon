@@ -43,12 +43,6 @@ parameters:
 			path: lib/GaletteObjectsLend/Entity/Preferences.php
 
 		-
-			message: '#^Class GaletteObjectsLend\\Filters\\ObjectsList has PHPDoc tag @property for property \$selected with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: lib/GaletteObjectsLend/Filters/ObjectsList.php
-
-		-
 			message: '#^Parameter \#5 \$ln of method TCPDF\:\:Cell\(\) expects int, false given\.$#'
 			identifier: argument.type
 			count: 2

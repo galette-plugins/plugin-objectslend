@@ -21,32 +21,20 @@ use Slim\Views\Twig;
  *
  * @author Johan Cwiklinski <johan@x-tnd.be>
  *
- * @property ?string $filter_str
- * @property ?int    $category_filter
- * @property ?int    $active_filter
- * @property ?int    $field_filter
- * @property array   $selected
+ * @property ?string    $filter_str
+ * @property ?int       $category_filter
+ * @property ?int       $active_filter
+ * @property ?int       $field_filter
+ * @property array<int> $selected
  */
-
 class ObjectsList extends Pagination
 {
-    //filters
-    private ?string $filter_str;
-    private ?int $category_filter;
-    private ?int $active_filter;
-    private ?int $field_filter;
+    use ListFilters;
+
+    private ?int $category_filter = null;
+    private ?int $field_filter = null;
     /** @var array<int> */
-    private array $selected;
-
-
-    /** @var array<string> */
-    protected array $objectslist_fields = [
-        'filter_str',
-        'category_filter',
-        'active_filter',
-        'field_filter',
-        'selected'
-    ];
+    private array $selected = [];
 
     /**
      * Default constructor
@@ -70,9 +58,8 @@ class ObjectsList extends Pagination
     public function reinit(): void
     {
         parent::reinit();
-        $this->filter_str = null;
+        $this->reinitListFilters();
         $this->category_filter = null;
-        $this->active_filter = null;
         $this->field_filter = null;
         $this->selected = [];
     }
@@ -113,128 +100,64 @@ class ObjectsList extends Pagination
     }
 
     /**
-     * Default isset
+     * Filtering properties of the class, besides filter_str and active_filter
      *
-     * @param string $name Property name
+     * @return array<string>
      */
-    public function __isset(string $name): bool
+    protected function getOwnFilters(): array
     {
-        if (in_array($name, $this->objectslist_fields)) {
-            return true;
-        }
-
-        return parent::__isset($name);
+        return ['category_filter', 'field_filter', 'selected'];
     }
 
     /**
-     * Global getter method
+     * Set a filtering property of the class
      *
-     * @param string $name name of the property we want to retrieve
-     *
-     * @return mixed the called property
+     * @param string $name  Property name
+     * @param mixed  $value Value
      */
-    public function __get(string $name): mixed
+    protected function setOwnFilter(string $name, mixed $value): bool
     {
-        if (in_array($name, $this->pagination_fields)) {
-            return parent::__get($name);
-        } else {
-            if (in_array($name, $this->objectslist_fields)) {
-                return $this->$name;
-            }
+        switch ($name) {
+            case 'selected':
+                if (is_array($value)) {
+                    $this->selected = array_map('intval', $value);
+                } elseif ($value !== null) {
+                    $this->warnType($name, 'an array', $value);
+                }
+                return true;
+            case 'category_filter':
+            case 'field_filter':
+                if (is_numeric($value)) {
+                    $this->$name = (int)$value;
+                } elseif ($value === null) {
+                    $this->$name = null;
+                } else {
+                    $this->warnType($name, 'an integer', $value);
+                }
+                return true;
         }
+        return false;
+    }
 
-        throw new \RuntimeException(
+    /**
+     * Log a value of wrong type
+     *
+     * @param string $name     Property name
+     * @param string $expected Expected type
+     * @param mixed  $value    Value
+     */
+    private function warnType(string $name, string $expected, mixed $value): void
+    {
+        Analog::log(
             sprintf(
-                'Unable to get property "%s::%s"!',
-                __CLASS__,
-                $name
-            )
+                '[%1$s] Value for %2$s should be %3$s (%4$s given)',
+                static::class,
+                $name,
+                $expected,
+                gettype($value)
+            ),
+            Analog::WARNING
         );
-    }
-
-    /**
-     * Global setter method
-     *
-     * @param string $name  name of the property we want to assign a value to
-     * @param mixed  $value a relevant value for the property
-     */
-    public function __set(string $name, mixed $value): void
-    {
-
-        if (in_array($name, $this->pagination_fields)) {
-            parent::__set($name, $value);
-        } else {
-            Analog::log(
-                '[ObjectsList] Setting property `' . $name . '`',
-                Analog::DEBUG
-            );
-
-            switch ($name) {
-                case 'selected':
-                    if (is_array($value)) {
-                        $this->$name = $value;
-                    } elseif ($value !== null) {
-                        Analog::log(
-                            '[ObjectsList] Value for property `' . $name
-                            . '` should be an array (' . gettype($value) . ' given)',
-                            Analog::WARNING
-                        );
-                    }
-                    break;
-                case 'filter_str':
-                    $this->$name = $value;
-                    break;
-                case 'category_filter':
-                    if (is_numeric($value)) {
-                        $this->$name = (int)$value;
-                    } elseif ($value !== null) {
-                        Analog::log(
-                            '[ObjectsList] Value for property `' . $name
-                            . '` should be an integer (' . gettype($value) . ' given)',
-                            Analog::WARNING
-                        );
-                    } else {
-                        $this->$name = null;
-                    }
-                    break;
-                case 'active_filter':
-                    switch ($value) {
-                        case Objects::ALL_OBJECTS:
-                        case Objects::ACTIVE_OBJECTS:
-                        case Objects::INACTIVE_OBJECTS:
-                            $this->active_filter = (int)$value;
-                            break;
-                        default:
-                            Analog::log(
-                                '[ObjectsList] Value for active filter should be either '
-                                . Objects::ACTIVE_OBJECTS . ', ' . Objects::ACTIVE_OBJECTS . ' or '
-                                . Objects::INACTIVE_OBJECTS . ' (' . $value . ' given)',
-                                Analog::WARNING
-                            );
-                            break;
-                    }
-                    break;
-                case 'field_filter':
-                    if (is_numeric($value)) {
-                        $this->$name = (int)$value;
-                    } elseif ($value !== null) {
-                        Analog::log(
-                            '[ObjectsList] Value for property `' . $name
-                            . '` should be an integer (' . gettype($value) . ' given)',
-                            Analog::WARNING
-                        );
-                    }
-                    break;
-                default:
-                    throw new \RuntimeException(
-                        sprintf(
-                            'Unable to set property "%s::%s"!',
-                            __CLASS__,
-                            $name
-                        )
-                    );
-            }
-        }
     }
 
     /**
