@@ -137,8 +137,13 @@ $app->post(
 
 $app->get(
     '/object/clone/{id:\d+}',
-    [ObjectsController::class, 'doClone']
+    [ObjectsController::class, 'confirmClone']
 )->setName('objectslend_object_clone')->add(Authenticate::class);
+
+$app->post(
+    '/object/clone/{id:\d+}',
+    [ObjectsController::class, 'doClone']
+)->setName('objectslend_object_doclone')->add(Authenticate::class);
 
 $app->post(
     '/object/add',

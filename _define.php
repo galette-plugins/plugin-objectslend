@@ -42,6 +42,7 @@ $this->register(
         'objectslend_object_action_add' => 'staff',
         'objectslend_object_action_edit' => 'staff',
         'objectslend_object_clone'      => 'staff',
+        'objectslend_object_doclone'    => 'staff',
         'objectslend_objects'           => 'member',
         'objectslend_filter_objects'    => 'member',
         'objectslend_remove_object'     => 'admin',

@@ -1,0 +1,24 @@
+{#
+ # This file is part of Galette Objects Lend plugin (https://galette.eu).
+ # SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ # SPDX-License-Identifier: GPL-3.0-or-later
+ #}
+
+{% extends 'page.html.twig' %}
+
+{% block content %}
+    <form action="{{ url_for('objectslend_object_doclone', {'id': object.getId()}) }}" method="post" class="ui form">
+        <div class="ui segment">
+            <div class="ui info message">
+                <p>{{ _T('A copy of "%1$s" will be created, without its picture nor its lends history.', 'objectslend')|format(object.name) }}</p>
+            </div>
+        </div>
+        <div class="ui basic center aligned segment">
+            <button type="submit" class="ui labeled icon primary button action">
+                <i class="clone icon" aria-hidden="true"></i>
+                {{ _T('Duplicate', 'objectslend') }}
+            </button>
+            <a href="{{ url_for('objectslend_object_edit', {'id': object.getId()}) }}" class="ui button">{{ _T('Cancel') }}</a>
+        </div>
+    </form>
+{% endblock %}

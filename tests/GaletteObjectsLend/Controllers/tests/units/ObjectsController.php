@@ -339,4 +339,49 @@ class ObjectsController extends GaletteRoutingTestCase
         $this->expectLogEntry(Analog::WARNING, 'Trying to return an object that is not lent');
         $this->assertCount(1, $this->getRents());
     }
+
+    /**
+     * Count stored objects
+     */
+    private function countObjects(): int
+    {
+        $select = $this->zdb->select(LEND_PREFIX . LendObject::TABLE);
+        return $this->zdb->execute($select)->count();
+    }
+
+    /**
+     * Opening the clone link only asks for a confirmation
+     */
+    public function testCloneAsksConfirmation(): void
+    {
+        $this->logSuperAdmin();
+        $request = $this->createRequest(
+            route_name: 'objectslend_object_clone',
+            route_args: ['id' => (string)$this->object_id]
+        );
+        $test_response = $this->app->handle($request);
+        $this->assertSame(200, $test_response->getStatusCode());
+        $this->assertStringContainsString(
+            'action="' . $this->routeparser->urlFor('objectslend_object_doclone', ['id' => (string)$this->object_id])
+                . '" method="post"',
+            (string)$test_response->getBody()
+        );
+        $this->assertSame(1, $this->countObjects());
+    }
+
+    /**
+     * Confirming the clone stores a copy
+     */
+    public function testDoClone(): void
+    {
+        $this->logSuperAdmin();
+        $request = $this->createRequest(
+            route_name: 'objectslend_object_doclone',
+            route_args: ['id' => (string)$this->object_id],
+            method: 'POST'
+        );
+        $test_response = $this->app->handle($request);
+        $this->assertSame(301, $test_response->getStatusCode());
+        $this->assertSame(2, $this->countObjects());
+    }
 }

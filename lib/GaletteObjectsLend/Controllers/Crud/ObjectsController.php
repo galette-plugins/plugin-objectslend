@@ -479,6 +479,28 @@ class ObjectsController extends AbstractPluginController
     }
 
     /**
+     * Clone confirmation page
+     *
+     * @param Request  $request  PSR Request
+     * @param Response $response PSR Response
+     * @param int      $id       Object id to clone
+     */
+    public function confirmClone(Request $request, Response $response, int $id): Response
+    {
+        $object = new LendObject($this->zdb, $id);
+
+        $this->view->render(
+            $response,
+            $this->getTemplate('clone_object'),
+            [
+                'page_title' => _T('Duplicate object', 'objectslend'),
+                'object' => $object
+            ]
+        );
+        return $response;
+    }
+
+    /**
      * Clone action
      *
      * @param Request  $request  PSR Request
