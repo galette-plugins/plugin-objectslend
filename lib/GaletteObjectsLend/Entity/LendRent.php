@@ -62,19 +62,11 @@ class LendRent
         $this->date_begin = date('Y-m-d H:i:s');
 
         if (is_int($args)) {
-            try {
-                $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
-                        ->where([self::PK => $args]);
-                $result = $this->zdb->execute($select);
-                if ($result->count() == 1) {
-                    $this->loadFromRS($result->current());
-                }
-            } catch (\Exception $e) {
-                Analog::log(
-                    'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                        . $e->getTraceAsString(),
-                    Analog::ERROR
-                );
+            $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
+                    ->where([self::PK => $args]);
+            $result = $this->zdb->execute($select);
+            if ($result->count() == 1) {
+                $this->loadFromRS($result->current());
             }
         } elseif (is_object($args)) {
             $this->loadFromRS($args);
@@ -114,7 +106,7 @@ class LendRent
     /**
      * Store current element
      */
-    public function store(): bool
+    public function store(): void
     {
         $need_transaction = !$this->zdb->inTransaction();
         try {
@@ -157,17 +149,11 @@ class LendRent
             if ($need_transaction) {
                 $this->zdb->commit();
             }
-            return true;
         } catch (\Exception $e) {
             if ($need_transaction) {
                 $this->zdb->rollback();
             }
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            return false;
+            throw $e;
         }
     }
 

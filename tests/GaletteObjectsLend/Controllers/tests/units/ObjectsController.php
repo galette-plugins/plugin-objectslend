@@ -47,19 +47,19 @@ class ObjectsController extends GaletteRoutingTestCase
         $status->setText('In stock');
         $status->setInStock(true);
         $status->setActive(true);
-        $this->assertTrue($status->store());
+        $status->store();
         $this->instock_status = $status->getId();
 
         $status = new LendStatus($this->zdb);
         $status->setText('Lent');
         $status->setInStock(false);
         $status->setActive(true);
-        $this->assertTrue($status->store());
+        $status->store();
         $this->lent_status = $status->getId();
 
         $object = new LendObject($this->zdb);
         $object->setName('Test object');
-        $this->assertTrue($object->store());
+        $object->store();
         $this->object_id = $object->getId();
     }
 
@@ -170,7 +170,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     private function storeCurrentRent(LendRent $rent): void
     {
-        $this->assertTrue($rent->store());
+        $rent->store();
         $update = $this->zdb->update(LEND_PREFIX . LendObject::TABLE)
             ->set([LendRent::PK => $rent->getId()])
             ->where([LendObject::PK => $this->object_id]);
@@ -448,7 +448,7 @@ class ObjectsController extends GaletteRoutingTestCase
     {
         $object = new LendObject($this->zdb, $this->object_id);
         $object->setSerialNumber('SN-4242');
-        $this->assertTrue($object->store());
+        $object->store();
 
         $this->logSuperAdmin();
         $request = $this->createRequest(
@@ -617,7 +617,7 @@ class ObjectsController extends GaletteRoutingTestCase
     {
         $object = new LendObject($this->zdb, $this->object_id);
         $object->setActive(false);
-        $this->assertTrue($object->store());
+        $object->store();
         $this->setPrefs(false);
 
         $this->logSuperAdmin();
@@ -688,7 +688,7 @@ class ObjectsController extends GaletteRoutingTestCase
         $object = new LendObject($this->zdb, $this->object_id);
         $object->setRentPrice($rent_price);
         $object->setSerialNumber('SN-42');
-        $this->assertTrue($object->store());
+        $object->store();
     }
 
     /**

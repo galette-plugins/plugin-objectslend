@@ -56,20 +56,20 @@ class LendService extends GaletteTestCase
         $status->setText('In stock');
         $status->setInStock(true);
         $status->setActive(true);
-        $this->assertTrue($status->store());
+        $status->store();
         $this->instock_status = $status->getId();
 
         $status = new LendStatus($this->zdb);
         $status->setText('Lent');
         $status->setInStock(false);
         $status->setActive(true);
-        $this->assertTrue($status->store());
+        $status->store();
         $this->lent_status = $status->getId();
 
         $object = new LendObject($this->zdb);
         $object->setName('Service object');
         $object->setRentPrice(3.5);
-        $this->assertTrue($object->store());
+        $object->store();
         $this->object_id = $object->getId();
     }
 
@@ -185,7 +185,7 @@ class LendService extends GaletteTestCase
         $status->setText('Inactive');
         $status->setInStock(true);
         $status->setActive(false);
-        $this->assertTrue($status->store());
+        $status->store();
 
         $this->logSuperAdmin();
         $service = $this->getService();

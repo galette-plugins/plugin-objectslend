@@ -63,7 +63,7 @@ class LendCategory extends GaletteTestCase
         $category->setName('Test category');
         $category->setActive(false);
 
-        $this->assertTrue($category->store());
+        $category->store();
         $cid = $category->getId();
         $this->assertGreaterThan(0, $cid);
 
@@ -72,12 +72,12 @@ class LendCategory extends GaletteTestCase
         $this->assertFalse($category->isActive());
 
         $category->setName('Test category (edited)');
-        $this->assertTrue($category->store());
+        $category->store();
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb, $cid);
         $this->assertSame('Test category (edited) (0)', $category->getName());
 
-        $this->assertTrue($category->delete());
+        $category->delete();
         new \GaletteObjectsLend\Entity\LendCategory($this->zdb, $cid);
     }
 }

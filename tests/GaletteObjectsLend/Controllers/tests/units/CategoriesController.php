@@ -43,7 +43,7 @@ class CategoriesController extends GaletteRoutingTestCase
     {
         $category = new LendCategory($this->zdb);
         $category->setName($name)->setActive(true);
-        $this->assertTrue($category->store());
+        $category->store();
         return $category;
     }
 
