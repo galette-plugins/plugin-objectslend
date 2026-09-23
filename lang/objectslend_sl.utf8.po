@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: translations@galette.eu\n"
 "POT-Creation-Date: 2024-02-08 22:16+0100\n"
-"PO-Revision-Date: 2026-09-22 17:08+0000\n"
+"PO-Revision-Date: 2026-09-23 14:07+0000\n"
 "Last-Translator: Jože Felicijan <joze@felicijan.com>\n"
 "Language-Team: Slovenian <https://hosted.weblate.org/projects/galette/"
 "objectslend-plugin/sl/>\n"
@@ -244,7 +244,7 @@ msgstr "Najemnina ni bila dodana"
 
 #: ../lib/GaletteObjectsLend/Entity/LendRent.php:342
 msgid "Y-m-d H:i"
-msgstr "Y-m-d H:i"
+msgstr "d.m.Y H:i"
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:65
 msgid "ObjectsLend preferences"
@@ -354,7 +354,7 @@ msgstr "Pri kloniranju objekta je prišlo do napake :("
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:582
 msgid "Borrow an object"
-msgstr "Izposodite si predmet"
+msgstr "Izposodite si ..-"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:583
 msgid "Return a borrowed object"
@@ -378,7 +378,7 @@ msgstr "Nimate pravice do vračila predmetov!"
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:849
 #, php-format
 msgid "You have just borrowed %object :)"
-msgstr "Pravkar si si sposodil %object :)"
+msgstr "Izposodil si %object :)"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:939
 #, php-format
