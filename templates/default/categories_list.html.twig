@@ -60,19 +60,19 @@
                     <div class="inline fields">
                         <div class="field inline">
                             <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_dc_active" value="{{ constant('GaletteObjectsLend\\Repository\\Categories::ALL_CATEGORIES') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Status::ALL') %} checked="checked"{% endif %}>
+                                <input type="radio" name="active_filter" id="filter_dc_active" value="{{ constant('GaletteObjectsLend\\Repository\\Categories::ALL_CATEGORIES') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Categories::ALL_CATEGORIES') %} checked="checked"{% endif %}>
                                 <label for="filter_dc_active" >{{ _T("Don't care") }}</label>
                             </div>
                         </div>
                         <div class="field inline">
                             <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_yes_active" value="{{ constant('GaletteObjectsLend\\Repository\\\Categories::ACTIVE_CATEGORIES') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Status::ACTIVE') %} checked="checked"{% endif %}>
+                                <input type="radio" name="active_filter" id="filter_yes_active" value="{{ constant('GaletteObjectsLend\\Repository\\Categories::ACTIVE_CATEGORIES') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Categories::ACTIVE_CATEGORIES') %} checked="checked"{% endif %}>
                                 <label for="filter_yes_active" >{{ _T("Yes") }}</label>
                             </div>
                         </div>
                         <div class="field inline">
                             <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_no_active" value="{{ constant('GaletteObjectsLend\\Repository\\Categories::INACTIVE_CATEGORIES') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Status::INACTIVE') %} checked="checked"{% endif %}>
+                                <input type="radio" name="active_filter" id="filter_no_active" value="{{ constant('GaletteObjectsLend\\Repository\\Categories::INACTIVE_CATEGORIES') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Categories::INACTIVE_CATEGORIES') %} checked="checked"{% endif %}>
                                 <label for="filter_no_active" >{{ _T("No") }}</label>
                             </div>
                         </div>
