@@ -88,7 +88,6 @@ class Objects
      * @param ?array<string> $fields     field(s) name(s) to get. If null, all fields will be returned
      * @param bool           $count      true if we want to count members
      * @param bool           $limit      true if we want records pagination
-     * @param bool           $all_rents  true to load rents along with objects
      *
      * @return LendObject[]|ResultSet
      */
@@ -96,8 +95,7 @@ class Objects
         bool $as_objects = false,
         ?array $fields = null,
         bool $count = true,
-        bool $limit = true,
-        bool $all_rents = false
+        bool $limit = true
     ): array|ResultSet {
         try {
             $select = $this->buildSelect($fields, $count);
@@ -113,11 +111,7 @@ class Objects
             $objects = [];
             if ($as_objects) {
                 foreach ($rows as $row) {
-                    $deps = ['last_rent' => true];
-                    if ($all_rents === true) {
-                        $deps['rents'] = true;
-                    }
-                    $objects[] = new LendObject($this->zdb, $row, $deps);
+                    $objects[] = new LendObject($this->zdb, $row);
                 }
             } else {
                 $objects = $rows;
@@ -210,9 +204,62 @@ class Objects
             $as_objects,
             $fields,
             false,
-            false,
             false
         );
+    }
+
+    /**
+     * Builds the SELECT statement for objects with their current rent and their category
+     */
+    private function buildBaseSelect(): Select
+    {
+        $select = $this->zdb->select(LEND_PREFIX . self::TABLE, 'o');
+
+        $select->join(
+            ['r' => PREFIX_DB . LEND_PREFIX . LendRent::TABLE],
+            'o.' . LendRent::PK . '=r.' . LendRent::PK,
+            ['date_begin', 'date_forecast', 'date_end', 'comments'],
+            $select::JOIN_LEFT
+        );
+
+        $select->join(
+            ['s' => PREFIX_DB . LEND_PREFIX . LendStatus::TABLE],
+            'r.' . LendStatus::PK . '=s.' . LendStatus::PK,
+            ['status_id', 'status_text', 'in_stock'],
+            $select::JOIN_LEFT
+        );
+
+        $select->join(
+            ['a' => PREFIX_DB . Adherent::TABLE],
+            'r.adherent_id=a.' . Adherent::PK,
+            [Adherent::PK, 'nom_adh', 'prenom_adh'],
+            $select::JOIN_LEFT
+        );
+
+        $select->join(
+            ['c' => PREFIX_DB . LEND_PREFIX . LendCategory::TABLE],
+            'o.' . LendCategory::PK . '=c.' . LendCategory::PK,
+            ['cat_active'   => 'is_active', 'cat_name' => 'name'],
+            $select::JOIN_LEFT
+        );
+
+        return $select;
+    }
+
+    /**
+     * Get an object with its current rent and its category
+     *
+     * @param int $id Object ID
+     */
+    public function getWithCurrentRent(int $id): LendObject
+    {
+        $select = $this->buildBaseSelect();
+        $select->where(['o.' . self::PK => $id]);
+        $results = $this->zdb->execute($select);
+        if ($results->count() === 1) {
+            return new LendObject($this->zdb, $results->current());
+        }
+        return new LendObject($this->zdb);
     }
 
     /**
@@ -225,44 +272,14 @@ class Objects
      */
     private function buildSelect(?array $fields, bool $count = false): Select
     {
-        global $zdb, $login;
-
         try {
-            $select = $zdb->select(LEND_PREFIX . self::TABLE, 'o');
+            $select = $this->buildBaseSelect();
 
             $fieldsList = ($fields != null)
                             ? ((!is_array($fields) || count($fields) < 1) ? (array)'*'
                             : $fields) : (array)'*';
 
             $select->columns($fieldsList);
-
-            $select->join(
-                ['r' => PREFIX_DB . LEND_PREFIX . LendRent::TABLE],
-                'o.' . LendRent::PK . '=r.' . LendRent::PK,
-                ['date_begin', 'date_forecast', 'date_end', 'comments'],
-                $select::JOIN_LEFT
-            );
-
-            $select->join(
-                ['s' => PREFIX_DB . LEND_PREFIX . LendStatus::TABLE],
-                'r.' . LendStatus::PK . '=s.' . LendStatus::PK,
-                ['status_id', 'status_text', 'in_stock'],
-                $select::JOIN_LEFT
-            );
-
-            $select->join(
-                ['a' => PREFIX_DB . Adherent::TABLE],
-                'r.adherent_id=a.' . Adherent::PK,
-                [Adherent::PK, 'nom_adh', 'prenom_adh'],
-                $select::JOIN_LEFT
-            );
-
-            $select->join(
-                ['c' => PREFIX_DB . LEND_PREFIX . LendCategory::TABLE],
-                'o.' . LendCategory::PK . '=c.' . LendCategory::PK,
-                ['cat_active'   => 'is_active', 'cat_name' => 'name'],
-                $select::JOIN_LEFT
-            );
 
             if ($this->filters !== false) {
                 $this->buildWhereClause($select);
@@ -291,8 +308,6 @@ class Objects
      */
     private function proceedCount(Select $select): void
     {
-        global $zdb;
-
         try {
             $countSelect = clone $select;
             $countSelect->reset($countSelect::COLUMNS);
@@ -322,7 +337,7 @@ class Objects
                 );
             }
 
-            $results = $zdb->execute($countSelect);
+            $results = $this->zdb->execute($countSelect);
 
             $this->count = (int)$results->current()->count;
             if ($this->count > 0) {

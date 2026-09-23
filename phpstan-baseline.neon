@@ -13,118 +13,10 @@ parameters:
 			path: lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php
 
 		-
-			message: '#^Parameter \#3 \$subject of function str_replace expects array\<string\>\|string, float given\.$#'
-			identifier: argument.type
-			count: 1
-			path: lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php
-
-		-
 			message: '#^Empty array passed to foreach\.$#'
 			identifier: foreach.emptyArray
 			count: 1
 			path: lib/GaletteObjectsLend/Controllers/MainController.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$category_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$description\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$dimension\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$id_adh\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$is_active\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$nb_available\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$object_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$price\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$price_per_day\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$rent_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$rent_price\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$serial_number\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$weight\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Loose comparison using \=\= between int and '''' will always evaluate to false\.$#'
-			identifier: equal.alwaysFalse
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Property GaletteObjectsLend\\Entity\\LendObject\:\:\$description \(string\) on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.property
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Right side of && is always true\.$#'
-			identifier: booleanAnd.rightAlwaysTrue
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendObject.php
 
 		-
 			message: '#^Cannot access property \$code on array\|ArrayObject\.$#'
@@ -157,48 +49,6 @@ parameters:
 			path: lib/GaletteObjectsLend/Filters/ObjectsList.php
 
 		-
-			message: '#^Parameter \#2 \$value of method GaletteObjectsLend\\IO\\PdfObject\:\:addCell\(\) expects string, float given\.$#'
-			identifier: argument.type
-			count: 1
-			path: lib/GaletteObjectsLend/IO/PdfObject.php
-
-		-
-			message: '#^Property GaletteObjectsLend\\Entity\\LendObject\:\:\$cat_name \(string\) on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.property
-			count: 1
-			path: lib/GaletteObjectsLend/IO/PdfObject.php
-
-		-
-			message: '#^Property GaletteObjectsLend\\Entity\\LendObject\:\:\$status_text \(string\) on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.property
-			count: 1
-			path: lib/GaletteObjectsLend/IO/PdfObject.php
-
-		-
-			message: '#^Property GaletteObjectsLend\\IO\\PdfObject\:\:\$zdb is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: lib/GaletteObjectsLend/IO/PdfObject.php
-
-		-
-			message: '#^Comparison operation "\>" between 0 and 0 is always false\.$#'
-			identifier: greater.alwaysFalse
-			count: 1
-			path: lib/GaletteObjectsLend/IO/PdfObjects.php
-
-		-
-			message: '#^Parameter \#1 \$str of method Galette\\IO\\Pdf\:\:cut\(\) expects string, float given\.$#'
-			identifier: argument.type
-			count: 3
-			path: lib/GaletteObjectsLend/IO/PdfObjects.php
-
-		-
-			message: '#^Parameter \#3 \$subject of function str_replace expects array\<string\>\|string, float given\.$#'
-			identifier: argument.type
-			count: 2
-			path: lib/GaletteObjectsLend/IO/PdfObjects.php
-
-		-
 			message: '#^Parameter \#5 \$ln of method TCPDF\:\:Cell\(\) expects int, false given\.$#'
 			identifier: argument.type
 			count: 2
@@ -215,18 +65,6 @@ parameters:
 			identifier: property.onlyWritten
 			count: 1
 			path: lib/GaletteObjectsLend/IO/PdfObjects.php
-
-		-
-			message: '#^Result of && is always false\.$#'
-			identifier: booleanAnd.alwaysFalse
-			count: 2
-			path: lib/GaletteObjectsLend/IO/PdfObjects.php
-
-		-
-			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, array\<int, float\|string\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: lib/GaletteObjectsLend/LendService.php
 
 		-
 			message: '#^Property GaletteObjectsLend\\PluginGaletteObjectslend\:\:\$zdb is never written, only read\.$#'

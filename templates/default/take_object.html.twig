@@ -7,7 +7,7 @@
 {% extends 'page.html.twig' %}
 
 {% block content %}
-<form action="{% if takeorgive == 'take' %}{{ url_for("objectslend_object_dotake", {"id": object.object_id}) }}{% else %}{{ url_for("objectslend_object_doreturn", {"id": object.object_id}) }}{% endif %}" method="post" id="form_take_object" class="ui form info">
+<form action="{% if takeorgive == 'take' %}{{ url_for("objectslend_object_dotake", {"id": object.getId()}) }}{% else %}{{ url_for("objectslend_object_doreturn", {"id": object.getId()}) }}{% endif %}" method="post" id="form_take_object" class="ui form info">
     <div class="ui styled fluid accordion field">
         <div class="active title">
             <i class="icon dropdown"></i>
@@ -16,11 +16,11 @@
         <div class="active content">
             <div class="inline field">
                 <label>{{ _T("Name:", "objectslend") }}</label>
-                {{ object.name }}
-                <img src="{% if object.object_id %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail", "id": object.object_id}) }}{% else %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail"}) }}{% endif %}"
+                {{ object.getName() }}
+                <img src="{% if object.getId() %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail", "id": object.getId()}) }}{% else %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail"}) }}{% endif %}"
                 class="picture fright"
-                width="{{ object.picture.getOptimalThumbWidth(olendsprefs) }}"
-                height="{{ object.picture.getOptimalThumbHeight(olendsprefs) }}"
+                width="{{ object.getPicture().getOptimalThumbWidth(olendsprefs) }}"
+                height="{{ object.getPicture().getOptimalThumbHeight(olendsprefs) }}"
                 alt="{{ _T("Object photo", "objectslend") }}"/>
             </div>
 
@@ -34,22 +34,22 @@
     {% if lendsprefs.VIEW_SERIAL %}
             <div class="inline field">
                 <label>{{ _T("Serial number:", "objectslend") }}</label>
-                {{ object.serial_number }}
+                {{ object.getSerialNumber() }}
             </div>
     {% endif %}
 
     {% if lendsprefs.VIEW_PRICE %}
             <div class="inline field">
                 <label>{{ _T("Price:", "objectslend") }}</label>
-                {{ object.price }} {{ object.currency }}
+                {{ object.getPrice()|format_currency('EUR', {}, i18n.getWebID()) }}
             </div>
     {% endif %}
 
     {% if lendsprefs.VIEW_DIMENSION %}
             <div class="inline field">
                 <label>{{ _T("Dimensions:", "objectslend") }}</label>
-                {% if object.dimension != '' %}
-                    {{ object.dimension }} {{ _T("Cm", "objectslend") }}
+                {% if object.getDimension() != '' %}
+                    {{ object.getDimension() }} {{ _T("Cm", "objectslend") }}
                 {% else %}
                 -
                 {% endif %}
@@ -59,8 +59,8 @@
     {% if lendsprefs.VIEW_WEIGHT %}
             <div class="inline field">
                 <label>{{ _T("Weight:", "objectslend") }}</label>
-                {% if object.weight != '' %}
-                    {{ object.weight }} {{ _T("Kg", "objectslend") }}
+                {% if object.getWeight() %}
+                    {{ object.getWeight()|format_number({fraction_digit: 3}, 'decimal', 'default', i18n.getWebID()) }} {{ _T("Kg", "objectslend") }}
                 {% else %}
                     -
                 {% endif %}
@@ -70,10 +70,10 @@
             <div class="inline field">
                 <label>{{ _T("Borrow price:", "objectslend") }}</label>
                 {% if takeorgive == 'take' and (login.isAdmin() or login.isStaff()) %}
-                    <input type="text" name="rent_price" id="rent_price" value="{{ object.rent_price }}" size="10"> {{ object.currency }}
+                    <input type="text" name="rent_price" id="rent_price" value="{{ object.getRentPrice()|number_format(2, '.', '') }}" size="10"> €
                 {% else %}
-                    <input type="hidden" name="rent_price" id="rent_price" value="{{ object.rent_price }}">
-                    <span id="rent_price_label">{{ object.rent_price }}</span> {{ object.currency }}
+                    <input type="hidden" name="rent_price" id="rent_price" value="{{ object.getRentPrice()|number_format(2, '.', '') }}">
+                    <span id="rent_price_label">{{ object.getRentPrice()|format_currency('EUR', {}, i18n.getWebID()) }}</span>
                 {% endif %}
 
                 {% if object.isPricePerDay() %}
@@ -275,14 +275,14 @@
         }
 
         if (days.length === 0) {
-            var text = "{{ object.rent_price }}";
+            var text = "{{ object.getRentPrice() }}";
             $('#rent_price').val(text);
             $('#rent_price_label').html(text);
             return;
         }
 
         {%  if object.isPricePerDay() %}
-            var price_per_day = {{ object.rent_price }} * parseInt(days);
+            var price_per_day = {{ object.getRentPrice() }} * parseInt(days);
             var text = price_per_day.toFixed(2).replace(".", ",");
             $('#rent_price').val(text);
             $('#rent_price_label').html(text);

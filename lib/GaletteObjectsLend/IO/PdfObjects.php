@@ -160,25 +160,25 @@ class PdfObjects extends Pdf
         foreach ($objects as $object) {
             if (
                 $this->lendsprefs->{LendPreferences::PARAM_VIEW_CATEGORY}
-                && $current_category !== $object->category_id
+                && $current_category !== $object->getCategoryId()
             ) {
                 $this->SetFont('', 'B');
 
-                if (($this->login->isAdmin() || $this->login->isStaff()) && $sum_price > 0 && !in_array($object->category_id, $existing_categories)) {
+                if (($this->login->isAdmin() || $this->login->isStaff()) && $sum_price > 0 && !in_array($object->getCategoryId(), $existing_categories)) {
                     $width = $w_checkbox + $w_name + $w_description + $w_serial + $w_price;
                     $this->Cell($width, 0, number_format($sum_price, 2, ',', ''), '', 0, 'R');
                     $sum_price = 0;
                     $this->Ln();
                 }
 
-                if (!empty($object->category_id) && !in_array($object->category_id, $existing_categories)) {
-                    $category = new LendCategory($this->zdb, (int)$object->category_id);
+                if (!empty($object->getCategoryId()) && !in_array($object->getCategoryId(), $existing_categories)) {
+                    $category = new LendCategory($this->zdb, (int)$object->getCategoryId());
                     $text = str_replace(
                         '%category',
                         $category->getName(false),
                         _T("Category: %category", "objectslend")
                     );
-                    $existing_categories[] = $object->category_id;
+                    $existing_categories[] = $object->getCategoryId();
                     $this->Cell(0, 0, $text, 0, 1, 'C');
                 } elseif (!in_array(0, $existing_categories)) {
                     $text = _T("No category", "objectslend");
@@ -196,23 +196,23 @@ class PdfObjects extends Pdf
                 $this->SetFillColor(255, 214, 135);
             }
 
-            $fill = !$object->in_stock;
+            $fill = !$object->inStock();
             $this->Cell($w_checkbox, 0, '□', 'B', 0, 'L', $fill);
-            $this->Cell($w_name, 0, $this->cut($object->name, $w_name), 'B', 0, 'L', $fill);
-            $this->Cell($w_description, 0, $this->cut($object->description, $w_description), 'B', 0, 'L', $fill);
-            $this->Cell($w_serial, 0, $this->cut($object->serial_number, $w_serial), 'B', 0, 'L', $fill);
-            $this->Cell($w_price, 0, $this->cut($object->price, $w_price), 'B', 0, 'R', $fill);
-            $this->Cell($w_price, 0, $this->cut($object->rent_price, $w_price) . $object->currency, 'B', 0, 'R', $fill);
-            $this->Cell($w_dimension, 0, $this->cut($object->dimension, $w_dimension), 'B', 0, 'L', $fill);
-            $this->Cell($w_weight, 0, $this->cut($object->weight, $w_weight), 'B', 0, 'R', $fill);
-            $this->Cell($w_status, 0, $this->cut($object->status_text, $w_status), 'B', 0, 'L', $fill);
-            $this->Cell($w_date, 0, $this->cut($object->date_begin, $w_date), 'B', 0, 'L', $fill);
-            $this->Cell($w_adherent, 0, $this->cut($object->nom_adh . ' ' . $object->prenom_adh, $w_adherent), 'B', 0, 'L', $fill);
-            $this->Cell($w_date, 0, $this->cut($object->date_forecast, $w_date), 'B', 1, 'L', $fill);
+            $this->Cell($w_name, 0, $this->cut($object->getName(), $w_name), 'B', 0, 'L', $fill);
+            $this->Cell($w_description, 0, $this->cut($object->getDescription(), $w_description), 'B', 0, 'L', $fill);
+            $this->Cell($w_serial, 0, $this->cut($object->getSerialNumber(), $w_serial), 'B', 0, 'L', $fill);
+            $this->Cell($w_price, 0, $this->cut(number_format($object->getPrice(), 2, ',', ' '), $w_price), 'B', 0, 'R', $fill);
+            $this->Cell($w_price, 0, $this->cut(number_format($object->getRentPrice(), 2, ',', ' '), $w_price) . '€', 'B', 0, 'R', $fill);
+            $this->Cell($w_dimension, 0, $this->cut($object->getDimension(), $w_dimension), 'B', 0, 'L', $fill);
+            $this->Cell($w_weight, 0, $this->cut(number_format($object->getWeight(), 3, ',', ' '), $w_weight), 'B', 0, 'R', $fill);
+            $this->Cell($w_status, 0, $this->cut($object->getStatusText(), $w_status), 'B', 0, 'L', $fill);
+            $this->Cell($w_date, 0, $this->cut($object->getDateBegin(), $w_date), 'B', 0, 'L', $fill);
+            $this->Cell($w_adherent, 0, $this->cut($object->getMemberName(), $w_adherent), 'B', 0, 'L', $fill);
+            $this->Cell($w_date, 0, $this->cut($object->getDateForecast(), $w_date), 'B', 1, 'L', $fill);
 
             if ($this->login->isAdmin() || $this->login->isStaff()) {
-                $sum_price += (float)str_replace([',', ' '], ['.', ''], $object->price);
-                $grant_total += (float)str_replace([',', ' '], ['.', ''], $object->price);
+                $sum_price += $object->getPrice();
+                $grant_total += $object->getPrice();
             }
         }
 

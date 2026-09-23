@@ -86,8 +86,8 @@ class Categories extends GaletteTestCase
         $this->assertCount(0, $categories->getCategoriesList(true));
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
-        $object->name = 'One object';
-        $object->category_id = $cat_one_id;
+        $object->setName('One object');
+        $object->setCategoryId($cat_one_id);
         $this->assertTrue($object->store());
 
         $this->assertCount(1, $categories->getCategoriesList(true));
@@ -104,8 +104,8 @@ class Categories extends GaletteTestCase
 
         //categories are counted once, whatever the number of their objects
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
-        $object->name = 'Another object';
-        $object->category_id = $cat_one_id;
+        $object->setName('Another object');
+        $object->setCategoryId($cat_one_id);
         $this->assertTrue($object->store());
 
         $filters->reinit();

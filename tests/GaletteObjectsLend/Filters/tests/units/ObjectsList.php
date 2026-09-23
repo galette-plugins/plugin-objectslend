@@ -116,4 +116,64 @@ class ObjectsList extends GaletteTestCase
         $this->expectException(\RuntimeException::class);
         $this->assertNull($filters->non_existing); // @phpstan-ignore property.notFound
     }
+
+    /**
+     * Test search highlighting
+     */
+    public function testHighlight(): void
+    {
+        $filters = new \GaletteObjectsLend\Filters\ObjectsList();
+        $name = htmlspecialchars('<script>alert("name")</script> (test)', ENT_QUOTES);
+        $this->assertSame('&lt;script&gt;alert(&quot;name&quot;)&lt;/script&gt; (test)', $name);
+
+        //no search
+        $this->assertSame($name, $filters->highlight($name, 'name'));
+
+        $filters->field_filter = \GaletteObjectsLend\Repository\Objects::FILTER_NAME;
+        $filters->filter_str = 'object';
+        $this->assertSame('An <span class="search">object</span> (edited)', $filters->highlight('An object (edited)', 'name'));
+        $this->assertSame('An <span class="search">object</span> description', $filters->highlight('An object description', 'description'));
+        //search does not concern other fields
+        $this->assertSame('object', $filters->highlight('object', 'serial_number'));
+
+        $filters->field_filter = \GaletteObjectsLend\Repository\Objects::FILTER_SERIAL;
+        $filters->filter_str = 'abc';
+        $this->assertSame('SE-<span class="search">aBc</span>-RI@L', $filters->highlight('SE-aBc-RI@L', 'serial_number'));
+        $this->assertSame('abc', $filters->highlight('abc', 'name'));
+
+        $filters->field_filter = \GaletteObjectsLend\Repository\Objects::FILTER_DIM;
+        $filters->filter_str = '50';
+        $this->assertSame('10x<span class="search">50</span>', $filters->highlight('10x50', 'dimension'));
+
+        //regexp special chars are not interpreted
+        $filters->field_filter = \GaletteObjectsLend\Repository\Objects::FILTER_NAME;
+        $filters->filter_str = '(test';
+        $this->assertSame(
+            '&lt;script&gt;alert(&quot;name&quot;)&lt;/script&gt; <span class="search">(test</span>)',
+            $filters->highlight($name, 'name')
+        );
+        $filters->filter_str = '(test)';
+        $this->assertSame(
+            '&lt;script&gt;alert(&quot;name&quot;)&lt;/script&gt; <span class="search">(test)</span>',
+            $filters->highlight($name, 'name')
+        );
+        //search matches escaped content, and highlighting does not break it
+        $filters->filter_str = 'script>';
+        $this->assertSame(
+            '&lt;<span class="search">script&gt;</span>alert(&quot;name&quot;)&lt;/<span class="search">script&gt;</span> (test)',
+            $filters->highlight($name, 'name')
+        );
+        $filters->filter_str = 'a & b';
+        $this->assertSame('<span class="search">A &amp; B</span>', $filters->highlight('A &amp; B', 'description'));
+
+        //never inside HTML tags
+        $description = '<p>Nice <strong>object</strong></p>';
+        $filters->filter_str = 'strong';
+        $this->assertSame($description, $filters->highlight($description, 'description'));
+        $filters->filter_str = 'object';
+        $this->assertSame(
+            '<p>Nice <strong><span class="search">object</span></strong></p>',
+            $filters->highlight($description, 'description')
+        );
+    }
 }

@@ -58,9 +58,9 @@ class ObjectsController extends GaletteRoutingTestCase
         $this->lent_status = $status->getId();
 
         $object = new LendObject($this->zdb);
-        $object->name = 'Test object';
+        $object->setName('Test object');
         $this->assertTrue($object->store());
-        $this->object_id = $object->object_id;
+        $this->object_id = $object->getId();
     }
 
     /**
@@ -447,7 +447,7 @@ class ObjectsController extends GaletteRoutingTestCase
     public function testFilterOnField(): void
     {
         $object = new LendObject($this->zdb, $this->object_id);
-        $object->serial_number = 'SN-4242';
+        $object->setSerialNumber('SN-4242');
         $this->assertTrue($object->store());
 
         $this->logSuperAdmin();
@@ -594,7 +594,7 @@ class ObjectsController extends GaletteRoutingTestCase
     public function testTakeInactiveObject(): void
     {
         $object = new LendObject($this->zdb, $this->object_id);
-        $object->is_active = false;
+        $object->setActive(false);
         $this->assertTrue($object->store());
         $this->setPrefs(false);
 
@@ -664,8 +664,8 @@ class ObjectsController extends GaletteRoutingTestCase
     private function setRentPrice(float $rent_price): void
     {
         $object = new LendObject($this->zdb, $this->object_id);
-        $object->rent_price = $rent_price;
-        $object->serial_number = 'SN-42';
+        $object->setRentPrice($rent_price);
+        $object->setSerialNumber('SN-42');
         $this->assertTrue($object->store());
     }
 

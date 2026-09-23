@@ -78,9 +78,9 @@ class LendRent extends GaletteTestCase
         $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb);
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
-        $object->name = 'Test object';
+        $object->setName('Test object');
         $this->assertTrue($object->store());
-        $oid = $object->object_id;
+        $oid = $object->getId();
 
         $bdate = new \DateTime('2024-05-22 19:46:21');
         $rent->setDateBegin($bdate->format('Y-m-d H:i:s'));

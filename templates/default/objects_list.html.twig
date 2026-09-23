@@ -237,24 +237,24 @@
                 </td>
             {% endif %}
             <td data-col-label="{{ _T("Name", "objectslend") }}">
-                <strong>{{ object.displayName(filters)|raw }}</strong>
+                <strong>{{ filters.highlight(object.getName()|e, 'name')|raw }}</strong>
                 {% if lendsprefs.VIEW_DESCRIPTION %}
-                    <br/>{{ object.displayDescription(filters)|raw }}
+                    <br/>{{ filters.highlight(object.getDescriptionHtml(), 'description')|raw }}
                 {% endif %}
             </td>
             {% if lendsprefs.VIEW_SERIAL %}
                 <td data-col-label="{{ _T("Serial", "objectslend") }}">
-                    {{ object.displaySerial(filters)|raw }}
+                    {{ filters.highlight(object.getSerialNumber()|e, 'serial_number')|raw }}
                 </td>
             {% endif %}
             {% if lendsprefs.VIEW_PRICE %}
                 <td class="right" data-col-label="{{ _T("Price", "objectslend") }}">
-                    {{ object.getPrice() }}&euro;
+                    {{ object.getPrice()|format_currency('EUR', {}, i18n.getWebID()) }}
                 </td>
             {% endif %}
             {% if lendsprefs.VIEW_LEND_PRICE %}
                 <td class="right" data-col-label="{{ _T("Borrow price", "objectslend") }}">
-                    {{ object.getRentPrice() }}&euro;<br/>
+                    {{ object.getRentPrice()|format_currency('EUR', {}, i18n.getWebID()) }}<br/>
                     {% if object.isPricePerDay() %}
                         {{ _T("(per day)", "objectslend") }}
                     {% else %}
@@ -264,12 +264,12 @@
             {% endif %}
             {% if lendsprefs.VIEW_DIMENSION %}
                 <td data-col-label="{{ _T("Dimensions", "objectslend") }}">
-                    {{ object.displayDimension(filters)|raw }}
+                    {{ filters.highlight(object.getDimension()|e, 'dimension')|raw }}
                 </td>
             {% endif %}
             {% if lendsprefs.VIEW_WEIGHT %}
                 <td data-col-label="{{ _T("Weight", "objectslend") }}">
-                    {{ object.weight }}
+                    {{ object.getWeight()|format_number({fraction_digit: 3}, 'decimal', 'default', i18n.getWebID()) }}
                 </td>
             {% endif %}
             <td data-col-label="{{ _T("Status", "objectslend") }}">

@@ -81,6 +81,41 @@ class ObjectsList extends Pagination
     }
 
     /**
+     * Highlight search terms, when the search concerns the field
+     *
+     * @param string $html  Field value, as HTML: plain text must have been escaped
+     * @param string $field Field name, one of name, description, serial_number or dimension
+     */
+    public function highlight(string $html, string $field): string
+    {
+        $fields = match ($this->field_filter) {
+            Objects::FILTER_NAME => ['name', 'description'],
+            Objects::FILTER_SERIAL => ['serial_number'],
+            Objects::FILTER_DIM => ['dimension'],
+            default => []
+        };
+
+        $search = trim($this->filter_str ?? '', '%');
+        if (!in_array($field, $fields, true) || $search === '') {
+            return $html;
+        }
+
+        //highlight text only, never inside HTML tags
+        $parts = preg_split('/(<[^>]*>)/', $html, -1, PREG_SPLIT_DELIM_CAPTURE);
+        if ($parts === false) {
+            return $html;
+        }
+        $pattern = '/(' . preg_quote(htmlspecialchars($search, ENT_QUOTES), '/') . ')/iu';
+        foreach ($parts as $i => $part) {
+            if ($part === '' || $part[0] === '<') {
+                continue;
+            }
+            $parts[$i] = preg_replace($pattern, '<span class="search">$1</span>', $part) ?? $part;
+        }
+        return implode('', $parts);
+    }
+
+    /**
      * Default isset
      *
      * @param string $name Property name

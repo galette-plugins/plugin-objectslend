@@ -12,7 +12,6 @@ namespace GaletteObjectsLend\Controllers;
 
 use Galette\Controllers\PdfController as GPdfController;
 use GaletteObjectsLend\Entity\Preferences;
-use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Filters\ObjectsList;
 use GaletteObjectsLend\Repository\Objects;
 use GaletteObjectsLend\IO\PdfObject;
@@ -37,21 +36,9 @@ class PdfController extends GPdfController
      */
     public function printObject(Request $request, Response $response, int $id): Response
     {
-        $deps = [
-            'picture' => true,
-            'rents' => true,
-            'last_rent' => true,
-            'status' => true,
-            'member' => true,
-            'category' => true
-        ];
-        $object = new LendObject(
-            $this->zdb,
-            $id,
-            $deps
-        );
-
         $lendsprefs = new Preferences($this->zdb);
+        $object = (new Objects($this->zdb, $lendsprefs))->getWithCurrentRent($id);
+
         $pdf = new PdfObject(
             $this->zdb,
             $this->preferences,

@@ -77,32 +77,32 @@ class Objects extends GaletteTestCase
         $this->assertGreaterThan(0, $second_category_id);
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
-        $object->name = 'First object';
-        $object->category_id = $first_category_id;
-        $object->is_active = true;
+        $object->setName('First object');
+        $object->setCategoryId($first_category_id);
+        $object->setActive(true);
         $this->assertTrue($object->store());
         $first_object_id = $object->getId();
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
-        $object->name = 'Second object';
-        $object->description = 'First description';
-        $object->category_id = $first_category_id;
-        $object->is_active = true;
+        $object->setName('Second object');
+        $object->setDescription('First description');
+        $object->setCategoryId($first_category_id);
+        $object->setActive(true);
         $this->assertTrue($object->store());
         $second_object_id = $object->getId();
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
-        $object->name = 'Third object';
-        $object->category_id = $second_category_id;
-        $object->is_active = true;
+        $object->setName('Third object');
+        $object->setCategoryId($second_category_id);
+        $object->setActive(true);
         $this->assertTrue($object->store());
         $third_object_id = $object->getId();
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
-        $object->name = 'Fourth object';
-        $object->serial_number = 'GGABCDEXX';
-        $object->dimension = '210x297';
-        $object->is_active = false;
+        $object->setName('Fourth object');
+        $object->setSerialNumber('GGABCDEXX');
+        $object->setDimension('210x297');
+        $object->setActive(false);
         $this->assertTrue($object->store());
         //ids are not reset between tests, a hardcoded one may exist
         $missing_id = $object->getId() + 1;

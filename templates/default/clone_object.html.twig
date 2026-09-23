@@ -10,7 +10,7 @@
     <form action="{{ url_for('objectslend_object_doclone', {'id': object.getId()}) }}" method="post" class="ui form">
         <div class="ui segment">
             <div class="ui info message">
-                <p>{{ _T('A copy of "%1$s" will be created, without its picture nor its lends history.', 'objectslend')|format(object.name) }}</p>
+                <p>{{ _T('A copy of "%1$s" will be created, without its picture nor its lends history.', 'objectslend')|format(object.getName()) }}</p>
             </div>
         </div>
         <div class="ui basic center aligned segment">

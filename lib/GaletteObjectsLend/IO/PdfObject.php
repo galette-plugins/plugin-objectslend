@@ -15,6 +15,7 @@ use Galette\Core\Db;
 use Galette\Core\Preferences;
 use GaletteObjectsLend\Entity\Preferences as LPreferences;
 use GaletteObjectsLend\Entity\LendObject;
+use GaletteObjectsLend\Repository\Rents;
 
 /**
  * Object card PDF
@@ -93,8 +94,8 @@ class PdfObject extends Pdf
         $this->SetFont(Pdf::FONT, 'B');
         $wpic = 0;
         $hpic = 0;
-        if ($object->picture->hasPicture()) {
-            $pic = $object->picture;
+        $pic = $object->getPicture();
+        if ($pic->hasPicture()) {
             // Set picture size to max width 30 mm or max height 30 mm
             $tw = $pic->getOptimalThumbWidth($this->lprefs);
             $th = $pic->getOptimalThumbHeight($this->lprefs);
@@ -115,42 +116,42 @@ class PdfObject extends Pdf
                 $hpic = (int)round($wpic / $ratio);
             }
 
-            $this->Image($object->picture->getThumbPath(), 10, 10, $wpic, $hpic);
+            $this->Image($pic->getThumbPath(), 10, 10, $wpic, $hpic);
         }
 
-        $this->addCell(_T("Name", "objectslend"), $object->name, $wpic);
+        $this->addCell(_T("Name", "objectslend"), $object->getName(), $wpic);
         if ($this->lprefs->{LPreferences::PARAM_VIEW_DESCRIPTION}) {
-            $this->addCell(_T("Description", "objectslend"), $object->description, $wpic);
+            $this->addCell(_T("Description", "objectslend"), $object->getDescription(), $wpic);
         }
         if ($this->lprefs->{LPreferences::PARAM_VIEW_CATEGORY}) {
-            $this->addCell(_T("Category", "objectslend"), $object->cat_name ?? '', $wpic);
+            $this->addCell(_T("Category", "objectslend"), $object->getCategoryName() ?? '', $wpic);
         }
         if ($this->lprefs->{LPreferences::PARAM_VIEW_SERIAL}) {
-            $this->addCell(_T("Serial number", "objectslend"), $object->serial_number, $wpic);
+            $this->addCell(_T("Serial number", "objectslend"), $object->getSerialNumber(), $wpic);
         }
         if ($this->lprefs->{LPreferences::PARAM_VIEW_PRICE}) {
-            $this->addCell(_T("Price", "objectslend"), $object->price, $wpic);
+            $this->addCell(_T("Price", "objectslend"), number_format($object->getPrice(), 2, ',', ' '), $wpic);
         }
         if ($this->lprefs->{LPreferences::PARAM_VIEW_LEND_PRICE}) {
             $this->addCell(
                 _T("Borrow price", "objectslend"),
-                $object->rent_price . ' ' . $object->getCurrency()
+                number_format($object->getRentPrice(), 2, ',', ' ') . ' €'
                     . ($object->isPricePerDay() ? ' ' . _T("(per day)", "objectslend") : ''),
                 $wpic
             );
         }
         if ($this->lprefs->{LPreferences::PARAM_VIEW_DIMENSION}) {
-            $this->addCell(_T("Dimensions", "objectslend"), $object->dimension . ' ' . _T('Cm', 'objectslend'), $wpic);
+            $this->addCell(_T("Dimensions", "objectslend"), $object->getDimension() . ' ' . _T('Cm', 'objectslend'), $wpic);
         }
         if ($this->lprefs->{LPreferences::PARAM_VIEW_WEIGHT}) {
-            $this->addCell(_T("Weight", "objectslend"), $object->weight . ' ' . _T('Kg', 'objectslend'), $wpic);
+            $this->addCell(_T("Weight", "objectslend"), number_format($object->getWeight(), 3, ',', ' ') . ' ' . _T('Kg', 'objectslend'), $wpic);
         }
-        $this->addCell(_T("Active", "objectslend"), $object->is_active ? 'X' : '', $wpic);
-        $this->addCell(_T("Location", "objectslend"), $object->status_text ?? '', $wpic);
-        $this->addCell(_T("Since", "objectslend"), $object->date_begin, $wpic);
-        $this->addCell(_T("Member", "objectslend"), $object->member->sname, $wpic);
+        $this->addCell(_T("Active", "objectslend"), $object->isObjectActive() ? 'X' : '', $wpic);
+        $this->addCell(_T("Location", "objectslend"), $object->getStatusText(), $wpic);
+        $this->addCell(_T("Since", "objectslend"), $object->getDateBegin(), $wpic);
+        $this->addCell(_T("Member", "objectslend"), $object->getMemberName(), $wpic);
         if ($this->lprefs->{LPreferences::PARAM_VIEW_DATE_FORECAST}) {
-            $this->addCell(_T("Return", "objectslend"), $object->date_forecast, $wpic);
+            $this->addCell(_T("Return", "objectslend"), $object->getDateForecast(), $wpic);
         }
 
         if ($this->GetY() < $hpic) {
@@ -158,7 +159,7 @@ class PdfObject extends Pdf
         }
         $this->Ln();
 
-        $rents = $object->rents;
+        $rents = (new Rents($this->zdb))->getForObject((int)$object->getId());
 
         $col_begin = 33;
         $col_end = 33;

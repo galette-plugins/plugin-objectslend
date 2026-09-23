@@ -20,6 +20,7 @@ use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Entity\LendRent;
 use GaletteObjectsLend\Entity\LendStatus;
 use GaletteObjectsLend\Entity\Preferences;
+use GaletteObjectsLend\Repository\Objects;
 use GaletteObjectsLend\Repository\Rents;
 use GaletteObjectsLend\Repository\Status;
 use Throwable;
@@ -55,16 +56,7 @@ class LendService
      */
     public function getObject(int $id): LendObject
     {
-        return new LendObject(
-            $this->zdb,
-            $id,
-            [
-                'last_rent' => true,
-                'status'    => true,
-                'member'    => true,
-                'category'  => true
-            ]
-        );
+        return (new Objects($this->zdb, $this->lendsprefs))->getWithCurrentRent($id);
     }
 
     /**
@@ -329,13 +321,13 @@ class LendService
                 '{DIMENSION}'
             ],
             [
-                $object->name,
-                $object->description,
-                $object->serial_number,
-                $object->price,
-                $object->rent_price,
-                $object->weight,
-                $object->dimension
+                $object->getName(),
+                $object->getDescription(),
+                $object->getSerialNumber(),
+                number_format($object->getPrice(), 2, ',', ' '),
+                number_format($object->getRentPrice(), 2, ',', ' '),
+                number_format($object->getWeight(), 3, ',', ' '),
+                $object->getDimension()
             ],
             $this->lendsprefs->{Preferences::PARAM_GENERATED_CONTRIB_INFO_TEXT}
         );

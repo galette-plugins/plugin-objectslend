@@ -16,14 +16,14 @@
             <div class="active content">
                 {% include "components/forms/text.html.twig" with {
                     id: 'name',
-                    value: object.name,
+                    value: object.getName(),
                     label: _T("Name:", "objectslend"),
                     required: true
                 } %}
 
                 {% include "components/forms/text.html.twig" with {
                     id: 'description',
-                    value: object.description,
+                    value: object.getDescription(),
                     label: _T("Description:", "objectslend")
                 } %}
 
@@ -50,16 +50,16 @@
 
                 {% include "components/forms/text.html.twig" with {
                     id: 'price',
-                    value: object.price,
+                    value: object.getPrice()|number_format(2, '.', ''),
                     label: _T("Price:", "objectslend"),
-                    rightlabel: object.getCurrency()
+                    rightlabel: '€'
                 } %}
 
                 {% include "components/forms/text.html.twig" with {
                     id: 'rent_price',
-                    value: object.rent_price,
+                    value: object.getRentPrice()|number_format(2, '.', ''),
                     label: _T("Borrow price:", "objectslend"),
-                    rightlabel: object.getCurrency()
+                    rightlabel: '€'
                 } %}
 
                 {% include "components/forms/checkbox.html.twig" with {
@@ -67,19 +67,19 @@
                     value: 1,
                     label: _T("Price per rental day:", "objectslend"),
                     tip: _T("The price applies on each rental day if checked, only once otherwise", "objectslend"),
-                    checked: object.price_per_day
+                    checked: object.isPricePerDay()
                 } %}
 
                 {% include "components/forms/text.html.twig" with {
                     id: 'dimension',
-                    value: object.dimension,
+                    value: object.getDimension(),
                     label: _T("Dimensions:", "objectslend"),
                     rightlabel: _T("Cm", "objectslend")
                 } %}
 
                 {% include "components/forms/text.html.twig" with {
                     id: 'weight',
-                    value: object.weight,
+                    value: object.getWeight()|number_format(3, '.', ''),
                     label: _T("Weight:", "objectslend"),
                     rightlabel: _T("Kg", "objectslend")
                 } %}
@@ -88,11 +88,11 @@
                     id: 'is_active',
                     value: 1,
                     label: _T("Active:", "objectslend"),
-                    checked: object.is_active
+                    checked: object.isObjectActive()
                 } %}
 
 
-                {% if not object.object_id %}
+                {% if not object.getId() %}
                     {% set state_list_values = {(0): _T("--- Select a status ---", "objectslend")} %}
                     {% for sta in statuses %}
                         {% set state_list_values = state_list_values + {(sta.getId()): sta.getText()} %}
@@ -115,7 +115,7 @@
             </div>
             <div class="active content">
                 <img
-                        src="{% if object.object_id %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail", "id": object.object_id}) }}{% else %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail"}) }}{% endif %}"
+                        src="{% if object.getId() %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail", "id": object.getId()}) }}{% else %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail"}) }}{% endif %}"
                         class="picture"
                         width="{{ picture.getOptimalThumbWidth(olendsprefs) }}"
                         height="{{ picture.getOptimalThumbHeight(olendsprefs) }}"
@@ -143,11 +143,11 @@
             <button type="submit" class="ui labeled icon primary button action">
                 <i class="save icon"></i> {{ _T("Save") }}
             </button>
-    {%if object.object_id != '' %}
-            <a href="{{ url_for("objectslend_object_clone", {"id": object.object_id}) }}" class="ui labeled icon button">
+    {% if object.getId() %}
+            <a href="{{ url_for("objectslend_object_clone", {"id": object.getId()}) }}" class="ui labeled icon button">
                 <i class="clone icon"></i> {{ _T("Duplicate", "objectslend") }}
             </a>
-            <a href="{{ url_for("objectslend_object_print", {"id": object.object_id}) }}" class="ui labeled icon button">
+            <a href="{{ url_for("objectslend_object_print", {"id": object.getId()}) }}" class="ui labeled icon button">
                 <i class="print icon"></i> {{ _T("Print object", "objectslend") }}
             </a>
     {% endif %}
@@ -162,7 +162,7 @@
                 {{ _T("History", "objectslend") }}
             </div>
             <div class="active content">
-                {% include "@PluginGaletteObjectslend/list_lent_object.html.twig" with {rents: object.rents, mode: 'ajax'} %}
+                {% include "@PluginGaletteObjectslend/list_lent_object.html.twig" with {rents: rents, mode: 'ajax'} %}
             </div>
         </div>
 
@@ -214,7 +214,7 @@
                         <i class="save icon"></i> {{ _T("Change status", "objectslend") }}
                     </button>
                 </div>
-                <input type="hidden" name="object_id" value="{{ object.object_id }}">
+                <input type="hidden" name="object_id" value="{{ object.getId() }}">
             </form>
         </div>
     {% endif %}

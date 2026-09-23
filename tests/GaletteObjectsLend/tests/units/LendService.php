@@ -67,10 +67,10 @@ class LendService extends GaletteTestCase
         $this->lent_status = $status->getId();
 
         $object = new LendObject($this->zdb);
-        $object->name = 'Service object';
-        $object->rent_price = 3.5;
+        $object->setName('Service object');
+        $object->setRentPrice(3.5);
         $this->assertTrue($object->store());
-        $this->object_id = $object->object_id;
+        $this->object_id = $object->getId();
     }
 
     /**

@@ -12,12 +12,12 @@ namespace GaletteObjectsLend\Controllers\Crud;
 
 use Analog\Analog;
 use DI\Attribute\Inject;
-use GaletteObjectsLend\Entity\ObjectPicture;
 use GaletteObjectsLend\Filters\CategoriesList;
 use GaletteObjectsLend\Filters\ObjectsList;
 use GaletteObjectsLend\Filters\StatusList;
 use GaletteObjectsLend\Repository\Categories;
 use GaletteObjectsLend\Repository\Objects;
+use GaletteObjectsLend\Repository\Rents;
 use GaletteObjectsLend\Repository\Status;
 use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Entity\LendRent;
@@ -195,25 +195,12 @@ class ObjectsController extends AbstractPluginController
      */
     public function show(Request $request, Response $response, int $id): Response
     {
-        $lendsprefs = new Preferences($this->zdb);
-
-        $deps = [
-            'picture'   => true,
-            'rents'     => true,
-            'status'    => true,
-            'member'    => true,
-            'category'  => $lendsprefs->{Preferences::PARAM_VIEW_CATEGORY}
-        ];
-        $object = new LendObject(
-            $this->zdb,
-            $id,
-            $deps
-        );
+        $object = new LendObject($this->zdb, $id);
 
         $params = [
-            'page_title' => str_replace('%object', $object->name, _T('Rents list for %object', 'objectslend')),
+            'page_title' => str_replace('%object', $object->getName(), _T('Rents list for %object', 'objectslend')),
             'object' => $object,
-            'rents' => $object->rents,
+            'rents' => (new Rents($this->zdb))->getForObject($id),
             'time' => time(),
             'ajax' => $this->isAjax($request)
         ];
@@ -289,14 +276,13 @@ class ObjectsController extends AbstractPluginController
             $object = $this->session->objectslend_object;
             $this->session->objectslend_object = null;
         } else {
-            $deps = ['rents' => true];
-            $object = new LendObject($this->zdb, $id, $deps);
+            $object = new LendObject($this->zdb, $id);
         }
 
         $categories = new Categories($this->zdb, $this->login);
         $categories_list = $categories->getCategoriesList(true);
 
-        if ($object->object_id !== null) {
+        if ($object->getId() !== null) {
             $title = _T("Edit object", "objectslend");
         } else {
             $title = _T("New object", "objectslend");
@@ -308,17 +294,17 @@ class ObjectsController extends AbstractPluginController
         $slist = $statuses->getStatusList(true);
 
         $lendsprefs = new Preferences($this->zdb);
-        $picture = new ObjectPicture($object->object_id);
         $params = [
             'page_title'    => $title,
             'object'        => $object,
+            'rents'         => $object->getId() !== null ? (new Rents($this->zdb))->getForObject($object->getId()) : [],
             'time'          => time(),
             'action'        => $action,
             'lendsprefs'    => $lendsprefs->getPreferences(),
             'olendsprefs'   => $lendsprefs,
             'categories'    => $categories_list,
             'statuses'      => $slist,
-            'picture'       => $picture
+            'picture'       => $object->getPicture()
         ];
 
         // members
@@ -362,26 +348,27 @@ class ObjectsController extends AbstractPluginController
         $object = new LendObject($this->zdb, $id);
         $error_detected = [];
 
-        $object->name = $post['name'];
-        $object->description = $post['description'];
-        //TODO: check if category do exits?
-        $object->category_id = empty($post['category_id']) ? null : $post['category_id'];
-        $object->serial_number = $post['serial'];
+        $object
+            ->setName($post['name'])
+            ->setDescription($post['description'])
+            //TODO: check if category do exits?
+            ->setCategoryId(empty($post['category_id']) ? null : (int)$post['category_id'])
+            ->setSerialNumber($post['serial'])
+            ->setPricePerDay(($post['price_per_day'] ?? false) == true)
+            ->setDimension($post['dimension'])
+            ->setActive(($post['is_active'] ?? false) == true);
         if ($post['price'] != '') {
             //FIXME: better currency format handler
-            $object->price = (float)str_replace(' ', '', str_replace(',', '.', $post['price']));
+            $object->setPrice((float)str_replace(' ', '', str_replace(',', '.', $post['price'])));
         }
         if ($post['rent_price'] != '') {
             //FIXME: better currency format handler
-            $object->rent_price = (float)str_replace(' ', '', str_replace(',', '.', $post['rent_price']));
+            $object->setRentPrice((float)str_replace(' ', '', str_replace(',', '.', $post['rent_price'])));
         }
-        $object->price_per_day = ($post['price_per_day'] ?? false) == true;
-        $object->dimension = $post['dimension'];
         if ($post['weight'] != '') {
             //FIXME: better format handler
-            $object->weight = (float)str_replace(' ', '', str_replace(',', '.', $post['weight']));
+            $object->setWeight((float)str_replace(' ', '', str_replace(',', '.', $post['weight'])));
         }
-        $object->is_active = ($post['is_active'] ?? false) == true;
 
         if ($object->store()) {
             if (!empty($post['1st_status'])) {
@@ -393,15 +380,15 @@ class ObjectsController extends AbstractPluginController
             }
 
             // picture upload
-            if (!$object->picture->upload($request->getUploadedFiles(), 'picture')) {
-                $error_detected = $object->picture->uploadErrors();
+            if (!$object->getPicture()->upload($request->getUploadedFiles(), 'picture')) {
+                $error_detected = $object->getPicture()->uploadErrors();
             }
 
             if (isset($post['del_picture'])) {
-                if (!$object->picture->delete()) {
+                if (!$object->getPicture()->delete()) {
                     $error_detected[] = _T("Delete failed", "objectslend");
                     Analog::log(
-                        'Unable to delete picture for object ' . $object->name,
+                        'Unable to delete picture for object ' . $object->getName(),
                         Analog::ERROR
                     );
                 }
@@ -419,7 +406,7 @@ class ObjectsController extends AbstractPluginController
                 );
             }
 
-            $args = ($action == 'add' ? [] : ['id' => $object->object_id]);
+            $args = ($action == 'add' ? [] : ['id' => $object->getId()]);
             return $response
                 ->withStatus(301)
                 ->withHeader(
@@ -537,7 +524,7 @@ class ObjectsController extends AbstractPluginController
                 'Location',
                 $this->routeparser->urlFor(
                     'objectslend_object_edit',
-                    ['id' => $object->object_id]
+                    ['id' => $object->getId()]
                 )
             );
     }
@@ -617,7 +604,6 @@ class ObjectsController extends AbstractPluginController
                 $params['members']['list'] = $members;
             }
             $params['require_calendar'] = true;
-            $params['rent_price'] = str_replace([ ',', ' '], [ '.', ''], $object->rent_price); //FIXME :/
 
             if (!$service->isAvailable($object)) {
                 //redirect to objects list
@@ -625,7 +611,7 @@ class ObjectsController extends AbstractPluginController
                     'warning_detected',
                     str_replace(
                         '%object',
-                        $object->name,
+                        $object->getName(),
                         _T("%object is currently not available", "objectslend")
                     )
                 );
@@ -716,7 +702,7 @@ class ObjectsController extends AbstractPluginController
             'success_detected',
             str_replace(
                 '%object',
-                $object->name,
+                $object->getName(),
                 _T("You have just borrowed %object :)", "objectslend")
             )
         );
@@ -750,7 +736,7 @@ class ObjectsController extends AbstractPluginController
             'success_detected',
             str_replace(
                 '%object',
-                $object->name,
+                $object->getName(),
                 _T("%object has been returned :)", "objectslend")
             )
         );
@@ -854,7 +840,7 @@ class ObjectsController extends AbstractPluginController
             $object = new LendObject($this->zdb, (int)$args['id']);
             return sprintf(
                 _T('Remove object %1$s', 'objectslend'),
-                $object->name
+                $object->getName()
             );
         } else {
             //batch objects removal
