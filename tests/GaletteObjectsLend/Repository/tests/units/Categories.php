@@ -39,7 +39,7 @@ class Categories extends GaletteTestCase
      */
     public function testGetList(): void
     {
-        $categories = new \GaletteObjectsLend\Repository\Categories($this->zdb, $this->login);
+        $categories = new \GaletteObjectsLend\Repository\Categories($this->zdb, $this->preferences, $this->login);
 
         $rs_list = $categories->getList();
         $this->assertInstanceOf(\Laminas\Db\ResultSet\ResultSet::class, $rs_list);
@@ -60,6 +60,7 @@ class Categories extends GaletteTestCase
         $category->setName('Another category');
         $category->setActive(true);
         $this->assertTrue($category->store());
+        $cat_two_id = $category->getId();
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
         $category->setName('Yet another category');
@@ -67,7 +68,7 @@ class Categories extends GaletteTestCase
         $this->assertTrue($category->store());
 
         $filters = new \GaletteObjectsLend\Filters\CategoriesList();
-        $categories = new \GaletteObjectsLend\Repository\Categories($this->zdb, $this->login, $filters);
+        $categories = new \GaletteObjectsLend\Repository\Categories($this->zdb, $this->preferences, $this->login, $filters);
 
         $this->assertCount(3, $categories->getCategoriesList(true));
         $this->assertSame(3, $categories->getCount());
@@ -111,5 +112,15 @@ class Categories extends GaletteTestCase
         $filters->reinit();
         $this->assertCount(3, $categories->getCategoriesList(true));
         $this->assertSame(3, $categories->getCount());
+
+        //count takes grouping into account
+        $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
+        $object->setName('Object in another category');
+        $object->setCategoryId($cat_two_id);
+        $this->assertTrue($object->store());
+
+        $filters->not_empty = true;
+        $this->assertCount(2, $categories->getCategoriesList(true));
+        $this->assertSame(2, $categories->getCount());
     }
 }

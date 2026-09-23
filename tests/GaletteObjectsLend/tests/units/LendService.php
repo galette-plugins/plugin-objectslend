@@ -109,7 +109,7 @@ class LendService extends GaletteTestCase
      */
     private function getService(): \GaletteObjectsLend\LendService
     {
-        return new \GaletteObjectsLend\LendService($this->zdb, $this->login, new Preferences($this->zdb));
+        return new \GaletteObjectsLend\LendService($this->zdb, $this->preferences, $this->login, new Preferences($this->zdb));
     }
 
     /**

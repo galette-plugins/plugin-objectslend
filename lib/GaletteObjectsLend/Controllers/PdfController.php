@@ -37,7 +37,7 @@ class PdfController extends GPdfController
     public function printObject(Request $request, Response $response, int $id): Response
     {
         $lendsprefs = new Preferences($this->zdb);
-        $object = (new Objects($this->zdb, $lendsprefs))->getWithCurrentRent($id);
+        $object = (new Objects($this->zdb, $this->preferences, $this->login, $lendsprefs))->getWithCurrentRent($id);
 
         $pdf = new PdfObject(
             $this->zdb,
@@ -67,8 +67,8 @@ class PdfController extends GPdfController
         if ($filters->orderby !== Objects::ORDERBY_CATEGORY) {
             $filters->orderby = Objects::ORDERBY_CATEGORY;
         }
-        $objects = new Objects($this->zdb, $lendsprefs, $filters);
-        $list = $objects->getObjectsList(true, null, true, false);
+        $objects = new Objects($this->zdb, $this->preferences, $this->login, $lendsprefs, $filters);
+        $list = $objects->getObjectsList(true, true, false);
 
         $pdf = new PdfObjects(
             $this->zdb,

@@ -22,7 +22,6 @@ use GaletteObjectsLend\Repository\Status;
  * @property ?string $filter_str
  * @property ?int    $active_filter
  * @property ?int    $stock_filter
- * @property string  $query
  */
 
 class StatusList extends Pagination
@@ -32,14 +31,12 @@ class StatusList extends Pagination
     private ?int $active_filter;
     private ?int $stock_filter;
 
-    protected string $query;
 
     /** @var array<string> */
     protected array $statuslist_fields = [
         'filter_str',
         'active_filter',
-        'stock_filter',
-        'query'
+        'stock_filter'
     ];
 
     /**
@@ -106,7 +103,6 @@ class StatusList extends Pagination
 
             switch ($name) {
                 case 'filter_str':
-                case 'query':
                     $this->$name = $value;
                     break;
                 case 'active_filter':

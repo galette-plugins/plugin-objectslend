@@ -80,14 +80,14 @@ class LendStatus extends GaletteTestCase
         $status->setActive(false);
         $this->assertTrue($status->store());
 
-        $list = (new \GaletteObjectsLend\Repository\Status($this->zdb, $this->login))->getActiveTakeAwayStatuses();
+        $list = (new \GaletteObjectsLend\Repository\Status($this->zdb, $this->preferences, $this->login))->getActiveTakeAwayStatuses();
         $this->assertCount(1, $list);
 
         $active_one = $list[0];
         $this->assertSame($status_two, $active_one->getId());
         $this->assertSame('Another active status', $active_one->getText());
 
-        $list = (new \GaletteObjectsLend\Repository\Status($this->zdb, $this->login))->getActiveStockStatuses();
+        $list = (new \GaletteObjectsLend\Repository\Status($this->zdb, $this->preferences, $this->login))->getActiveStockStatuses();
         $this->assertCount(1, $list);
 
         $active_one = $list[0];

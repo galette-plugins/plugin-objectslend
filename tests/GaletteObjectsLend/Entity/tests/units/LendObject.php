@@ -91,6 +91,8 @@ class LendObject extends GaletteTestCase
     {
         $objects = new \GaletteObjectsLend\Repository\Objects(
             $this->zdb,
+            $this->preferences,
+            $this->login,
             new \GaletteObjectsLend\Entity\Preferences($this->zdb)
         );
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);

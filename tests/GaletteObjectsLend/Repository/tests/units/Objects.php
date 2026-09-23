@@ -51,7 +51,7 @@ class Objects extends GaletteTestCase
      */
     public function testGetList(): void
     {
-        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->lend_prefs);
+        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->preferences, $this->login, $this->lend_prefs);
 
         $rs_list = $objects->getList();
         $this->assertInstanceOf(\Laminas\Db\ResultSet\ResultSet::class, $rs_list);
@@ -108,7 +108,7 @@ class Objects extends GaletteTestCase
         $missing_id = $object->getId() + 1;
 
         $filters = new \GaletteObjectsLend\Filters\ObjectsList();
-        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->lend_prefs, $filters);
+        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->preferences, $this->login, $this->lend_prefs, $filters);
 
         $this->assertCount(4, $objects->getObjectsList(true));
         $this->assertSame(4, $objects->getCount());

@@ -106,7 +106,7 @@ class ObjectsController extends AbstractPluginController
         }
 
         $lendsprefs = new Preferences($this->zdb);
-        $objects = new Objects($this->zdb, $lendsprefs, $filters);
+        $objects = new Objects($this->zdb, $this->preferences, $this->login, $lendsprefs, $filters);
         $list = $objects->getObjectsList(true);
 
         $this->session->objectslend_filter_objects = $filters;
@@ -119,8 +119,8 @@ class ObjectsController extends AbstractPluginController
         $cat_filters->active_filter = Categories::ACTIVE_CATEGORIES; //retrieve only active categories
         $cat_filters->not_empty = true; //retrieve only categories with objects
         $cat_filters->setObjectsFilter($filters); //search for categories corresponding to filtered objects
-        $categories = new Categories($this->zdb, $this->login, $cat_filters);
-        $categories_list = $categories->getCategoriesList(true, null, false);
+        $categories = new Categories($this->zdb, $this->preferences, $this->login, $cat_filters);
+        $categories_list = $categories->getCategoriesList(true, false, false);
 
         // display page
         $this->view->render(
@@ -280,7 +280,7 @@ class ObjectsController extends AbstractPluginController
         }
         unset($this->session->objectslend_object_data);
 
-        $categories = new Categories($this->zdb, $this->login);
+        $categories = new Categories($this->zdb, $this->preferences, $this->login);
         $categories_list = $categories->getCategoriesList(true);
 
         if ($object->getId() !== null) {
@@ -291,7 +291,7 @@ class ObjectsController extends AbstractPluginController
 
         $sfilter = new StatusList();
         $sfilter->active_filter = \GaletteObjectsLend\Repository\Status::ACTIVE;
-        $statuses = new Status($this->zdb, $this->login, $sfilter);
+        $statuses = new Status($this->zdb, $this->preferences, $this->login, $sfilter);
         $slist = $statuses->getStatusList(true);
 
         $lendsprefs = new Preferences($this->zdb);
@@ -560,8 +560,8 @@ class ObjectsController extends AbstractPluginController
             ),
             'time'          => time(),
             'statuses'      => ($action == 'take'
-                ? (new Status($this->zdb, $this->login))->getActiveTakeAwayStatuses()
-                : (new Status($this->zdb, $this->login))->getActiveStockStatuses()),
+                ? (new Status($this->zdb, $this->preferences, $this->login))->getActiveTakeAwayStatuses()
+                : (new Status($this->zdb, $this->preferences, $this->login))->getActiveStockStatuses()),
             'lendsprefs'    => $lendsprefs->getPreferences(),
             'olendsprefs'   => $lendsprefs,
             'ajax'          => $this->isAjax($request),
@@ -788,7 +788,7 @@ class ObjectsController extends AbstractPluginController
      */
     private function getLendService(?Preferences $lendsprefs = null): LendService
     {
-        return new LendService($this->zdb, $this->login, $lendsprefs ?? new Preferences($this->zdb));
+        return new LendService($this->zdb, $this->preferences, $this->login, $lendsprefs ?? new Preferences($this->zdb));
     }
 
     // /CRUD - Update
@@ -878,7 +878,7 @@ class ObjectsController extends AbstractPluginController
             $filters = new ObjectsList();
         }
         $lendsprefs = new Preferences($this->zdb);
-        $objects = new Objects($this->zdb, $lendsprefs, $filters);
+        $objects = new Objects($this->zdb, $this->preferences, $this->login, $lendsprefs, $filters);
 
         if (!is_array($post['id'])) {
             $ids = (array)$post['id'];
