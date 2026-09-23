@@ -165,6 +165,10 @@ class ObjectsController extends AbstractPluginController
             if (isset($post['filter_str'])) { //filter search string
                 $filters->filter_str = $post['filter_str'];
             }
+            //field to search into
+            if (isset($post['field_filter'])) {
+                $filters->field_filter = $post['field_filter'];
+            }
             //activity to filter
             if (isset($post['active_filter'])) {
                 if (is_numeric($post['active_filter'])) {

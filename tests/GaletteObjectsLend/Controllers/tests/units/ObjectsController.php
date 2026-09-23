@@ -384,4 +384,33 @@ class ObjectsController extends GaletteRoutingTestCase
         $this->assertSame(301, $test_response->getStatusCode());
         $this->assertSame(2, $this->countObjects());
     }
+
+    /**
+     * Objects can be searched on another field than their name
+     */
+    public function testFilterOnField(): void
+    {
+        $object = new LendObject($this->zdb, $this->object_id);
+        $object->serial_number = 'SN-4242';
+        $this->assertTrue($object->store());
+
+        $this->logSuperAdmin();
+        $request = $this->createRequest(
+            route_name: 'objectslend_filter_objects',
+            method: 'POST'
+        );
+        $request = $request->withParsedBody([
+            'filter_str' => '4242',
+            'field_filter' => (string)\GaletteObjectsLend\Repository\Objects::FILTER_SERIAL
+        ]);
+        $test_response = $this->app->handle($request);
+        $this->assertSame(301, $test_response->getStatusCode());
+
+        $filters = $this->session->objectslend_filter_objects;
+        $this->assertSame(\GaletteObjectsLend\Repository\Objects::FILTER_SERIAL, $filters->field_filter);
+
+        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, new Preferences($this->zdb), $filters);
+        $list = $objects->getObjectsList(true);
+        $this->assertCount(1, $list);
+    }
 }
