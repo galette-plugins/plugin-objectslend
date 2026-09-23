@@ -24,8 +24,6 @@ class LendObject extends GaletteTestCase
     private int $active_category_id;
     private int $inactive_category_id;
     private int $active_instock_status;
-    private int $active_notinstock_status;
-    private int $inactive_instock_status;
 
     /**
      * Set up tests
@@ -210,14 +208,12 @@ class LendObject extends GaletteTestCase
         $status->in_stock = false;
         $status->is_active = true;
         $this->assertTrue($status->store());
-        $this->active_notinstock_status = $status->status_id;
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->status_text = 'One inactive status';
         $status->in_stock = true;
         $status->is_active = false;
         $this->assertTrue($status->store());
-        $this->inactive_instock_status = $status->status_id;
     }
 
     /**

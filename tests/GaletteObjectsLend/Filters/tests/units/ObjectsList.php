@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace GaletteObjectsLend\Filters\tests\units;
 
+use Analog\Analog;
 use Galette\Tests\GaletteTestCase;
 
 /**
@@ -59,7 +60,7 @@ class ObjectsList extends GaletteTestCase
         $this->assertSame(\GaletteObjectsLend\Repository\Objects::ORDERBY_STATUS, $filters->orderby);
         $this->assertSame(\Galette\Enums\SQLOrder::DESC->value, $filters->getDirection());
         $this->expectLogEntry(
-            \Analog::WARNING,
+            Analog::WARNING,
             '[GaletteObjectsLend\Filters\ObjectsList|Pagination] "abcde" is not a valid backing value for enum Galette\Enums\SQLOrder'
         );
 
@@ -79,7 +80,7 @@ class ObjectsList extends GaletteTestCase
         //out of known values, no change
         $filters->active_filter = 42;
         $this->expectLogEntry(
-            \Analog::WARNING,
+            Analog::WARNING,
             '[ObjectsList] Value for active filter should be either 1, 1 or 2 (42 given)'
         );
         $this->assertSame(\GaletteObjectsLend\Repository\Objects::INACTIVE_OBJECTS, $filters->active_filter);
@@ -101,7 +102,7 @@ class ObjectsList extends GaletteTestCase
         $this->testDefaults($filters);
 
         $this->expectException(\RuntimeException::class);
-        $filters->non_existing = 42;
+        $filters->non_existing = 42; // @phpstan-ignore property.notFound
     }
 
     /**
@@ -113,6 +114,6 @@ class ObjectsList extends GaletteTestCase
         $this->testDefaults($filters);
 
         $this->expectException(\RuntimeException::class);
-        $this->assertNull($filters->non_existing);
+        $this->assertNull($filters->non_existing); // @phpstan-ignore property.notFound
     }
 }

@@ -135,14 +135,14 @@ class ObjectsController extends GaletteRoutingTestCase
     /**
      * Get stored contributions
      *
-     * @return array<int, \ArrayObject<string, mixed>>
+     * @return array<int, array<string, mixed>>
      */
     private function getContributions(): array
     {
         $select = $this->zdb->select(\Galette\Entity\Contribution::TABLE);
         $contribs = [];
         foreach ($this->zdb->execute($select) as $row) {
-            $contribs[] = $row;
+            $contribs[] = $row->getArrayCopy();
         }
         return $contribs;
     }
@@ -681,11 +681,11 @@ class ObjectsController extends GaletteRoutingTestCase
 
         $contribs = $this->getContributions();
         $this->assertCount(1, $contribs);
-        $this->assertEquals(12.5, $contribs[0]->montant_cotis);
-        $this->assertSame($member_one->id, (int)$contribs[0]->{\Galette\Entity\Adherent::PK});
-        $this->assertSame(5, (int)$contribs[0]->{\Galette\Entity\ContributionsTypes::PK});
-        $this->assertSame(\Galette\Entity\PaymentType::CASH, (int)$contribs[0]->type_paiement_cotis);
-        $this->assertSame('Rent of Test object (SN-42)', $contribs[0]->info_cotis);
+        $this->assertEquals(12.5, $contribs[0]['montant_cotis']);
+        $this->assertSame($member_one->id, (int)$contribs[0][\Galette\Entity\Adherent::PK]);
+        $this->assertSame(5, (int)$contribs[0][\Galette\Entity\ContributionsTypes::PK]);
+        $this->assertSame(\Galette\Entity\PaymentType::CASH, (int)$contribs[0]['type_paiement_cotis']);
+        $this->assertSame('Rent of Test object (SN-42)', $contribs[0]['info_cotis']);
     }
 
     /**

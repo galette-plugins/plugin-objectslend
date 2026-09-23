@@ -23,7 +23,6 @@ class LendRent extends GaletteTestCase
 
     private int $active_instock_status;
     private int $active_notinstock_status;
-    private int $inactive_instock_status;
 
     /**
      * Set up tests
@@ -214,6 +213,5 @@ class LendRent extends GaletteTestCase
         $status->in_stock = true;
         $status->is_active = false;
         $this->assertTrue($status->store());
-        $this->inactive_instock_status = $status->status_id;
     }
 }

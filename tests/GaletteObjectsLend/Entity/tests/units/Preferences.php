@@ -45,7 +45,7 @@ class Preferences extends GaletteTestCase
         $this->assertCount(17, $prefs->getPreferences());
 
         $this->expectException(\RuntimeException::class);
-        $this->assertSame(null, $prefs->NON_EXISTING);
+        $this->assertSame(null, $prefs->NON_EXISTING); // @phpstan-ignore property.notFound
     }
 
     /**

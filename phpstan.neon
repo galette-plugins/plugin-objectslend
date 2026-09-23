@@ -1,9 +1,13 @@
+includes:
+    - phpstan-baseline.neon
+
 parameters:
     parallel:
         maximumNumberOfProcesses: 2
-    level: 3
+    level: 6
     paths:
         - lib/
+        - tests/
     scanFiles:
         - _config.inc.php
         - ../../includes/sys_config/paths.inc.php
@@ -14,6 +18,3 @@ parameters:
         - ../../lib/
     universalObjectCratesClasses:
         - RKA\Session
-    ignoreErrors:
-        - '/Cannot access property .* on .*ArrayObject.*/'
-        - '/Access to an undefined property ArrayObject.*/'

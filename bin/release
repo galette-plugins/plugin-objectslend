@@ -407,7 +407,8 @@ def add_libs(rel_name, galette_archive):
         '.gitignore',
         '.php-cs-fixer.dist.php',
         '.phpcs.xml',
-        'phpstan.neon'
+        'phpstan.neon',
+        'phpstan-baseline.neon'
     ]
     for td in todrop:
         target = os.path.join(plugin_dir, td)
