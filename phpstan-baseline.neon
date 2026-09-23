@@ -6,7 +6,6 @@ parameters:
 			count: 2
 			path: lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php
 
-
 		-
 			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, int\<0, max\> given\.$#'
 			identifier: argument.type
@@ -236,12 +235,6 @@ parameters:
 			path: lib/GaletteObjectsLend/Entity/LendStatus.php
 
 		-
-			message: '#^Loose comparison using \=\= between int and '''' will always evaluate to false\.$#'
-			identifier: equal.alwaysFalse
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendStatus.php
-
-		-
 			message: '#^Cannot access property \$code on array\|ArrayObject\.$#'
 			identifier: property.nonObject
 			count: 1
@@ -342,6 +335,7 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: lib/GaletteObjectsLend/LendService.php
+
 		-
 			message: '#^Property GaletteObjectsLend\\PluginGaletteObjectslend\:\:\$zdb is never written, only read\.$#'
 			identifier: property.onlyRead

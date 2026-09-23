@@ -44,18 +44,18 @@ class ObjectsController extends GaletteRoutingTestCase
         $this->orig_prefs = $prefs->getPreferences();
 
         $status = new LendStatus($this->zdb);
-        $status->status_text = 'In stock';
-        $status->in_stock = true;
-        $status->is_active = true;
+        $status->setText('In stock');
+        $status->setInStock(true);
+        $status->setActive(true);
         $this->assertTrue($status->store());
-        $this->instock_status = $status->status_id;
+        $this->instock_status = $status->getId();
 
         $status = new LendStatus($this->zdb);
-        $status->status_text = 'Lent';
-        $status->in_stock = false;
-        $status->is_active = true;
+        $status->setText('Lent');
+        $status->setInStock(false);
+        $status->setActive(true);
         $this->assertTrue($status->store());
-        $this->lent_status = $status->status_id;
+        $this->lent_status = $status->getId();
 
         $object = new LendObject($this->zdb);
         $object->name = 'Test object';

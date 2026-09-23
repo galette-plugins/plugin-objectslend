@@ -19,12 +19,6 @@ use Galette\Core\Db;
  *
  * @author Mélissa Djebel <melissa.djebel@gmx.net>
  * @author Johan Cwiklinski <johan@x-tnd.be>
- *
- * @property ?int   $status_id
- * @property string $status_text
- * @property bool   $in_stock
- * @property bool   $is_active
- * @property ?int   $rent_day_number
  */
 class LendStatus
 {
@@ -41,7 +35,7 @@ class LendStatus
         'is_active' => 'boolean',
         'rent_day_number' => 'int'
     ];
-    private int $status_id;
+    private ?int $status_id = null;
     private string $status_text = '';
     private bool $in_stock = false;
     private bool $is_active = true;
@@ -111,7 +105,7 @@ class LendStatus
                 }
             }
 
-            if (!isset($this->status_id) || $this->status_id == '') {
+            if ($this->status_id === null) {
                 unset($values[self::PK]);
                 $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
                         ->values($values);
@@ -146,61 +140,6 @@ class LendStatus
     }
 
     /**
-     * Get all borrowed active statuses sorted by
-     *
-     * @param Db $zdb Database instance
-     *
-     * @return LendStatus[]
-     */
-    public static function getActiveTakeAwayStatuses(Db $zdb): array
-    {
-        try {
-            $select = $zdb->select(LEND_PREFIX . self::TABLE)
-                    ->where(['is_active' => 1, 'in_stock' => 0])
-                    ->order('status_text');
-
-            $status = [];
-            $result = $zdb->execute($select);
-            foreach ($result as $r) {
-                $status[] = new LendStatus($zdb, $r);
-            }
-            return $status;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            throw $e;
-        }
-    }
-
-    /**
-     * Return list of active in stock statuses
-     *
-     * @param Db $zdb Database instance
-     *
-     * @return LendStatus[]
-     */
-    public static function getActiveStockStatuses(Db $zdb): array
-    {
-        try {
-            $select = $zdb->select(LEND_PREFIX . self::TABLE)
-                    ->where(['is_active' => 1, 'in_stock' => 1])
-                    ->order('status_text');
-
-            $status = [];
-            $result = $zdb->execute($select);
-            foreach ($result as $r) {
-                $status[] = new LendStatus($zdb, $r);
-            }
-            return $status;
-        } catch (\Exception $e) {
-            throw $e;
-        }
-    }
-
-    /**
      * Delete status
      */
     public function delete(): bool
@@ -221,35 +160,86 @@ class LendStatus
     }
 
     /**
-     * Global getter method
-     *
-     * @param string $name name of the property we want to retrieve
-     *
-     * @return mixed the called property
+     * Get ID
      */
-    public function __get(string $name): mixed
+    public function getId(): ?int
     {
-        return $this->$name ?? null;
+        return $this->status_id;
     }
 
     /**
-     * Global setter method
-     *
-     * @param string $name  name of the property we want to assign a value to
-     * @param mixed  $value a relevant value for the property
+     * Get text
      */
-    public function __set(string $name, mixed $value): void
+    public function getText(): string
     {
-        $this->$name = $value;
+        return $this->status_text;
     }
 
     /**
-     * Generic isset function
+     * Set text
      *
-     * @param string $name Property name
+     * @param string $text Status text
      */
-    public function __isset(string $name): bool
+    public function setText(string $text): self
     {
-        return property_exists($this, $name);
+        $this->status_text = $text;
+        return $this;
+    }
+
+    /**
+     * Is object in stock with this status?
+     */
+    public function isInStock(): bool
+    {
+        return $this->in_stock;
+    }
+
+    /**
+     * Set in stock
+     *
+     * @param bool $in_stock In stock
+     */
+    public function setInStock(bool $in_stock): self
+    {
+        $this->in_stock = $in_stock;
+        return $this;
+    }
+
+    /**
+     * Is status active?
+     */
+    public function isActive(): bool
+    {
+        return $this->is_active;
+    }
+
+    /**
+     * Set active
+     *
+     * @param bool $active Active
+     */
+    public function setActive(bool $active): self
+    {
+        $this->is_active = $active;
+        return $this;
+    }
+
+    /**
+     * Get number of days of rent
+     */
+    public function getRentDayNumber(): ?int
+    {
+        return $this->rent_day_number;
+    }
+
+    /**
+     * Set number of days of rent
+     *
+     * @param ?int $days Number of days, null for none
+     */
+    public function setRentDayNumber(?int $days): self
+    {
+        $this->rent_day_number = $days;
+        return $this;
     }
 }

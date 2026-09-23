@@ -95,7 +95,7 @@
                 {% if not object.object_id %}
                     {% set state_list_values = {(0): _T("--- Select a status ---", "objectslend")} %}
                     {% for sta in statuses %}
-                        {% set state_list_values = state_list_values + {(sta.status_id): sta.status_text} %}
+                        {% set state_list_values = state_list_values + {(sta.getId()): sta.getText()} %}
                     {% endfor %}
 
                     {% include "components/forms/select.html.twig" with {
@@ -177,11 +177,11 @@
                     <div class="active content">
                         {% set state_list_values = {(-1): _T("--- Select a status ---", "objectslend")} %}
                         {% for sta in statuses %}
-                            {% set text = sta.status_text %}
-                            {% if sta.in_stock %}
+                            {% set text = sta.getText() %}
+                            {% if sta.isInStock() %}
                                 {% set text = text ~ ' (' ~ _T("In stock", "objectslend") ~ ')' %}
                             {% endif %}
-                            {% set state_list_values = state_list_values + {(sta.status_id): text} %}
+                            {% set state_list_values = state_list_values + {(sta.getId()): text} %}
                         {% endfor %}
 
                         {% include "components/forms/select.html.twig" with {

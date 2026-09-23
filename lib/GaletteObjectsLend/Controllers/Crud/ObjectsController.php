@@ -21,7 +21,6 @@ use GaletteObjectsLend\Repository\Objects;
 use GaletteObjectsLend\Repository\Status;
 use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Entity\LendRent;
-use GaletteObjectsLend\Entity\LendStatus;
 use GaletteObjectsLend\Entity\Preferences;
 use GaletteObjectsLend\LendException;
 use GaletteObjectsLend\LendService;
@@ -563,8 +562,8 @@ class ObjectsController extends AbstractPluginController
             ),
             'time'          => time(),
             'statuses'      => ($action == 'take'
-                ? LendStatus::getActiveTakeAwayStatuses($this->zdb)
-                : LendStatus::getActiveStockStatuses($this->zdb)),
+                ? (new Status($this->zdb, $this->login))->getActiveTakeAwayStatuses()
+                : (new Status($this->zdb, $this->login))->getActiveStockStatuses()),
             'lendsprefs'    => $lendsprefs->getPreferences(),
             'olendsprefs'   => $lendsprefs,
             'ajax'          => $this->isAjax($request),

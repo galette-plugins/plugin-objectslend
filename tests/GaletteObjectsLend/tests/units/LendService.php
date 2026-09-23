@@ -53,18 +53,18 @@ class LendService extends GaletteTestCase
         $this->assertTrue($prefs->store($values));
 
         $status = new LendStatus($this->zdb);
-        $status->status_text = 'In stock';
-        $status->in_stock = true;
-        $status->is_active = true;
+        $status->setText('In stock');
+        $status->setInStock(true);
+        $status->setActive(true);
         $this->assertTrue($status->store());
-        $this->instock_status = $status->status_id;
+        $this->instock_status = $status->getId();
 
         $status = new LendStatus($this->zdb);
-        $status->status_text = 'Lent';
-        $status->in_stock = false;
-        $status->is_active = true;
+        $status->setText('Lent');
+        $status->setInStock(false);
+        $status->setActive(true);
         $this->assertTrue($status->store());
-        $this->lent_status = $status->status_id;
+        $this->lent_status = $status->getId();
 
         $object = new LendObject($this->zdb);
         $object->name = 'Service object';
@@ -182,16 +182,16 @@ class LendService extends GaletteTestCase
     public function testChangeStatusInvalid(): void
     {
         $status = new LendStatus($this->zdb);
-        $status->status_text = 'Inactive';
-        $status->in_stock = true;
-        $status->is_active = false;
+        $status->setText('Inactive');
+        $status->setInStock(true);
+        $status->setActive(false);
         $this->assertTrue($status->store());
 
         $this->logSuperAdmin();
         $service = $this->getService();
         $object = $service->getObject($this->object_id);
 
-        foreach ([$status->status_id, 999999] as $status_id) {
+        foreach ([$status->getId(), 999999] as $status_id) {
             try {
                 $service->changeStatus($object, (int)$status_id);
                 $this->fail('Status change should have failed');

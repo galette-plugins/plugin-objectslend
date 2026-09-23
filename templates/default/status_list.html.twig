@@ -133,13 +133,13 @@
     {% for status in statuses %}
         <tr class="{% if loop.index is odd %}even{% else %}odd{% endif %}">
             <td class="collapsing" data-scope="id">
-                {{ status.status_id }}
+                {{ status.getId() }}
             </td>
             <td data-col-label="{{ _T("Status", "objectslend") }}">
-                {{ status.status_text }}
+                {{ status.getText() }}
             </td>
             <td class="center collapsing" data-col-label="{{ _T("Active", "objectslend") }}">
-                {% if status.is_active %}
+                {% if status.isActive() %}
                     <i class="thumbs up green icon tooltip" data-html="{{ _T("Active", "objectslend") }}"></i>
                     <span class="visually-hidden">{{ _T("Active", "objectslend") }}</span>
                 {% else %}
@@ -148,7 +148,7 @@
                 {% endif %}
             </td>
             <td class="center collapsing" data-col-label="{{ _T("Stock", "objectslend") }}">
-                {% if status.in_stock %}
+                {% if status.isInStock() %}
                     <i class="thumbs up green icon tooltip" data-html="{{ _T("In stock", "objectslend") }}"></i>
                     <span class="visually-hidden">{{ _T("In stock", "objectslend") }}</span>
                 {% else %}
@@ -157,8 +157,8 @@
                 {% endif %}
             </td>
             <td class="collapsing" data-col-label="{{ _T("Days for rent", "objectslend") }}">
-                {% if status.rent_day_number %}
-                    {{ _T("%days days", "objectslend")|replace({'%days': status.rent_day_number}) }}
+                {% if status.getRentDayNumber() %}
+                    {{ _T("%days days", "objectslend")|replace({'%days': status.getRentDayNumber()}) }}
                 {% else %}
                     -
                 {% endif %}
@@ -166,18 +166,18 @@
             <td class="center actions_row collapsing">
                 {% set actions = [
                     {
-                        'label': _T("Edit %status", "objectslend")|replace({'%status': status.status_text}),
+                        'label': _T("Edit %status", "objectslend")|replace({'%status': status.getText()}),
                         'route': {
                             'name': 'objectslend_status_edit',
-                            'args': {'id': status.status_id}
+                            'args': {'id': status.getId()}
                         },
                         'icon': 'edit'
                     },
                     {
-                        'label': _T("Remove %status from database", "objectslend")|replace({'%status': status.status_text}),
+                        'label': _T("Remove %status from database", "objectslend")|replace({'%status': status.getText()}),
                         'route': {
                         'name': 'objectslend_remove_status',
-                            'args': {'id': status.status_id}
+                            'args': {'id': status.getId()}
                         },
                         'icon': 'trash red',
                         'extra_class': 'delete'

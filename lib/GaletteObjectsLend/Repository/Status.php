@@ -340,4 +340,44 @@ class Status
     {
         return $this->errors;
     }
+
+    /**
+     * Get active statuses of borrowed objects, sorted by text
+     *
+     * @return LendStatus[]
+     */
+    public function getActiveTakeAwayStatuses(): array
+    {
+        return $this->getActiveStatuses(false);
+    }
+
+    /**
+     * Get active in stock statuses, sorted by text
+     *
+     * @return LendStatus[]
+     */
+    public function getActiveStockStatuses(): array
+    {
+        return $this->getActiveStatuses(true);
+    }
+
+    /**
+     * Get active statuses, sorted by text
+     *
+     * @param bool $in_stock In stock or borrowed statuses
+     *
+     * @return LendStatus[]
+     */
+    private function getActiveStatuses(bool $in_stock): array
+    {
+        $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
+            ->where(['is_active' => 1, 'in_stock' => (int)$in_stock])
+            ->order('status_text');
+
+        $statuses = [];
+        foreach ($this->zdb->execute($select) as $row) {
+            $statuses[] = new LendStatus($this->zdb, $row);
+        }
+        return $statuses;
+    }
 }

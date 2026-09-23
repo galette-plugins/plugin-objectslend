@@ -105,11 +105,11 @@
                 <div class="inline field">
                     {% set state_list_values = {(-1): _T("--- Select a status ---", "objectslend")} %}
                     {% for sta in statuses %}
-                        {% set text = sta.status_text %}
-                        {% if sta.rent_day_number != '' %}
-                            {% set text = text ~ ' (' ~ _T("%days days", "objectslend")|replace({'%days': sta.rent_day_number}) ~ ')' %}
+                        {% set text = sta.getText() %}
+                        {% if sta.getRentDayNumber() %}
+                            {% set text = text ~ ' (' ~ _T("%days days", "objectslend")|replace({'%days': sta.getRentDayNumber()}) ~ ')' %}
                         {% endif %}
-                        {% set state_list_values = state_list_values + {(sta.status_id): text} %}
+                        {% set state_list_values = state_list_values + {(sta.getId()): text} %}
                     {% endfor %}
 
                     {% include "components/forms/select.html.twig" with {
@@ -149,7 +149,7 @@
                 <div class="inline field">
                     {% set state_list_values = {(-1): _T("--- Select a status ---", "objectslend")} %}
                     {% for sta in statuses %}
-                        {% set state_list_values = state_list_values + {(sta.status_id): sta.status_text} %}
+                        {% set state_list_values = state_list_values + {(sta.getId()): sta.getText()} %}
                     {% endfor %}
 
                     {% include "components/forms/select.html.twig" with {

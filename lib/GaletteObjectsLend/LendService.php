@@ -20,6 +20,7 @@ use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Entity\LendRent;
 use GaletteObjectsLend\Entity\LendStatus;
 use GaletteObjectsLend\Entity\Preferences;
+use GaletteObjectsLend\Repository\Status;
 use Throwable;
 
 /**
@@ -161,7 +162,7 @@ class LendService
 
         if (
             !$this->isAvailable($object)
-            || !$this->isAllowedStatus($status_id, LendStatus::getActiveTakeAwayStatuses($this->zdb))
+            || !$this->isAllowedStatus($status_id, $this->getStatuses()->getActiveTakeAwayStatuses())
         ) {
             $this->refuse(
                 'Trying to borrow an unavailable object or with an invalid status!',
@@ -208,7 +209,7 @@ class LendService
 
         if (
             !$this->isLent($object)
-            || !$this->isAllowedStatus($status_id, LendStatus::getActiveStockStatuses($this->zdb))
+            || !$this->isAllowedStatus($status_id, $this->getStatuses()->getActiveStockStatuses())
         ) {
             $this->refuse(
                 'Trying to return an object that is not lent or with an invalid status!',
@@ -247,7 +248,7 @@ class LendService
         }
 
         $status = new LendStatus($this->zdb, $status_id);
-        if ($object->getId() === null || $status->status_id === null || !$status->is_active) {
+        if ($object->getId() === null || $status->getId() === null || !$status->isActive()) {
             $this->refuse(
                 'Trying to change an object status to an invalid one!',
                 $object,
@@ -432,6 +433,14 @@ class LendService
     }
 
     /**
+     * Get statuses repository
+     */
+    private function getStatuses(): Status
+    {
+        return new Status($this->zdb, $this->login);
+    }
+
+    /**
      * Is current user staff or admin?
      */
     private function isManager(): bool
@@ -448,7 +457,7 @@ class LendService
     private function isAllowedStatus(int $status_id, array $statuses): bool
     {
         foreach ($statuses as $status) {
-            if ($status->status_id === $status_id) {
+            if ($status->getId() === $status_id) {
                 return true;
             }
         }

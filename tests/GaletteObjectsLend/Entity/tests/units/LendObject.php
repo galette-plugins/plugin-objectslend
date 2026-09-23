@@ -202,22 +202,22 @@ class LendObject extends GaletteTestCase
     private function createStatus(): void
     {
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One active status';
-        $status->in_stock = true;
-        $status->is_active = true;
+        $status->setText('One active status');
+        $status->setInStock(true);
+        $status->setActive(true);
         $this->assertTrue($status->store());
-        $this->active_instock_status = $status->status_id;
+        $this->active_instock_status = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'Another active status';
-        $status->in_stock = false;
-        $status->is_active = true;
+        $status->setText('Another active status');
+        $status->setInStock(false);
+        $status->setActive(true);
         $this->assertTrue($status->store());
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One inactive status';
-        $status->in_stock = true;
-        $status->is_active = false;
+        $status->setText('One inactive status');
+        $status->setInStock(true);
+        $status->setActive(false);
         $this->assertTrue($status->store());
     }
 

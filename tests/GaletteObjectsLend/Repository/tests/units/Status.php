@@ -60,33 +60,33 @@ class Status extends GaletteTestCase
         $this->assertSame(0, $status->getCount());
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One active in stock status';
-        $status->in_stock = true;
-        $status->is_active = true;
+        $status->setText('One active in stock status');
+        $status->setInStock(true);
+        $status->setActive(true);
         $this->assertTrue($status->store());
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One active in stock status';
-        $status->in_stock = true;
-        $status->is_active = true;
+        $status->setText('One active in stock status');
+        $status->setInStock(true);
+        $status->setActive(true);
         $this->assertTrue($status->store());
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One active not in stock status';
-        $status->in_stock = false;
-        $status->is_active = true;
+        $status->setText('One active not in stock status');
+        $status->setInStock(false);
+        $status->setActive(true);
         $this->assertTrue($status->store());
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One inactive in stock status';
-        $status->in_stock = true;
-        $status->is_active = false;
+        $status->setText('One inactive in stock status');
+        $status->setInStock(true);
+        $status->setActive(false);
         $this->assertTrue($status->store());
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One inactive not in stock status';
-        $status->in_stock = false;
-        $status->is_active = false;
+        $status->setText('One inactive not in stock status');
+        $status->setInStock(false);
+        $status->setActive(false);
         $this->assertTrue($status->store());
 
         $filters = new \GaletteObjectsLend\Filters\StatusList();

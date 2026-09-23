@@ -90,13 +90,13 @@ class StatusController extends AbstractPluginController
         $statuses = new Status($this->zdb, $this->login, $filters);
         $list = $statuses->getStatusList(true);
 
-        if (count(LendStatus::getActiveStockStatuses($this->zdb)) == 0) {
+        if (count($statuses->getActiveStockStatuses()) == 0) {
             $this->flash->addMessage(
                 'error_detected',
                 _T("Please add at last one status \"in stock\"!", "objectslend")
             );
         }
-        if (count(LendStatus::getActiveTakeAwayStatuses($this->zdb)) == 0) {
+        if (count($statuses->getActiveTakeAwayStatuses()) == 0) {
             $this->flash->addMessage(
                 'error_detected',
                 _T("Please add at least one status \"object borrowed\"!", "objectslend")
@@ -197,10 +197,10 @@ class StatusController extends AbstractPluginController
             $status = new LendStatus($this->zdb, $id);
         }
 
-        if ($status->status_id !== null) {
+        if ($status->getId() !== null) {
             $title = str_replace(
                 '%status',
-                $status->status_text,
+                $status->getText(),
                 _T("Edit status %status", "objectslend")
             );
         } else {
@@ -236,11 +236,12 @@ class StatusController extends AbstractPluginController
         $status = new LendStatus($this->zdb, $id);
         $error_detected = [];
 
-        $status->status_text = $post['text'];
-        $status->in_stock = isset($post['in_stock']);
-        $status->is_active = isset($post['is_active']);
         $days = trim($post['rent_day_number']);
-        $status->rent_day_number = strlen($days) > 0 ? (int)$days : null;
+        $status
+            ->setText($post['text'])
+            ->setInStock(isset($post['in_stock']))
+            ->setActive(isset($post['is_active']))
+            ->setRentDayNumber(strlen($days) > 0 ? (int)$days : null);
         if (!$status->store()) {
             $error_detected[] = _T("An error occurred while storing the status.", "objectslend");
         }
@@ -254,7 +255,7 @@ class StatusController extends AbstractPluginController
                 );
             }
 
-            $args = ($action == 'edit' ? ['id' => $status->status_id] : []);
+            $args = ($action == 'edit' ? ['id' => $status->getId()] : []);
             return $response
                 ->withStatus(301)
                 ->withHeader(
@@ -316,7 +317,7 @@ class StatusController extends AbstractPluginController
         $status = new LendStatus($this->zdb, (int)$args['id']);
         return sprintf(
             _T('Remove status %1$s', 'objectslend'),
-            $status->status_text
+            $status->getText()
         );
     }
 
