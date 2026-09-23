@@ -23,10 +23,11 @@ use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Entity\LendRent;
 use GaletteObjectsLend\Entity\LendStatus;
 use GaletteObjectsLend\Entity\Preferences;
+use GaletteObjectsLend\LendException;
+use GaletteObjectsLend\LendService;
 use Galette\Controllers\Crud\AbstractPluginController;
 use Galette\Entity\Adherent;
 use Galette\Entity\Contribution;
-use Galette\Entity\ContributionsTypes;
 use Galette\Repository\Members;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
@@ -385,10 +386,11 @@ class ObjectsController extends AbstractPluginController
 
         if ($object->store()) {
             if (!empty($post['1st_status'])) {
-                $rent = new LendRent();
-                $rent->object_id = $object->getId();
-                $rent->status_id = (int)$post['1st_status'];
-                $rent->store();
+                try {
+                    $this->getLendService()->changeStatus($object, (int)$post['1st_status']);
+                } catch (LendException $e) {
+                    $error_detected[] = $e->getMessage();
+                }
             }
 
             // picture upload
@@ -458,21 +460,20 @@ class ObjectsController extends AbstractPluginController
 
         $object = new LendObject($this->zdb, $id);
 
-        LendRent::closeAllRentsForObject($object->getId(), $post['new_comment']);
-
-        $rent = new LendRent();
-        $rent->object_id = $object->getId();
-        $rent->status_id = $post['new_status'];
-        if (!empty($post['new_adh'])) {
-            $rent->adherent_id = (int)$post['new_adh'];
+        try {
+            $this->getLendService()->changeStatus(
+                $object,
+                (int)($post['new_status'] ?? 0),
+                empty($post['new_adh']) ? null : (int)$post['new_adh'],
+                $post['new_comment'] ?? ''
+            );
+            $this->flash->addMessage(
+                'success_detected',
+                _T("Status has been updated", "objectslend")
+            );
+        } catch (LendException $e) {
+            $this->flash->addMessage('error_detected', $e->getMessage());
         }
-        $rent->store();
-
-        //redirect to objects form
-        $this->flash->addMessage(
-            'success_detected',
-            _T("Status has been updated", "objectslend")
-        );
 
         return $response
             ->withStatus(301)
@@ -573,26 +574,13 @@ class ObjectsController extends AbstractPluginController
 
         ];
 
-        $deps = [
-            'rents'     => true,
-            'last_rent' => true,
-            'member'    => true,
-            'category'  => true
-        ];
-        $object = new LendObject(
-            $this->zdb,
-            $id,
-            $deps
-        );
+        $service = $this->getLendService($lendsprefs);
+        $object = $service->getObject($id);
         $params['object'] = $object;
-        $last_rent = $object->rents[0] ?? null;
-        $params['last_rent'] = $last_rent;
+        $params['last_rent'] = $object->getRentId() !== null ? new LendRent($object->getRentId()) : null;
 
         if ($action == 'take') {
-            if (
-                !$lendsprefs->{Preferences::PARAM_ENABLE_MEMBER_RENT_OBJECT}
-                && !($this->login->isAdmin() || $this->login->isStaff())
-            ) {
+            if (!$service->canTake()) {
                 Analog::log(
                     'Trying to borrow an object without appropriate rights! (Object '
                     . $id . ', user ' . $this->login->login . ')',
@@ -632,7 +620,7 @@ class ObjectsController extends AbstractPluginController
             $params['require_calendar'] = true;
             $params['rent_price'] = str_replace([ ',', ' '], [ '.', ''], $object->rent_price); //FIXME :/
 
-            if (!$object->isActive() || ($last_rent !== null && !$last_rent->in_stock)) {
+            if (!$service->isAvailable($object)) {
                 //redirect to objects list
                 $this->flash->addMessage(
                     'warning_detected',
@@ -655,9 +643,7 @@ class ObjectsController extends AbstractPluginController
             $date_forecast->add(new \DateInterval('P1D'));
             $params['date_forecast'] = $date_forecast->format(__('Y-m-d'));
         } else {
-            if (
-                !$this->canGiveBack($object, $lendsprefs)
-            ) {
+            if (!$service->canGiveBack($object)) {
                 Analog::log(
                     'Trying to return an object without appropriate rights! (Object '
                     . $id . ', user ' . $this->login->login . ')',
@@ -697,152 +683,34 @@ class ObjectsController extends AbstractPluginController
      */
     public function doTake(Request $request, Response $response, int $id): Response
     {
-        $lendsprefs = new Preferences($this->zdb);
         $post = $request->getParsedBody();
+        $service = $this->getLendService();
+        $object = $service->getObject($id);
 
-        $object_id = $id;
-
-        if (
-            !$lendsprefs->{Preferences::PARAM_ENABLE_MEMBER_RENT_OBJECT}
-            && !($this->login->isAdmin() || $this->login->isStaff())
-        ) {
-            Analog::log(
-                'Trying to borrow an object without appropriate rights! (Object '
-                . $id . ', user ' . $this->login->login . ')',
-                Analog::WARNING
+        try {
+            $contribution = $service->take(
+                $object,
+                (int)($post['status'] ?? 0),
+                $post['expected_return'] ?? null,
+                empty($post[Adherent::PK]) ? null : (int)$post[Adherent::PK],
+                empty($post['rent_price'])
+                    ? null
+                    //FIXME: better currency format handler
+                    : (float)str_replace([' ', ','], ['', '.'], $post['rent_price']),
+                empty($post['payment_type']) ? null : (int)$post['payment_type']
             );
-
-            //redirect to objects list
-            $this->flash->addMessage(
-                'error_detected',
-                _T("You do not have rights to borrow objects!", "objectslend")
-            );
-
+        } catch (LendException $e) {
+            $this->flash->addMessage('error_detected', $e->getMessage());
             return $response
                 ->withStatus(301)
-                ->withHeader(
-                    'Location',
-                    $this->routeparser->urlFor('objectslend_objects')
-                );
+                ->withHeader('Location', $this->routeparser->urlFor('objectslend_objects'));
         }
 
-        $object = new LendObject(
-            $this->zdb,
-            $object_id,
-            ['rents' => true, 'last_rent' => true, 'category' => true]
-        );
-        $last_rent = $object->getCurrentRent();
-        if (
-            $object->getId() === null
-            || !$object->isActive()
-            || ($last_rent !== null && !$last_rent->in_stock)
-            || !$this->isAllowedStatus((int)($post['status'] ?? 0), LendStatus::getActiveTakeAwayStatuses($this->zdb))
-        ) {
-            Analog::log(
-                'Trying to borrow an unavailable object or with an invalid status! (Object '
-                . $id . ', user ' . $this->login->login . ')',
-                Analog::WARNING
-            );
-
+        if ($contribution !== null) {
             $this->flash->addMessage(
-                'error_detected',
-                _T("This object cannot be borrowed.", "objectslend")
+                'success_detected',
+                _T('Contribution has been successfully stored')
             );
-
-            return $response
-                ->withStatus(301)
-                ->withHeader(
-                    'Location',
-                    $this->routeparser->urlFor('objectslend_objects')
-                );
-        }
-
-        // close olds object rents
-        LendRent::closeAllRentsForObject($object_id, '');
-
-        // Ajout d'un nouveau statut "objet loué"
-        $rent = new LendRent();
-        $rent->object_id = $object_id;
-        $rent->status_id = (int)$post['status'];
-        $rent->date_forecast = $post['expected_return'];
-
-        if (!empty($post[Adherent::PK]) && ($this->login->isAdmin() || $this->login->isStaff())) {
-            $rent->adherent_id = (int)$post[Adherent::PK];
-        } else {
-            $rent->adherent_id = $this->login->id;
-        }
-        $rent->store();
-
-        //retrieve object information
-        $object = new LendObject(
-            $this->zdb,
-            $object_id
-        );
-
-        // Add contribution
-        if ($lendsprefs->{Preferences::PARAM_AUTO_GENERATE_CONTRIBUTION}) {
-            //retrieve lend price
-            $rentprice = $object->value_rent_price;
-            if ($post['rent_price']  && ($this->login->isAdmin() || $this->login->isStaff())) {
-                $rentprice = floatval(str_replace(' ', '', str_replace(',', '.', $post['rent_price'])));
-            }
-
-            if ($rentprice > 0) {
-                $contrib = new Contribution($this->zdb, $this->login);
-
-                $info = str_replace(
-                    [
-                        '{NAME}',
-                        '{DESCRIPTION}',
-                        '{SERIAL_NUMBER}',
-                        '{PRICE}',
-                        '{RENT_PRICE}',
-                        '{WEIGHT}',
-                        '{DIMENSION}'
-                    ],
-                    [
-                        $object->name,
-                        $object->description,
-                        $object->serial_number,
-                        $object->price,
-                        $object->rent_price,
-                        $object->weight,
-                        $object->dimension
-                    ],
-                    $lendsprefs->{Preferences::PARAM_GENERATED_CONTRIB_INFO_TEXT}
-                );
-
-                $values = [
-                    'montant_cotis'         => $rentprice,
-                    ContributionsTypes::PK  => $lendsprefs->{Preferences::PARAM_GENERATED_CONTRIBUTION_TYPE_ID},
-                    'date_enreg'            => date("Y-m-d"),
-                    'date_debut_cotis'      => date("Y-m-d"),
-                    'type_paiement_cotis'   => $post['payment_type'],
-                    'info_cotis'            => $info,
-                    Adherent::PK            => $rent->adherent_id
-                ];
-                $contrib->check($values, [], []);
-                try {
-                    $created = $contrib->store();
-                } catch (\OverflowException $e) {
-                    $created = false;
-                    Analog::log(
-                        $e->getMessage(),
-                        Analog::ERROR
-                    );
-                }
-                if ($created) {
-                    $this->flash->addMessage(
-                        'success_detected',
-                        _T('Contribution has been successfully stored')
-                    );
-                } else {
-                    $this->flash->addMessage(
-                        'error_detected',
-                        _T("An error occurred while storing the contribution.", "objectslend")
-                    );
-                }
-            }
         }
 
         $this->flash->addMessage(
@@ -854,22 +722,7 @@ class ObjectsController extends AbstractPluginController
             )
         );
 
-        if ($this->isAjax($request) || $post['mode'] == 'ajax') {
-            return $this->withJson(
-                $response,
-                [
-                    'success'   => 'true'
-                ]
-            );
-        } else {
-            // Redirection sur la liste des objets
-            return $response
-                ->withStatus(301)
-                ->withHeader(
-                    'Location',
-                    $this->routeparser->urlFor('objectslend_objects')
-                );
-        }
+        return $this->lendResponse($request, $response);
     }
 
     /**
@@ -881,80 +734,18 @@ class ObjectsController extends AbstractPluginController
      */
     public function doReturn(Request $request, Response $response, int $id): Response
     {
-        $lendsprefs = new Preferences($this->zdb);
         $post = $request->getParsedBody();
+        $service = $this->getLendService();
+        $object = $service->getObject($id);
 
-        $object_id = $id;
-
-        $deps = [
-            'rents'     => true,
-            'last_rent' => true,
-            'member'    => true
-        ];
-
-        //retrieve object information
-        $object = new LendObject(
-            $this->zdb,
-            $object_id,
-            $deps
-        );
-
-        if (
-            !$this->canGiveBack($object, $lendsprefs)
-        ) {
-            Analog::log(
-                'Trying to return an object without appropriate rights! (Object '
-                . $id . ', user ' . $this->login->login . ')',
-                Analog::WARNING
-            );
-
-            //redirect to objects list
-            $this->flash->addMessage(
-                'error_detected',
-                _T("You do not have rights to return objects!", "objectslend")
-            );
-
+        try {
+            $service->giveBack($object, (int)($post['status'] ?? 0));
+        } catch (LendException $e) {
+            $this->flash->addMessage('error_detected', $e->getMessage());
             return $response
                 ->withStatus(301)
-                ->withHeader(
-                    'Location',
-                    $this->routeparser->urlFor('objectslend_objects')
-                );
+                ->withHeader('Location', $this->routeparser->urlFor('objectslend_objects'));
         }
-
-        $last_rent = $object->getCurrentRent();
-        if (
-            $last_rent === null
-            || $last_rent->in_stock
-            || !$this->isAllowedStatus((int)($post['status'] ?? 0), LendStatus::getActiveStockStatuses($this->zdb))
-        ) {
-            Analog::log(
-                'Trying to return an object that is not lent or with an invalid status! (Object '
-                . $id . ', user ' . $this->login->login . ')',
-                Analog::WARNING
-            );
-
-            $this->flash->addMessage(
-                'error_detected',
-                _T("This object cannot be returned.", "objectslend")
-            );
-
-            return $response
-                ->withStatus(301)
-                ->withHeader(
-                    'Location',
-                    $this->routeparser->urlFor('objectslend_objects')
-                );
-        }
-
-        // close olds object rents
-        LendRent::closeAllRentsForObject($object_id, '');
-
-        // Ajout d'un nouveau statut "objet loué"
-        $rent = new LendRent();
-        $rent->object_id = $object_id;
-        $rent->status_id = (int)$post['status'];
-        $rent->store();
 
         $this->flash->addMessage(
             'success_detected',
@@ -965,58 +756,43 @@ class ObjectsController extends AbstractPluginController
             )
         );
 
-        if ($this->isAjax($request) || $post['mode'] == 'ajax') {
+        return $this->lendResponse($request, $response);
+    }
+
+    /**
+     * Response after a successful take or return
+     *
+     * @param Request  $request  PSR Request
+     * @param Response $response PSR Response
+     */
+    private function lendResponse(Request $request, Response $response): Response
+    {
+        $post = $request->getParsedBody();
+        if ($this->isAjax($request) || ($post['mode'] ?? '') == 'ajax') {
             return $this->withJson(
                 $response,
                 [
                     'success'   => 'true'
                 ]
             );
-        } else {
-            // Redirection sur la liste des objets
-            return $response
-                ->withStatus(301)
-                ->withHeader(
-                    'Location',
-                    $this->routeparser->urlFor('objectslend_objects')
-                );
         }
+
+        return $response
+            ->withStatus(301)
+            ->withHeader(
+                'Location',
+                $this->routeparser->urlFor('objectslend_objects')
+            );
     }
 
     /**
-     * Can current user give back an object?
+     * Get lend service
      *
-     * Staff and admins always can; members only when they are allowed
-     * to borrow objects and hold the object.
-     *
-     * @param LendObject  $object     Object
-     * @param Preferences $lendsprefs Plugin preferences
+     * @param ?Preferences $lendsprefs Plugin preferences, loaded if not provided
      */
-    private function canGiveBack(LendObject $object, Preferences $lendsprefs): bool
+    private function getLendService(?Preferences $lendsprefs = null): LendService
     {
-        if ($this->login->isAdmin() || $this->login->isStaff()) {
-            return true;
-        }
-
-        return $lendsprefs->{Preferences::PARAM_ENABLE_MEMBER_RENT_OBJECT}
-            && $object->getIdAdh() !== null
-            && $this->login->id == $object->getIdAdh();
-    }
-
-    /**
-     * Is status part of allowed ones?
-     *
-     * @param int          $status_id Status ID
-     * @param LendStatus[] $statuses  Allowed statuses
-     */
-    private function isAllowedStatus(int $status_id, array $statuses): bool
-    {
-        foreach ($statuses as $status) {
-            if ($status->status_id === $status_id) {
-                return true;
-            }
-        }
-        return false;
+        return new LendService($this->zdb, $this->login, $lendsprefs ?? new Preferences($this->zdb));
     }
 
     // /CRUD - Update

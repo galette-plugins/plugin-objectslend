@@ -6,11 +6,6 @@ parameters:
 			count: 2
 			path: lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php
 
-		-
-			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, array\<int, float\|string\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php
 
 		-
 			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, int\<0, max\> given\.$#'

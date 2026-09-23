@@ -114,6 +114,11 @@ class LendObject extends GaletteTestCase
         $rent->status_id = $this->active_instock_status;
         $rent->object_id = $oid;
         $this->assertTrue($rent->store());
+        //current rent is set by LendService
+        $update = $this->zdb->update(LEND_PREFIX . \GaletteObjectsLend\Entity\LendObject::TABLE)
+            ->set([\GaletteObjectsLend\Entity\LendRent::PK => $rent->rent_id])
+            ->where([\GaletteObjectsLend\Entity\LendObject::PK => $oid]);
+        $this->zdb->execute($update);
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb, $oid, $deps);
         $this->assertTrue($object->isActive());

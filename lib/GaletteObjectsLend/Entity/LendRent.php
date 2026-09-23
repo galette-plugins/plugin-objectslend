@@ -154,14 +154,6 @@ class LendRent
                         'Rent #' . $this->rent_id . ' added.',
                         Analog::DEBUG
                     );
-                    $update = $zdb->update(LEND_PREFIX . LendObject::TABLE)
-                        ->set([self::PK => $this->rent_id])
-                        ->where([LendObject::PK => $this->object_id]);
-                    $zdb->execute($update);
-                    Analog::log(
-                        'Rent set for object #' . $this->object_id,
-                        Analog::DEBUG
-                    );
                 } else {
                     throw new \Exception(_T("Rent has not been added", "objectslend"));
                 }

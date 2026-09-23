@@ -160,7 +160,21 @@ class ObjectsController extends GaletteRoutingTestCase
         $rent->adherent_id = $member_id;
         //make sure the rent is older than the ones created from controller
         $rent->date_begin = (new \DateTime('-1 day'))->format('Y-m-d H:i:s');
+        $this->storeCurrentRent($rent);
+    }
+
+    /**
+     * Store a rent as the test object current one, bypassing controller
+     *
+     * @param LendRent $rent Rent
+     */
+    private function storeCurrentRent(LendRent $rent): void
+    {
         $this->assertTrue($rent->store());
+        $update = $this->zdb->update(LEND_PREFIX . LendObject::TABLE)
+            ->set([LendRent::PK => $rent->rent_id])
+            ->where([LendObject::PK => $this->object_id]);
+        $this->zdb->execute($update);
     }
 
     /**
@@ -602,8 +616,7 @@ class ObjectsController extends GaletteRoutingTestCase
         $rent->object_id = $this->object_id;
         $rent->status_id = $this->instock_status;
         $rent->date_begin = (new \DateTime('-1 day'))->format('Y-m-d H:i:s');
-        $this->assertTrue($rent->store());
-        $this->assertSame($rent->rent_id, $this->getObjectRentId());
+        $this->storeCurrentRent($rent);
 
         $mdata = $this->dataAdherentOne();
         $member_one = $this->getMemberOne();
@@ -689,13 +702,9 @@ class ObjectsController extends GaletteRoutingTestCase
     }
 
     /**
-     * A member borrowing a paid object gets no contribution, and an error page
-     *
-     * Known bug: the contribution is checked with the rights of the member, who
-     * cannot create one; the result of check() is ignored and store() throws,
-     * after the rent has been stored.
+     * Test a member borrowing a paid object gets a contribution at the object price
      */
-    public function testMemberTakeWithContributionFails(): void
+    public function testMemberTakeGeneratesContribution(): void
     {
         $this->setPrefs(true, true);
         $this->setRentPrice(3.5);
@@ -705,18 +714,51 @@ class ObjectsController extends GaletteRoutingTestCase
         $this->logMember($mdata);
         $test_response = $this->app->handle(
             $this->takeRequest([
+                //members cannot change price
                 'rent_price' => '0,01',
                 'payment_type' => (string)\Galette\Entity\PaymentType::CASH
             ])
         );
-        $this->assertSame(500, $test_response->getStatusCode());
-        $this->expectLogEntry(Analog::ERROR, 'Some errors has been threw attempting to edit/store a contribution');
-        $this->expectFlashData([]);
+        $this->assertSame(301, $test_response->getStatusCode());
+        $this->expectFlashData(['success_detected' => [
+            'Contribution has been successfully stored',
+            'You have just borrowed Test object :)'
+        ]]);
 
-        $this->assertCount(0, $this->getContributions());
+        $contribs = $this->getContributions();
+        $this->assertCount(1, $contribs);
+        $this->assertEquals(3.5, $contribs[0]['montant_cotis']);
+        $this->assertSame($member_one->id, (int)$contribs[0][\Galette\Entity\Adherent::PK]);
         $rents = $this->getRents();
         $this->assertCount(1, $rents);
         $this->assertSame($member_one->id, $rents[0]->adherent_id);
+    }
+
+    /**
+     * Test lend is refused when contribution cannot be stored
+     *
+     * Rollback itself is checked in LendService tests, this one runs in a transaction.
+     */
+    public function testTakeWithInvalidContribution(): void
+    {
+        $this->setPrefs(false, true);
+        $this->setRentPrice(3.5);
+        $member_one = $this->getMemberOne();
+
+        $this->logSuperAdmin();
+        $test_response = $this->app->handle(
+            $this->takeRequest([
+                \Galette\Entity\Adherent::PK => (string)$member_one->id,
+                'payment_type' => '999999'
+            ])
+        );
+        $this->assertSame(301, $test_response->getStatusCode());
+        $this->expectLogEntry(Analog::WARNING, 'Unknown payment type 999999');
+        $this->expectLogEntry(Analog::ERROR, 'Some errors has been threw attempting to edit/store a contribution');
+        $this->expectLogEntry(Analog::ERROR, 'Unable to generate contribution for object #' . $this->object_id);
+        $this->expectFlashData(['error_detected' => ['An error occurred while storing the contribution.']]);
+
+        $this->assertCount(0, $this->getContributions());
     }
 
     /**
@@ -897,5 +939,74 @@ class ObjectsController extends GaletteRoutingTestCase
         );
         $this->expectAuthMiddlewareRefused($test_response);
         $this->assertCount(1, $this->getRents());
+    }
+
+    /**
+     * Build a lend page request
+     *
+     * @param string $action Either take or return
+     */
+    private function lendPageRequest(string $action): \Slim\Psr7\Request
+    {
+        return $this->createRequest(
+            route_name: 'objectslend_object_take',
+            route_args: ['action' => $action, 'id' => (string)$this->object_id]
+        );
+    }
+
+    /**
+     * Take page is displayed for an available object, not for a lent one
+     */
+    public function testTakePage(): void
+    {
+        $this->setPrefs(false);
+        $this->logSuperAdmin();
+
+        $test_response = $this->app->handle($this->lendPageRequest('take'));
+        $this->assertSame(200, $test_response->getStatusCode());
+        $this->assertStringContainsString('Test object', (string)$test_response->getBody());
+
+        $this->lendObject($this->getMemberOne()->id);
+        $test_response = $this->app->handle($this->lendPageRequest('take'));
+        $this->assertSame(301, $test_response->getStatusCode());
+        $this->expectFlashData(['warning_detected' => ['Test object is currently not available']]);
+    }
+
+    /**
+     * Take page is refused to members when they cannot borrow
+     */
+    public function testTakePageRefusedToMember(): void
+    {
+        $this->setPrefs(false);
+        $this->getMemberOne();
+        $this->logMember($this->dataAdherentOne());
+
+        $test_response = $this->app->handle($this->lendPageRequest('take'));
+        $this->assertSame(301, $test_response->getStatusCode());
+        $this->expectFlashData(['error_detected' => ['You do not have rights to borrow objects!']]);
+        $this->expectLogEntry(Analog::WARNING, 'Trying to borrow an object without appropriate rights!');
+    }
+
+    /**
+     * Return page is displayed to the holder only
+     */
+    public function testReturnPage(): void
+    {
+        $this->setPrefs(true);
+        $member_one = $this->getMemberOne();
+        $this->lendObject($member_one->id);
+
+        $this->logMember($this->dataAdherentOne());
+        $test_response = $this->app->handle($this->lendPageRequest('return'));
+        $this->assertSame(200, $test_response->getStatusCode());
+        $this->assertStringContainsString('Test object', (string)$test_response->getBody());
+        $this->login->logout();
+
+        $this->getMemberTwo();
+        $this->logMember($this->dataAdherentTwo());
+        $test_response = $this->app->handle($this->lendPageRequest('return'));
+        $this->assertSame(301, $test_response->getStatusCode());
+        $this->expectFlashData(['error_detected' => ['You do not have rights to return objects!']]);
+        $this->expectLogEntry(Analog::WARNING, 'Trying to return an object without appropriate rights!');
     }
 }
