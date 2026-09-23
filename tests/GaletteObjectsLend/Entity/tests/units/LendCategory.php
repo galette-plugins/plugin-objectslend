@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace GaletteObjectsLends\Entity\tests\units;
+namespace GaletteObjectsLend\Entity\tests\units;
 
 use Galette\Tests\GaletteTestCase;
 

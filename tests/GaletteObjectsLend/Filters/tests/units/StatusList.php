@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace GaletteObjectslend\Filters\test\units;
+namespace GaletteObjectsLend\Filters\tests\units;
 
 use Galette\Tests\GaletteTestCase;
 
