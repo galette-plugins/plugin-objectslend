@@ -118,6 +118,6 @@ class CategoriesList extends GaletteTestCase
         $this->testDefaults($filters);
 
         $this->expectException(\RuntimeException::class);
-        $value = $filters->non_existing;
+        $this->assertNull($filters->non_existing);
     }
 }

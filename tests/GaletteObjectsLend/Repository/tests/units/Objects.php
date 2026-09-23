@@ -104,7 +104,6 @@ class Objects extends GaletteTestCase
         $object->dimension = '210x297';
         $object->is_active = false;
         $this->assertTrue($object->store());
-        $fourth_object_id = $object->getId();
 
         $filters = new \GaletteObjectsLend\Filters\ObjectsList();
         $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->lend_prefs, $filters);

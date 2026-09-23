@@ -79,7 +79,6 @@ class LendStatus extends GaletteTestCase
         $status->in_stock = true;
         $status->is_active = false;
         $this->assertTrue($status->store());
-        $status_three = $status->status_id;
 
         $list = $status::getActiveTakeAwayStatuses($this->zdb);
         $this->assertCount(1, $list);
