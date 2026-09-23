@@ -471,6 +471,21 @@ class ObjectsController extends GaletteRoutingTestCase
     }
 
     /**
+     * Category is chosen from the search form, empty value for all
+     */
+    public function testFilterOnCategory(): void
+    {
+        $this->logSuperAdmin();
+        foreach (['42' => 42, '' => null] as $posted => $expected) {
+            $request = $this->createRequest(route_name: 'objectslend_filter_objects', method: 'POST')
+                ->withParsedBody(['filter_str' => '', 'category_filter' => (string)$posted]);
+            $test_response = $this->app->handle($request);
+            $this->assertSame(301, $test_response->getStatusCode());
+            $this->assertSame($expected, $this->session->plugin_objectslend_objects_filter->category_filter);
+        }
+    }
+
+    /**
      * Add an object from the form
      *
      * @param string $first_status First status posted

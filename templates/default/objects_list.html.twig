@@ -128,7 +128,7 @@
 {% block search %}
     <form id="filtre" method="POST" action="{{ url_for("objectslend_filter_objects") }}" class="ui form filters">
         <div class="ui secondary yellow segment">
-            <div class="three fields">
+            <div class="{% if lendsprefs.VIEW_CATEGORY and categories|length > 0 %}three{% else %}two{% endif %} fields">
                 <div class="field">
                     <label for="filter_str">{{ _T('Search:') }}</label>
                     <input type="text" name="filter_str" id="filter_str" value="{{ filters.filter_str }}" type="search" placeholder="{{ _T('Enter a value') }}"/>
@@ -141,9 +141,36 @@
                         {% endfor %}
                     </select>
                 </div>
+                {% if lendsprefs.VIEW_CATEGORY and categories|length > 0 %}
+                    <div class="field">
+                        <label id="category_filter_label">{{ _T("Category:", "objectslend") }}</label>
+                        <div class="ui selection dropdown" aria-labelledby="category_filter_label">
+                            <input type="hidden" name="category_filter" value="{{ filters.category_filter }}"/>
+                            <i class="dropdown icon" aria-hidden="true"></i>
+                            <div class="default text">{{ _T("All") }}</div>
+                            <div class="menu">
+                                <div class="item" data-value="">
+                                    <img class="ui avatar image" src="{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": 0}) }}" alt=""/>
+                                    {{ _T("All") }}
+                                </div>
+                                {% for categ in categories %}
+                                    <div class="item" data-value="{{ categ.getId() }}">
+                                        {% if lendsprefs.VIEW_LIST_PRICE_SUM and lendsprefs.VIEW_PRICE and (login.isAdmin() or login.isStaff()) %}
+                                            <span class="description">{{ categ.getSum()|format_currency('EUR', {}, i18n.getWebID()) }}</span>
+                                        {% endif %}
+                                        <img class="ui avatar image" src="{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": categ.getId()}) }}" alt=""/>
+                                        {{ categ.getName() }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="two fields last-child">
                 <div class="field">
-                    <label for="email_filter">{{ _T("Active:", "objectslend") }}</label>
                     <div class="inline fields">
+                        <label for="filter_dc_active">{{ _T("Active:", "objectslend") }}</label>
                         <div class="field inline">
                             <div class="ui radio checkbox">
                                 <input type="radio" name="active_filter" id="filter_dc_active" value="{{ constant('GaletteObjectsLend\\Repository\\Objects::ALL_OBJECTS') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Objects::ALL_OBJECTS') %} checked="checked"{% endif %}>
@@ -164,7 +191,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="ui right aligned basic fitted segment field flexend">
+                <div class="ui right aligned basic fitted segment field">
                     <button type="submit"  class="ui labeled icon primary button" title="{{ _T("Apply filters") }}" name="filter">
                         <i class="search icon"></i>
                         {{ _T("Filter") }}
@@ -177,44 +204,6 @@
             </div>
         </div>
     </form>
-
-    {% if lendsprefs.VIEW_CATEGORY and categories|length > 0 %}
-        <div class="galetteform ui styled fluid accordion field">
-            <div class="ui title">
-                <i class="dropdown icon" aria-hidden="true"></i>
-                {{ _T("Categories", "objectslend") }}
-            </div>
-            <div class="content">
-                <div class="ui huge labels">
-                    <a class="ui{% if filters.category_filter == null %} primary{% endif %} image label" href="{{ url_for("objectslend_objects", {"option": "category", "value": 0}) }}">
-                        <img
-                                src="{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": 0}) }}"
-                                alt=""
-                        />
-                        {{ _T("All") }}
-                    </a>
-
-                    {% for categ in categories %}
-                        {% if categ.isActive() or categ.getId() == -1 %}
-                            <a class="ui{% if filters.category_filter == categ.getId() %} primary{% endif %} image label" href="{{ url_for("objectslend_objects", {"option": "category", "value": categ.getId()}) }}">
-                                <img
-                                    src="{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": categ.getId()}) }}"
-                                    width="{{ categ.getPicture().getOptimalThumbWidth(olendsprefs) }}"
-                                    height="{{ categ.getPicture().getOptimalThumbHeight(olendsprefs) }}"
-                                    alt=""
-                                />
-                                {{ categ.getName() }}
-                            {% if lendsprefs.VIEW_LIST_PRICE_SUM and lendsprefs.VIEW_PRICE and (login.isAdmin() or login.isStaff()) %}
-                                <div class="detail">{{ categ.getSum()|format_currency('EUR', {}, i18n.getWebID()) }}</div>
-                            {% endif %}
-                            </a>
-                        {% endif %}
-                    {% endfor %}
-
-                </div>
-            </div>
-        </div>
-    {% endif %}
 {% endblock %}
 
 {% block body %}
