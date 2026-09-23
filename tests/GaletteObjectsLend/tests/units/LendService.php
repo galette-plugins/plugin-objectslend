@@ -170,7 +170,7 @@ class LendService extends GaletteTestCase
         $this->expectLogEntry(Analog::ERROR, 'Unable to generate contribution for object #' . $this->object_id);
 
         $this->assertSame(0, $this->countContributions());
-        $this->assertCount(0, LendRent::getRentsForObjectId($this->object_id));
+        $this->assertCount(0, (new \GaletteObjectsLend\Repository\Rents($this->zdb))->getForObject($this->object_id));
         $object = $service->getObject($this->object_id);
         $this->assertNull($object->getRentId());
         $this->assertTrue($service->isAvailable($object));

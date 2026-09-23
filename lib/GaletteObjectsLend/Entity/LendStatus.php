@@ -44,8 +44,8 @@ class LendStatus
     /**
      * Status constructor
      *
-     * @param Db                                      $zdb  Database instance
-     * @param int|ArrayObject<string,int|string>|null $args Can be null, an ID or a database row
+     * @param Db                                 $zdb  Database instance
+     * @param int|ArrayObject<string,mixed>|null $args Can be null, an ID or a database row
      */
     public function __construct(Db $zdb, int|ArrayObject|null $args = null)
     {
@@ -74,15 +74,15 @@ class LendStatus
     /**
      * Populate object from a resultset row
      *
-     * @param ArrayObject<string,int|string> $r the resultset row
+     * @param ArrayObject<string,mixed> $r the resultset row
      */
     private function loadFromRS(ArrayObject $r): void
     {
-        $this->status_id = (int)$r->status_id;
-        $this->status_text = $r->status_text;
-        $this->in_stock = $r->in_stock == '1';
-        $this->is_active = $r->is_active == '1';
-        $this->rent_day_number = $r->rent_day_number != null ? (int)$r->rent_day_number : null;
+        $this->status_id = (int)$r['status_id'];
+        $this->status_text = (string)$r['status_text'];
+        $this->in_stock = $r['in_stock'] == '1';
+        $this->is_active = $r['is_active'] == '1';
+        $this->rent_day_number = $r['rent_day_number'] != null ? (int)$r['rent_day_number'] : null;
     }
 
     /**

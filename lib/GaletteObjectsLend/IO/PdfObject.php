@@ -180,12 +180,12 @@ class PdfObject extends Pdf
         $this->SetFont(Pdf::FONT, '', 9);
 
         foreach ($rents as $rt) {
-            $this->Cell($col_begin, 0, $this->cut($rt->date_begin, $col_begin), 'B');
-            $this->Cell($col_end, 0, $this->cut($rt->date_end, $col_end), 'B');
-            $this->Cell($col_status, 0, $this->cut($rt->status_text, $col_status), 'B');
-            $this->Cell($col_stock, 0, $rt->in_stock ? '    X' : '', 'B');
-            $this->Cell($col_adh, 0, $this->cut($rt->nom_adh . ' ' . $rt->prenom_adh, $col_adh), 'B');
-            $this->Cell($col_comments, 0, $this->cut($rt->comments, $col_comments), 'B');
+            $this->Cell($col_begin, 0, $this->cut($rt->getDateBegin(), $col_begin), 'B');
+            $this->Cell($col_end, 0, $this->cut($rt->getDateEnd(), $col_end), 'B');
+            $this->Cell($col_status, 0, $this->cut($rt->getStatusText(), $col_status), 'B');
+            $this->Cell($col_stock, 0, $rt->isInStock() ? '    X' : '', 'B');
+            $this->Cell($col_adh, 0, $this->cut($rt->getMemberName(), $col_adh), 'B');
+            $this->Cell($col_comments, 0, $this->cut($rt->getComments(), $col_comments), 'B');
             $this->Ln();
         }
     }

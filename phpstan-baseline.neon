@@ -28,24 +28,6 @@ parameters:
 			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$category_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendCategory.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$is_active\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendCategory.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendCategory.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$category_id\.$#'
-			identifier: property.notFound
-			count: 1
 			path: lib/GaletteObjectsLend/Entity/LendObject.php
 
 		-
@@ -143,90 +125,6 @@ parameters:
 			identifier: booleanAnd.rightAlwaysTrue
 			count: 1
 			path: lib/GaletteObjectsLend/Entity/LendObject.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$adherent_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendRent.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$comments\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendRent.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$date_begin\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendRent.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$date_end\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendRent.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$date_forecast\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendRent.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$object_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendRent.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$rent_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendRent.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$status_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendRent.php
-
-		-
-			message: '#^Loose comparison using \=\= between int and '''' will always evaluate to false\.$#'
-			identifier: equal.alwaysFalse
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendRent.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$in_stock\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendStatus.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$is_active\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendStatus.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$rent_day_number\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendStatus.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$status_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendStatus.php
-
-		-
-			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$status_text\.$#'
-			identifier: property.notFound
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendStatus.php
 
 		-
 			message: '#^Cannot access property \$code on array\|ArrayObject\.$#'

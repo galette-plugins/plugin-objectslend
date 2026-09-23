@@ -154,12 +154,12 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     private function lendObject(int $member_id): void
     {
-        $rent = new LendRent();
-        $rent->object_id = $this->object_id;
-        $rent->status_id = $this->lent_status;
-        $rent->adherent_id = $member_id;
+        $rent = new LendRent($this->zdb);
+        $rent->setObjectId($this->object_id);
+        $rent->setStatusId($this->lent_status);
+        $rent->setAdherentId($member_id);
         //make sure the rent is older than the ones created from controller
-        $rent->date_begin = (new \DateTime('-1 day'))->format('Y-m-d H:i:s');
+        $rent->setDateBegin((new \DateTime('-1 day'))->format('Y-m-d H:i:s'));
         $this->storeCurrentRent($rent);
     }
 
@@ -172,7 +172,7 @@ class ObjectsController extends GaletteRoutingTestCase
     {
         $this->assertTrue($rent->store());
         $update = $this->zdb->update(LEND_PREFIX . LendObject::TABLE)
-            ->set([LendRent::PK => $rent->rent_id])
+            ->set([LendRent::PK => $rent->getId()])
             ->where([LendObject::PK => $this->object_id]);
         $this->zdb->execute($update);
     }
@@ -184,7 +184,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     private function getRents(): array
     {
-        return LendRent::getRentsForObjectId($this->object_id);
+        return (new \GaletteObjectsLend\Repository\Rents($this->zdb))->getForObject($this->object_id);
     }
 
     /**
@@ -247,7 +247,7 @@ class ObjectsController extends GaletteRoutingTestCase
 
         $rents = $this->getRents();
         $this->assertCount(1, $rents);
-        $this->assertSame($member_one->id, $rents[0]->adherent_id);
+        $this->assertSame($member_one->id, $rents[0]->getAdherentId());
     }
 
     /**
@@ -267,7 +267,7 @@ class ObjectsController extends GaletteRoutingTestCase
 
         $rents = $this->getRents();
         $this->assertCount(1, $rents);
-        $this->assertSame($member_one->id, $rents[0]->adherent_id);
+        $this->assertSame($member_one->id, $rents[0]->getAdherentId());
     }
 
     /**
@@ -293,8 +293,8 @@ class ObjectsController extends GaletteRoutingTestCase
         //current lend has not been closed
         $rents = $this->getRents();
         $this->assertCount(1, $rents);
-        $this->assertSame($member_one->id, $rents[0]->adherent_id);
-        $this->assertSame('', $rents[0]->date_end ?? '');
+        $this->assertSame($member_one->id, $rents[0]->getAdherentId());
+        $this->assertSame('', $rents[0]->getDateEnd());
     }
 
     /**
@@ -330,7 +330,7 @@ class ObjectsController extends GaletteRoutingTestCase
 
         $rents = $this->getRents();
         $this->assertCount(2, $rents);
-        $this->assertTrue($rents[0]->in_stock);
+        $this->assertTrue($rents[0]->isInStock());
     }
 
     /**
@@ -508,7 +508,7 @@ class ObjectsController extends GaletteRoutingTestCase
     public function testAddWithoutFirstStatus(): void
     {
         $object = $this->addObject('0');
-        $this->assertCount(0, LendRent::getRentsForObjectId($object->getId()));
+        $this->assertCount(0, (new \GaletteObjectsLend\Repository\Rents($this->zdb))->getForObject($object->getId()));
     }
 
     /**
@@ -517,9 +517,9 @@ class ObjectsController extends GaletteRoutingTestCase
     public function testAddWithFirstStatus(): void
     {
         $object = $this->addObject((string)$this->instock_status);
-        $rents = LendRent::getRentsForObjectId($object->getId());
+        $rents = (new \GaletteObjectsLend\Repository\Rents($this->zdb))->getForObject($object->getId());
         $this->assertCount(1, $rents);
-        $this->assertSame($this->instock_status, $rents[0]->status_id);
+        $this->assertSame($this->instock_status, $rents[0]->getStatusId());
     }
 
     /**
@@ -563,7 +563,7 @@ class ObjectsController extends GaletteRoutingTestCase
 
         $rents = $this->getRents();
         $this->assertCount(1, $rents);
-        $this->assertSame($member_two->id, $rents[0]->adherent_id);
+        $this->assertSame($member_two->id, $rents[0]->getAdherentId());
     }
 
     /**
@@ -585,7 +585,7 @@ class ObjectsController extends GaletteRoutingTestCase
 
         $rents = $this->getRents();
         $this->assertCount(1, $rents);
-        $this->assertSame($member_one->id, $rents[0]->adherent_id);
+        $this->assertSame($member_one->id, $rents[0]->getAdherentId());
     }
 
     /**
@@ -612,10 +612,10 @@ class ObjectsController extends GaletteRoutingTestCase
     public function testTakeClosesCurrentRent(): void
     {
         $this->setPrefs(true);
-        $rent = new LendRent();
-        $rent->object_id = $this->object_id;
-        $rent->status_id = $this->instock_status;
-        $rent->date_begin = (new \DateTime('-1 day'))->format('Y-m-d H:i:s');
+        $rent = new LendRent($this->zdb);
+        $rent->setObjectId($this->object_id);
+        $rent->setStatusId($this->instock_status);
+        $rent->setDateBegin((new \DateTime('-1 day'))->format('Y-m-d H:i:s'));
         $this->storeCurrentRent($rent);
 
         $mdata = $this->dataAdherentOne();
@@ -630,15 +630,15 @@ class ObjectsController extends GaletteRoutingTestCase
         $rents = $this->getRents();
         $this->assertCount(2, $rents);
         //new rent
-        $this->assertSame($member_one->id, $rents[0]->adherent_id);
-        $this->assertSame($this->lent_status, $rents[0]->status_id);
-        $this->assertFalse($rents[0]->in_stock);
-        $this->assertSame('', $rents[0]->date_end ?? '');
-        $this->assertStringStartsWith('2030-01-15', $rents[0]->date_forecast);
-        $this->assertSame($rents[0]->rent_id, $this->getObjectRentId());
+        $this->assertSame($member_one->id, $rents[0]->getAdherentId());
+        $this->assertSame($this->lent_status, $rents[0]->getStatusId());
+        $this->assertFalse($rents[0]->isInStock());
+        $this->assertSame('', $rents[0]->getDateEnd());
+        $this->assertStringStartsWith('2030-01-15', $rents[0]->getDateForecast());
+        $this->assertSame($rents[0]->getId(), $this->getObjectRentId());
         //previous one is closed
-        $this->assertSame($rent->rent_id, $rents[1]->rent_id);
-        $this->assertNotNull($rents[1]->date_end);
+        $this->assertSame($rent->getId(), $rents[1]->getId());
+        $this->assertNotSame('', $rents[1]->getDateEnd());
     }
 
     /**
@@ -731,7 +731,7 @@ class ObjectsController extends GaletteRoutingTestCase
         $this->assertSame($member_one->id, (int)$contribs[0][\Galette\Entity\Adherent::PK]);
         $rents = $this->getRents();
         $this->assertCount(1, $rents);
-        $this->assertSame($member_one->id, $rents[0]->adherent_id);
+        $this->assertSame($member_one->id, $rents[0]->getAdherentId());
     }
 
     /**
@@ -803,12 +803,12 @@ class ObjectsController extends GaletteRoutingTestCase
 
         $rents = $this->getRents();
         $this->assertCount(2, $rents);
-        $this->assertTrue($rents[0]->in_stock);
+        $this->assertTrue($rents[0]->isInStock());
         //returned object is held by no one
-        $this->assertNull($rents[0]->adherent_id);
-        $this->assertSame('', $rents[0]->date_end ?? '');
-        $this->assertSame($rents[0]->rent_id, $this->getObjectRentId());
-        $this->assertNotNull($rents[1]->date_end);
+        $this->assertNull($rents[0]->getAdherentId());
+        $this->assertSame('', $rents[0]->getDateEnd());
+        $this->assertSame($rents[0]->getId(), $this->getObjectRentId());
+        $this->assertNotSame('', $rents[1]->getDateEnd());
     }
 
     /**
@@ -889,13 +889,13 @@ class ObjectsController extends GaletteRoutingTestCase
 
         $rents = $this->getRents();
         $this->assertCount(2, $rents);
-        $this->assertSame($member_two->id, $rents[0]->adherent_id);
-        $this->assertSame($this->lent_status, $rents[0]->status_id);
-        $this->assertSame('', $rents[0]->date_end ?? '');
-        $this->assertSame($rents[0]->rent_id, $this->getObjectRentId());
+        $this->assertSame($member_two->id, $rents[0]->getAdherentId());
+        $this->assertSame($this->lent_status, $rents[0]->getStatusId());
+        $this->assertSame('', $rents[0]->getDateEnd());
+        $this->assertSame($rents[0]->getId(), $this->getObjectRentId());
         //comment goes to the closed rent
-        $this->assertNotNull($rents[1]->date_end);
-        $this->assertSame('Handed over', $rents[1]->comments);
+        $this->assertNotSame('', $rents[1]->getDateEnd());
+        $this->assertSame('Handed over', $rents[1]->getComments());
 
         //no member: object is held by no one
         $test_response = $this->app->handle(
@@ -912,11 +912,11 @@ class ObjectsController extends GaletteRoutingTestCase
         //rents have been created in the same second, their order is not reliable
         $current = array_values(array_filter(
             $rents,
-            fn(LendRent $rent) => $rent->rent_id === $this->getObjectRentId()
+            fn(LendRent $rent) => $rent->getId() === $this->getObjectRentId()
         ));
         $this->assertCount(1, $current);
-        $this->assertNull($current[0]->adherent_id);
-        $this->assertTrue($current[0]->in_stock);
+        $this->assertNull($current[0]->getAdherentId());
+        $this->assertTrue($current[0]->isInStock());
     }
 
     /**

@@ -49,9 +49,9 @@ class LendCategory
     /**
      * Default constructor
      *
-     * @param Db                                      $zdb  Database instance
-     * @param int|ArrayObject<string,int|string>|null $args Maybe null, an RS object or an id from database
-     * @param ?array<string,bool>                     $deps Dependencies configuration, see LendCategory::$deps
+     * @param Db                                 $zdb  Database instance
+     * @param int|ArrayObject<string,mixed>|null $args Maybe null, an RS object or an id from database
+     * @param ?array<string,bool>                $deps Dependencies configuration, see LendCategory::$deps
      */
     public function __construct(Db $zdb, int|ArrayObject|null $args = null, ?array $deps = null)
     {
@@ -91,20 +91,20 @@ class LendCategory
     /**
      * Populate object from a resultset row
      *
-     * @param ArrayObject<string, int|string> $r the resultset row
+     * @param ArrayObject<string,mixed> $r the resultset row
      */
     private function loadFromRS(ArrayObject $r): void
     {
-        $this->category_id = (int)$r->category_id;
-        $this->name = $r->name;
-        $this->is_active = $r->is_active == '1';
+        $this->category_id = (int)$r['category_id'];
+        $this->name = $r['name'] !== null ? (string)$r['name'] : null;
+        $this->is_active = $r['is_active'] == '1';
 
-        if (property_exists($r, 'objects_count')) {
-            $this->objects_nb = (int)$r->objects_count;
+        if (isset($r['objects_count'])) {
+            $this->objects_nb = (int)$r['objects_count'];
         }
 
-        if (property_exists($r, 'objects_price_sum') && $r->objects_price_sum !== null) {
-            $this->objects_price_sum = (float)$r->objects_price_sum;
+        if (isset($r['objects_price_sum'])) {
+            $this->objects_price_sum = (float)$r['objects_price_sum'];
         }
 
         if ($this->deps['picture'] === true) {

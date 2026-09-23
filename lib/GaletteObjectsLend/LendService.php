@@ -20,6 +20,7 @@ use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Entity\LendRent;
 use GaletteObjectsLend\Entity\LendStatus;
 use GaletteObjectsLend\Entity\Preferences;
+use GaletteObjectsLend\Repository\Rents;
 use GaletteObjectsLend\Repository\Status;
 use Throwable;
 
@@ -279,23 +280,22 @@ class LendService
     ): LendRent {
         $object_id = (int)$object->getId();
 
-        if (!LendRent::closeAllRentsForObject($object_id, $comments)) {
-            throw new \RuntimeException('Unable to close rents for object #' . $object_id);
-        }
+        (new Rents($this->zdb))->closeAllForObject($object_id, $comments);
 
-        $rent = new LendRent();
-        $rent->object_id = $object_id;
-        $rent->status_id = $status_id;
-        $rent->adherent_id = $member_id;
+        $rent = new LendRent($this->zdb);
+        $rent
+            ->setObjectId($object_id)
+            ->setStatusId($status_id)
+            ->setAdherentId($member_id);
         if ($date_forecast !== null) {
-            $rent->date_forecast = $date_forecast;
+            $rent->setDateForecast($date_forecast);
         }
         if (!$rent->store()) {
             throw new \RuntimeException('Unable to store rent for object #' . $object_id);
         }
 
         $update = $this->zdb->update(LEND_PREFIX . LendObject::TABLE)
-            ->set([LendRent::PK => $rent->rent_id])
+            ->set([LendRent::PK => $rent->getId()])
             ->where([LendObject::PK => $object_id]);
         $this->zdb->execute($update);
 
@@ -347,7 +347,7 @@ class LendService
             'date_debut_cotis'      => date("Y-m-d"),
             'type_paiement_cotis'   => $payment_type,
             'info_cotis'            => $info,
-            Adherent::PK            => $rent->adherent_id
+            Adherent::PK            => $rent->getAdherentId()
         ];
 
         //borrower has already been checked: members can only borrow for themselves

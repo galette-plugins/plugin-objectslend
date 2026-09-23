@@ -162,7 +162,7 @@
 
                 <div class="inline field">
                     <label>{{ _T("Time:", "objectslend") }}</label>
-                    {{ _T("From %begindate to %enddate", "objectslend")|replace({"%begindate": last_rent.date_begin, "%enddate": "now"|date(_T("Y-m-d"))}) }}
+                    {{ _T("From %begindate to %enddate", "objectslend")|replace({"%begindate": last_rent.getDateBegin(), "%enddate": "now"|date(_T("Y-m-d"))}) }}
                 </div>
                 <div>
                     {% include "components/forms/textarea.html.twig" with {

@@ -59,15 +59,15 @@ class LendRent extends GaletteTestCase
      */
     public function testEmpty(): void
     {
-        $rent = new \GaletteObjectsLend\Entity\LendRent();
-        $this->assertNull($rent->rent_id);
-        $this->assertNull($rent->object_id);
-        $this->assertNull($rent->status_id);
-        $this->assertNull($rent->adherent_id);
-        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}/', $rent->date_begin);
-        $this->assertSame('', $rent->date_forecast);
-        $this->assertSame('', $rent->date_end);
-        $this->assertSame('', $rent->comments);
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb);
+        $this->assertNull($rent->getId());
+        $this->assertNull($rent->getObjectId());
+        $this->assertNull($rent->getStatusId());
+        $this->assertNull($rent->getAdherentId());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}/', $rent->getDateBegin());
+        $this->assertSame('', $rent->getDateForecast());
+        $this->assertSame('', $rent->getDateEnd());
+        $this->assertSame('', $rent->getComments());
     }
 
     /**
@@ -75,7 +75,7 @@ class LendRent extends GaletteTestCase
      */
     public function testCrud(): void
     {
-        $rent = new \GaletteObjectsLend\Entity\LendRent();
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb);
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
         $object->name = 'Test object';
@@ -83,61 +83,61 @@ class LendRent extends GaletteTestCase
         $oid = $object->object_id;
 
         $bdate = new \DateTime('2024-05-22 19:46:21');
-        $rent->date_begin = $bdate->format('Y-m-d H:i:s');
-        $rent->object_id = $oid;
-        $rent->status_id = $this->active_instock_status;
-        $rent->comments = 'Test comment';
+        $rent->setDateBegin($bdate->format('Y-m-d H:i:s'));
+        $rent->setObjectId($oid);
+        $rent->setStatusId($this->active_instock_status);
+        $rent->setComments('Test comment');
         $this->assertTrue($rent->store());
-        $rent_id = $rent->rent_id;
+        $rent_id = $rent->getId();
 
-        $rent = new \GaletteObjectsLend\Entity\LendRent($rent_id);
-        $this->assertSame($this->active_instock_status, $rent->status_id);
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb, $rent_id);
+        $this->assertSame($this->active_instock_status, $rent->getStatusId());
 
         //update rent
         $member = $this->getMemberOne();
-        $rent = new \GaletteObjectsLend\Entity\LendRent($rent_id);
-        $rent->status_id = $this->active_notinstock_status;
-        $rent->adherent_id = $member->id;
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb, $rent_id);
+        $rent->setStatusId($this->active_notinstock_status);
+        $rent->setAdherentId($member->id);
         $this->assertTrue($rent->store());
 
-        $rent = new \GaletteObjectsLend\Entity\LendRent($rent_id);
-        $this->assertSame($this->active_notinstock_status, $rent->status_id);
-        $this->assertSame($member->id, $rent->adherent_id);
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb, $rent_id);
+        $this->assertSame($this->active_notinstock_status, $rent->getStatusId());
+        $this->assertSame($member->id, $rent->getAdherentId());
 
         //another (older) rent
-        $rent = new \GaletteObjectsLend\Entity\LendRent();
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb);
         $bdate = new \DateTime('2024-05-22 19:46:21');
         $bdate->sub(new \DateInterval('P2Y'));
-        $rent->date_begin = $bdate->format('Y-m-d H:i:s');
+        $rent->setDateBegin($bdate->format('Y-m-d H:i:s'));
         $rent2_edate = clone $bdate;
         $rent2_edate->add(new \DateInterval('P1Y'));
-        $rent->date_end = $rent2_edate->format('Y-m-d H:i:s');
-        $rent->date_forecast = $rent2_edate->format('Y-m-d');
-        $rent->object_id = $oid;
-        $rent->status_id = $this->active_instock_status;
-        $rent->comments = 'Test 2 comment';
+        $rent->setDateEnd($rent2_edate->format('Y-m-d H:i:s'));
+        $rent->setDateForecast($rent2_edate->format('Y-m-d'));
+        $rent->setObjectId($oid);
+        $rent->setStatusId($this->active_instock_status);
+        $rent->setComments('Test 2 comment');
         $this->assertTrue($rent->store());
-        $rent2_id = $rent->rent_id;
+        $rent2_id = $rent->getId();
         $this->assertNotEquals($rent_id, $rent2_id);
-        $this->assertSame($rent2_edate->format('Y-m-d'), $rent->date_forecast);
+        $this->assertSame($rent2_edate->format('Y-m-d'), $rent->getDateForecast());
 
-        $object_rents = $rent::getRentsForObjectId($oid);
+        $object_rents = (new \GaletteObjectsLend\Repository\Rents($this->zdb))->getForObject($oid);
         $this->assertCount(2, $object_rents);
 
         //only last
-        $object_rents = $rent::getRentsForObjectId($oid, true);
+        $object_rents = (new \GaletteObjectsLend\Repository\Rents($this->zdb))->getForObject($oid, true);
         $this->assertCount(1, $object_rents);
 
         //close all rents
-        $this->assertTrue($rent::closeAllRentsForObject($oid, 'Now closed.'));
+        (new \GaletteObjectsLend\Repository\Rents($this->zdb))->closeAllForObject($oid, 'Now closed.');
 
-        $rent = new \GaletteObjectsLend\Entity\LendRent($rent_id);
-        $this->assertSame('Now closed.', $rent->comments);
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb, $rent_id);
+        $this->assertSame('Now closed.', $rent->getComments());
 
         //had an end_date, should not be modified
-        $rent = new \GaletteObjectsLend\Entity\LendRent($rent2_id);
-        $this->assertEquals($rent2_edate->format('Y-m-d H:i'), $rent->date_end);
-        $this->assertSame('Test 2 comment', $rent->comments);
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb, $rent2_id);
+        $this->assertEquals($rent2_edate->format('Y-m-d H:i'), $rent->getDateEnd());
+        $this->assertSame('Test 2 comment', $rent->getComments());
 
         //cleanup to avoid constraint errors
         $this->assertTrue($object->delete());

@@ -105,18 +105,18 @@ class LendObject extends GaletteTestCase
         $oid = $object->getId();
         $this->assertGreaterThan(0, $oid);
 
-        $rent = new \GaletteObjectsLend\Entity\LendRent();
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb);
         $bdate = new \DateTime('2024-05-22 19:46:21');
-        $rent->date_begin = $bdate->format('Y-m-d H:i:s');
+        $rent->setDateBegin($bdate->format('Y-m-d H:i:s'));
         $edate = clone $bdate;
         $edate->add(new \DateInterval('P1Y'));
-        $rent->date_end = $edate->format('Y-m-d H:i:s');
-        $rent->status_id = $this->active_instock_status;
-        $rent->object_id = $oid;
+        $rent->setDateEnd($edate->format('Y-m-d H:i:s'));
+        $rent->setStatusId($this->active_instock_status);
+        $rent->setObjectId($oid);
         $this->assertTrue($rent->store());
         //current rent is set by LendService
         $update = $this->zdb->update(LEND_PREFIX . \GaletteObjectsLend\Entity\LendObject::TABLE)
-            ->set([\GaletteObjectsLend\Entity\LendRent::PK => $rent->rent_id])
+            ->set([\GaletteObjectsLend\Entity\LendRent::PK => $rent->getId()])
             ->where([\GaletteObjectsLend\Entity\LendObject::PK => $oid]);
         $this->zdb->execute($update);
 

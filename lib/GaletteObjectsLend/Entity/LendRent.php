@@ -12,28 +12,13 @@ namespace GaletteObjectsLend\Entity;
 
 use Analog\Analog;
 use ArrayObject;
-use Galette\Entity\Adherent;
+use Galette\Core\Db;
 
 /**
  * Rents
  *
  * @author Mélissa Djebel <melissa.djebel@gmx.net>
  * @author Johan Cwiklinski <johan@x-tnd.be>
- *
- * @property ?int    $rent_id
- * @property ?int    $object_id
- * @property ?string $date_begin
- * @property ?string $date_forecast
- * @property ?string $date_end
- * @property ?int    $status_id
- * @property ?int    $adherent_id
- * @property string  $comments
- * @property bool    $in_stock
- * @property string  $status_text
- * @property string  $nom_adh
- * @property string  $prenom_adh
- * @property string  $pseudo_adh
- * @property string  $email_adh
  */
 class LendRent
 {
@@ -51,40 +36,36 @@ class LendRent
         'adherent_id' => 'integer',
         'comments' => 'varchar(200)'
     ];
-    private int $rent_id;
-    private int $object_id;
-    private ?string $date_begin;
-    private ?string $date_forecast;
-    private ?string $date_end;
-    private ?int $status_id;
-    private ?int $adherent_id;
+    private ?int $rent_id = null;
+    private ?int $object_id = null;
+    private string $date_begin;
+    private ?string $date_forecast = null;
+    private ?string $date_end = null;
+    private ?int $status_id = null;
+    private ?int $adherent_id = null;
     private string $comments = '';
-    private bool $in_stock;
 
-    private string $status_text;
-
-    private ?string $nom_adh = '';
-    private ?string $prenom_adh = '';
-    private ?string $pseudo_adh = '';
-    private ?string $email_adh = '';
+    //from joined tables
+    private string $status_text = '';
+    private bool $in_stock = false;
+    private string $nom_adh = '';
+    private string $prenom_adh = '';
 
     /**
      * Default constructor
      *
-     * @param int|ArrayObject<string,int|string>|null $args Either an int with rent id, null, or a resultset row
+     * @param Db                                 $zdb  Database instance
+     * @param int|ArrayObject<string,mixed>|null $args Either an int with rent id, null, or a resultset row
      */
-    public function __construct(int|ArrayObject|null $args = null)
+    public function __construct(private Db $zdb, int|ArrayObject|null $args = null)
     {
-        global $zdb;
-
-        $date = new \DateTime();
-        $this->date_begin = $date->format('Y-m-d H:i:s');
+        $this->date_begin = date('Y-m-d H:i:s');
 
         if (is_int($args)) {
             try {
-                $select = $zdb->select(LEND_PREFIX . self::TABLE)
+                $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
                         ->where([self::PK => $args]);
-                $result = $zdb->execute($select);
+                $result = $this->zdb->execute($select);
                 if ($result->count() == 1) {
                     $this->loadFromRS($result->current());
                 }
@@ -103,20 +84,31 @@ class LendRent
     /**
      * Populate object from a resultset row
      *
-     * @param ArrayObject<string,int|string> $r the resultset row
+     * @param ArrayObject<string,mixed> $r the resultset row
      */
     private function loadFromRS(ArrayObject $r): void
     {
-        $this->rent_id = (int)$r->rent_id;
-        $this->object_id = (int)$r->object_id;
-        $this->date_begin = $r->date_begin;
-        $this->date_forecast = $r->date_forecast;
-        $this->date_end = $r->date_end;
-        $this->status_id = (int)$r->status_id;
-        if ($r->adherent_id !== null) {
-            $this->adherent_id = (int)$r->adherent_id;
+        $this->rent_id = (int)$r['rent_id'];
+        $this->object_id = (int)$r['object_id'];
+        $this->date_begin = (string)$r['date_begin'];
+        $this->date_forecast = $r['date_forecast'] !== null ? (string)$r['date_forecast'] : null;
+        $this->date_end = $r['date_end'] !== null ? (string)$r['date_end'] : null;
+        $this->status_id = $r['status_id'] !== null ? (int)$r['status_id'] : null;
+        $this->adherent_id = $r['adherent_id'] !== null ? (int)$r['adherent_id'] : null;
+        $this->comments = (string)$r['comments'];
+
+        if (isset($r['status_text'])) {
+            $this->status_text = (string)$r['status_text'];
         }
-        $this->comments = $r->comments;
+        if (isset($r['in_stock'])) {
+            $this->in_stock = $r['in_stock'] == '1';
+        }
+        if (isset($r['nom_adh'])) {
+            $this->nom_adh = (string)$r['nom_adh'];
+        }
+        if (isset($r['prenom_adh'])) {
+            $this->prenom_adh = (string)$r['prenom_adh'];
+        }
     }
 
     /**
@@ -124,31 +116,30 @@ class LendRent
      */
     public function store(): bool
     {
-        global $zdb;
-
-        $need_transaction = !$zdb->inTransaction();
+        $need_transaction = !$this->zdb->inTransaction();
         try {
             if ($need_transaction) {
-                $zdb->beginTransaction();
+                $this->zdb->beginTransaction();
             }
             $values = [];
 
             foreach (array_keys($this->fields) as $k) {
-                $values[$k] = $this->$k ?? null;
+                $values[$k] = $this->$k;
             }
 
-            if (!isset($this->rent_id) || $this->rent_id == '') {
+            if ($this->rent_id === null) {
                 unset($values[self::PK]);
-                $insert = $zdb->insert(LEND_PREFIX . self::TABLE)
+                $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
                         ->values($values);
-                $result = $zdb->execute($insert);
+                $result = $this->zdb->execute($insert);
                 if ($result->count() > 0) {
-                    if ($zdb->isPostgres()) {
-                        $this->rent_id = (int)$zdb->driver->getLastGeneratedValue(
+                    if ($this->zdb->isPostgres()) {
+                        // @phpstan-ignore arguments.count (laminas does not respect its own interfaces)
+                        $this->rent_id = (int)$this->zdb->driver->getLastGeneratedValue(
                             PREFIX_DB . 'lend_rents_id_seq'
                         );
                     } else {
-                        $this->rent_id = (int)$zdb->driver->getLastGeneratedValue();
+                        $this->rent_id = (int)$this->zdb->driver->getLastGeneratedValue();
                     }
                     Analog::log(
                         'Rent #' . $this->rent_id . ' added.',
@@ -158,18 +149,18 @@ class LendRent
                     throw new \Exception(_T("Rent has not been added", "objectslend"));
                 }
             } else {
-                $update = $zdb->update(LEND_PREFIX . self::TABLE)
+                $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
                         ->set($values)
                         ->where([self::PK => $this->rent_id]);
-                $zdb->execute($update);
+                $this->zdb->execute($update);
             }
             if ($need_transaction) {
-                $zdb->commit();
+                $this->zdb->commit();
             }
             return true;
         } catch (\Exception $e) {
             if ($need_transaction) {
-                $zdb->rollback();
+                $this->zdb->rollback();
             }
             Analog::log(
                 'Something went wrong :\'( | ' . $e->getMessage() . "\n"
@@ -181,192 +172,213 @@ class LendRent
     }
 
     /**
-     * Get rent history for a given object sorted
-     *
-     * @param int    $object_id Object ID
-     * @param bool   $only_last Only retrieve last rent (for list display)
-     * @param string $order     Order clause, defaults to 'date_begin DESC'
-     *
-     * @return LendRent[]
+     * Get ID
      */
-    public static function getRentsForObjectId(int $object_id, bool $only_last = false, string $order = 'date_begin desc'): array
+    public function getId(): ?int
     {
-        global $zdb;
+        return $this->rent_id;
+    }
 
-        try {
-            $select = $zdb->select(LEND_PREFIX . self::TABLE)
-                ->join(
-                    PREFIX_DB . Adherent::TABLE,
-                    PREFIX_DB . Adherent::TABLE . '.id_adh = ' . PREFIX_DB . LEND_PREFIX . self::TABLE . '.adherent_id',
-                    ['prenom_adh', 'nom_adh', 'pseudo_adh', 'email_adh'],
-                    'left'
-                )
-                ->join(
-                    PREFIX_DB . LEND_PREFIX . LendStatus::TABLE,
-                    PREFIX_DB . LEND_PREFIX . LendStatus::TABLE . '.status_id = ' . PREFIX_DB
-                        . LEND_PREFIX . self::TABLE . '.status_id'
-                )
-                ->where(['object_id' => $object_id])
-                ->order($order);
+    /**
+     * Get object ID
+     */
+    public function getObjectId(): ?int
+    {
+        return $this->object_id;
+    }
 
-            if ($only_last === true) {
-                $select->offset(0)->limit(1);
-            }
+    /**
+     * Set object ID
+     *
+     * @param int $object_id Object ID
+     */
+    public function setObjectId(int $object_id): self
+    {
+        $this->object_id = $object_id;
+        return $this;
+    }
 
-            $rents = [];
-            $rows = $zdb->execute($select);
+    /**
+     * Get status ID
+     */
+    public function getStatusId(): ?int
+    {
+        return $this->status_id;
+    }
 
-            foreach ($rows as $r) {
-                $rt = new LendRent($r);
-                $rt->status_text = $r->status_text;
-                $rt->status_id = (int)$r->status_id;
-                $rt->in_stock = $r->in_stock == '1';
-                $rt->prenom_adh = $r->prenom_adh;
-                $rt->nom_adh = $r->nom_adh;
-                $rt->pseudo_adh = $r->pseudo_adh;
-                $rt->email_adh = $r->email_adh;
-                $rents[] = $rt;
-            }
+    /**
+     * Set status ID
+     *
+     * @param int $status_id Status ID
+     */
+    public function setStatusId(int $status_id): self
+    {
+        $this->status_id = $status_id;
+        return $this;
+    }
 
-            return $rents;
-        } catch (\Exception $e) {
+    /**
+     * Get member ID
+     */
+    public function getAdherentId(): ?int
+    {
+        return $this->adherent_id;
+    }
+
+    /**
+     * Set member ID
+     *
+     * @param ?int $adherent_id Member ID, null or 0 (superadmin) for none
+     */
+    public function setAdherentId(?int $adherent_id): self
+    {
+        $this->adherent_id = $adherent_id > 0 ? $adherent_id : null;
+        return $this;
+    }
+
+    /**
+     * Get comments
+     */
+    public function getComments(): string
+    {
+        return $this->comments;
+    }
+
+    /**
+     * Set comments
+     *
+     * @param string $comments Comments
+     */
+    public function setComments(string $comments): self
+    {
+        $this->comments = $comments;
+        return $this;
+    }
+
+    /**
+     * Get localized begin date and time
+     */
+    public function getDateBegin(): string
+    {
+        return $this->formatDate($this->date_begin, _T('Y-m-d H:i', 'objectslend'));
+    }
+
+    /**
+     * Set begin date and time
+     *
+     * @param string $date Date and time, localized or not
+     */
+    public function setDateBegin(string $date): self
+    {
+        $this->date_begin = $this->parseDate($date, true) ?? $this->date_begin;
+        return $this;
+    }
+
+    /**
+     * Get localized expected return date
+     */
+    public function getDateForecast(): string
+    {
+        return $this->formatDate($this->date_forecast, _T('Y-m-d'));
+    }
+
+    /**
+     * Set expected return date
+     *
+     * @param string $date Date, localized or not
+     */
+    public function setDateForecast(string $date): self
+    {
+        $this->date_forecast = $this->parseDate($date, false);
+        return $this;
+    }
+
+    /**
+     * Get localized end date and time
+     */
+    public function getDateEnd(): string
+    {
+        return $this->formatDate($this->date_end, _T('Y-m-d H:i', 'objectslend'));
+    }
+
+    /**
+     * Set end date and time
+     *
+     * @param string $date Date and time, localized or not
+     */
+    public function setDateEnd(string $date): self
+    {
+        $this->date_end = $this->parseDate($date, true);
+        return $this;
+    }
+
+    /**
+     * Get status text, when loaded from a repository
+     */
+    public function getStatusText(): string
+    {
+        return $this->status_text;
+    }
+
+    /**
+     * Is object in stock with this rent status, when loaded from a repository
+     */
+    public function isInStock(): bool
+    {
+        return $this->in_stock;
+    }
+
+    /**
+     * Get member name, when loaded from a repository
+     */
+    public function getMemberName(): string
+    {
+        return trim($this->nom_adh . ' ' . $this->prenom_adh);
+    }
+
+    /**
+     * Format a date
+     *
+     * @param ?string $date   Raw date
+     * @param string  $format Output format
+     */
+    private function formatDate(?string $date, string $format): string
+    {
+        if ($date === null || $date === '') {
+            return '';
+        }
+        return (new \DateTime($date))->format($format);
+    }
+
+    /**
+     * Parse a date, localized or not
+     *
+     * @param string $value    Date
+     * @param bool   $datetime Whether value has a time
+     *
+     * @return ?string Raw date, null if it cannot be parsed
+     */
+    private function parseDate(string $value, bool $datetime): ?string
+    {
+        $fmt = 'Y-m-d';
+        $tfmt = __('Y-m-d');
+        if ($datetime) {
+            $fmt .= ' H:i:s';
+            $tfmt = __($fmt, 'objectslend');
+        }
+
+        $d = \DateTime::createFromFormat($tfmt, $value);
+        if ($d === false) {
+            //try with non localized date
+            $d = \DateTime::createFromFormat($fmt, $value);
+        }
+        if ($d === false) {
             Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
+                sprintf('Invalid date %1$s, required %2$s or %3$s', $value, $tfmt, $fmt),
+                Analog::WARNING
             );
-            throw $e;
+            return null;
         }
-    }
-
-    /**
-     * Close all open rents for a given object with given comment
-     *
-     * @param int    $object_id Object ID
-     * @param string $comments  Comment to add on lend that will be closed
-     */
-    public static function closeAllRentsForObject(int $object_id, string $comments): bool
-    {
-        global $zdb;
-
-        try {
-            $select = $zdb->select(LEND_PREFIX . self::TABLE)
-                ->where(
-                    [
-                        'object_id' => $object_id,
-                        'date_end' => null
-                    ]
-                );
-            $rows = $zdb->execute($select);
-
-            foreach ($rows as $r) {
-                $rent = new LendRent($r);
-                $rent->date_end = date('Y-m-d H:i:s');
-                $rent->comments = $comments; //FIXME: will replace any existing comments :/
-                $rent->store();
-            }
-
-            return true;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            return false;
-        }
-    }
-
-    /**
-     * Global getter method
-     *
-     * @param string $name name of the property we want to retrieve
-     *
-     * @return mixed the called property
-     */
-    public function __get(string $name): mixed
-    {
-        switch ($name) {
-            case 'date_begin':
-            case 'date_end':
-                if (($this->$name ?? '') != '') {
-                    $dt = new \DateTime($this->$name);
-                    return $dt->format(_T('Y-m-d H:i', 'objectslend'));
-                }
-                return '';
-            case 'date_forecast':
-                if (($this->$name ?? '') != '') {
-                    $dt = new \DateTime($this->$name);
-                    return $dt->format(_T('Y-m-d'));
-                }
-                return '';
-            default:
-                return $this->$name ?? null;
-        }
-    }
-
-    /**
-     * Global setter method
-     *
-     * @param string $name  name of the property we want to assign a value to
-     * @param mixed  $value a relevant value for the property
-     */
-    public function __set(string $name, mixed $value): void
-    {
-        switch ($name) {
-            case 'adherent_id':
-                if ((int)$value > 0) {
-                    $this->$name = (int)$value;
-                } else {
-                    $this->$name = null;
-                }
-                break;
-            case 'status_id':
-                if ((int)$value > 0) {
-                    $this->$name = (int)$value;
-                }
-                break;
-            case 'date_forecast':
-            case 'date_begin':
-            case 'date_end':
-                $fmt = "Y-m-d";
-                $tfmt = __("Y-m-d");
-                if ($name == 'date_begin' || $name == 'date_end') {
-                    $fmt .= ' H:i:s';
-                    $tfmt = __($fmt, 'objectslend');
-                }
-                try {
-                    $d = \DateTime::createFromFormat($tfmt, $value);
-                    if ($d === false) {
-                        //try with non localized date
-                        $d = \DateTime::createFromFormat($fmt, $value);
-                        if ($d === false) {
-                            throw new \Exception('Incorrect format');
-                        }
-                        $this->$name = $d->format($fmt);
-                    }
-                    $this->$name = $d->format($fmt);
-                } catch (\Exception $e) {
-                    $this->$name = null;
-                    Analog::log(
-                        sprintf('Invalid %1$s date %2$s, required %3$s or %4$s', $name, $value, $tfmt, $fmt),
-                        Analog::WARNING
-                    );
-                }
-                break;
-            default:
-                $this->$name = $value;
-                break;
-        }
-    }
-
-    /**
-     * Generic isset function
-     *
-     * @param string $name Property name
-     */
-    public function __isset(string $name): bool
-    {
-        return property_exists($this, $name);
+        return $d->format($fmt);
     }
 }

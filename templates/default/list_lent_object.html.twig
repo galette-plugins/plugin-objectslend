@@ -43,15 +43,15 @@
     {% set dformat = _T("Y-m-d") %}
     {% for rent in rents %}
         <tr class="{% if loop.index is odd %}even{% else %}odd{% endif %}">
-            <td class="collapsing">{{ rent.rent_id }}</td>
-            <td>{{ rent.status_text }}{% if rent.in_stock %} ({{ _T("In stock", "objectslend") }}){% endif %}</td>
-            <td class="collapsing">{{ rent.date_begin }}</td>
-            <td class="collapsing">{{ rent.date_forecast }}</td>
-            <td class="collapsing">{{ rent.date_end }}</td>
+            <td class="collapsing">{{ rent.getId() }}</td>
+            <td>{{ rent.getStatusText() }}{% if rent.isInStock() %} ({{ _T("In stock", "objectslend") }}){% endif %}</td>
+            <td class="collapsing">{{ rent.getDateBegin() }}</td>
+            <td class="collapsing">{{ rent.getDateForecast() }}</td>
+            <td class="collapsing">{{ rent.getDateEnd() }}</td>
             <td>
-                {{ rent.nom_adh }} {{ rent.prenom_adh }}
+                {{ rent.getMemberName() }}
             </td>
-            <td>{{ rent.comments }}</td>
+            <td>{{ rent.getComments() }}</td>
         </tr>
     {% else %}
         <tr>

@@ -17,6 +17,7 @@ use Galette\Entity\Adherent;
 use Galette\Util\Html;
 use GaletteObjectsLend\Filters\ObjectsList;
 use GaletteObjectsLend\Repository\Objects;
+use GaletteObjectsLend\Repository\Rents;
 
 /**
  * Object
@@ -267,7 +268,7 @@ class LendObject
         }
 
         if ($this->object_id && $this->deps['rents'] === true) {
-            $this->rents = LendRent::getRentsForObjectId($this->object_id);
+            $this->rents = (new Rents($this->zdb))->getForObject($this->object_id);
         }
 
         if ($this->deps['picture'] === true) {

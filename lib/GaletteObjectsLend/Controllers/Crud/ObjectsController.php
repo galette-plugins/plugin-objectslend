@@ -576,7 +576,7 @@ class ObjectsController extends AbstractPluginController
         $service = $this->getLendService($lendsprefs);
         $object = $service->getObject($id);
         $params['object'] = $object;
-        $params['last_rent'] = $object->getRentId() !== null ? new LendRent($object->getRentId()) : null;
+        $params['last_rent'] = $object->getRentId() !== null ? new LendRent($this->zdb, $object->getRentId()) : null;
 
         if ($action == 'take') {
             if (!$service->canTake()) {
