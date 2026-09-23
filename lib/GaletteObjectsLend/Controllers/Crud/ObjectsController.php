@@ -459,8 +459,8 @@ class ObjectsController extends AbstractPluginController
         $rent = new LendRent();
         $rent->object_id = $object->getId();
         $rent->status_id = $post['new_status'];
-        if (filter_input(INPUT_POST, 'new_adh') != 'null') {
-            $rent->adherent_id = $post['new_adh'];
+        if (!empty($post['new_adh'])) {
+            $rent->adherent_id = (int)$post['new_adh'];
         }
         $rent->store();
 

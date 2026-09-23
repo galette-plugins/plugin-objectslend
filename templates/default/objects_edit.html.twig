@@ -199,20 +199,12 @@
                             maxlength: 200
                         } %}
 
-                        <div class="inline field">
-                            <div id="id_adh" class="jsonly search-dropdown ui input nochosen paginated">
-                                <input id="id_adh_input" type="text" name="new_adh" value="" placeholder="{{ _T("Member ID") }}">
-                                <i class="jsonly displaynone dropdown icon" aria-hidden="true"></i>
-                                <span class="ui mini compact icon disabled button prev-results"><i class="jsonly displaynone chevron circle left icon disabled button tooltip" title="{{ _T("Load previous members...") }}" aria-hidden="true"></i></span>
-                                <span class="ui mini compact icon disabled button next-results"><i class="jsonly displaynone chevron circle right icon disabled button tooltip" title="{{ _T("Load following members...") }}" aria-hidden="true"></i></span>
-                                <div class="jsonly displaynone default text">{{ _T("Search for name or ID and pick member") }}</div>
-                                <div class="jsonly displaynone menu">
-                                {% for k, v in members.list %}
-                                    <div class="item" data-value="{{ k }}">{{ v }}</div>
-                                {% endfor %}
-                                </div>
-                            </div>
-                        </div>
+                        {% include 'components/forms/member_dropdown.html.twig' with {
+                            'id': 'new_adh',
+                            'label': _T("Member", "objectslend"),
+                            'value': null,
+                            'component_class': 'inline field'
+                        } %}
 
                     </div>
                 </div>
@@ -230,6 +222,6 @@
 
 {% block javascripts %}
         <script type="text/javascript">
-            {% include "elements/js/choose_adh.js.twig" %}
+            {% include "elements/js/choose_adh.js.twig" with {js_chosen_id: '#new_adh'} %}
         </script>
 {% endblock %}
