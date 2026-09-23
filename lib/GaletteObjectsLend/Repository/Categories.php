@@ -204,7 +204,7 @@ class Categories
             $countSelect->reset($countSelect::JOINS);
             $countSelect->columns(
                 [
-                    'count' => new Expression('count(c.' . self::PK . ')')
+                    'count' => new Expression('count(DISTINCT c.' . self::PK . ')')
                 ]
             );
 

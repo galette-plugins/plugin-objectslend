@@ -101,5 +101,15 @@ class Categories extends GaletteTestCase
 
         $filters->active_filter = \GaletteObjectsLend\Repository\Categories::INACTIVE_CATEGORIES;
         $this->assertCount(1, $categories->getCategoriesList(true));
+
+        //categories are counted once, whatever the number of their objects
+        $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
+        $object->name = 'Another object';
+        $object->category_id = $cat_one_id;
+        $this->assertTrue($object->store());
+
+        $filters->reinit();
+        $this->assertCount(3, $categories->getCategoriesList(true));
+        $this->assertSame(3, $categories->getCount());
     }
 }
