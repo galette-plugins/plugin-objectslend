@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace GaletteObjectsLend\Filters;
 
-use Analog\Analog;
 use Galette\Core\Pagination;
 use GaletteObjectsLend\Repository\Status;
 
@@ -23,21 +22,11 @@ use GaletteObjectsLend\Repository\Status;
  * @property ?int    $active_filter
  * @property ?int    $stock_filter
  */
-
 class StatusList extends Pagination
 {
-    //filters
-    private ?string $filter_str;
-    private ?int $active_filter;
-    private ?int $stock_filter;
+    use ListFilters;
 
-
-    /** @var array<string> */
-    protected array $statuslist_fields = [
-        'filter_str',
-        'active_filter',
-        'stock_filter'
-    ];
+    private ?int $stock_filter = null;
 
     /**
      * Returns the field we want to default set order to
@@ -53,102 +42,36 @@ class StatusList extends Pagination
     public function reinit(): void
     {
         parent::reinit();
-        $this->filter_str = null;
-        $this->active_filter = null;
+        $this->reinitListFilters();
         $this->stock_filter = null;
     }
 
     /**
-     * Global getter method
+     * Filtering properties of the class, besides filter_str and active_filter
      *
-     * @param string $name name of the property we want to retrieve
-     *
-     * @return mixed the called property
+     * @return array<string>
      */
-    public function __get(string $name): mixed
+    protected function getOwnFilters(): array
     {
-        if (in_array($name, $this->pagination_fields)) {
-            return parent::__get($name);
-        } else {
-            if (in_array($name, $this->statuslist_fields)) {
-                return $this->$name;
-            }
-        }
-
-        throw new \RuntimeException(
-            sprintf(
-                'Unable to get property "%s::%s"!',
-                __CLASS__,
-                $name
-            )
-        );
+        return ['stock_filter'];
     }
 
     /**
-     * Global setter method
+     * Set a filtering property of the class
      *
-     * @param string $name  name of the property we want to assign a value to
-     * @param mixed  $value a relevant value for the property
+     * @param string $name  Property name
+     * @param mixed  $value Value
      */
-    public function __set(string $name, mixed $value): void
+    protected function setOwnFilter(string $name, mixed $value): bool
     {
-
-        if (in_array($name, $this->pagination_fields)) {
-            parent::__set($name, $value);
-        } else {
-            Analog::log(
-                '[StatusList] Setting property `' . $name . '`',
-                Analog::DEBUG
-            );
-
-            switch ($name) {
-                case 'filter_str':
-                    $this->$name = $value;
-                    break;
-                case 'active_filter':
-                    switch ($value) {
-                        case Status::ALL:
-                        case Status::ACTIVE:
-                        case Status::INACTIVE:
-                            $this->active_filter = (int)$value;
-                            break;
-                        default:
-                            Analog::log(
-                                '[StatusList] Value for active filter should be either '
-                                . Status::ACTIVE . ' or '
-                                . Status::INACTIVE . ' (' . $value . ' given)',
-                                Analog::WARNING
-                            );
-                            break;
-                    }
-                    break;
-                case 'stock_filter':
-                    switch ($value) {
-                        case Status::DC_STOCK:
-                        case Status::IN_STOCK:
-                        case Status::OUT_STOCK:
-                            $this->stock_filter = (int)$value;
-                            break;
-                        default:
-                            Analog::log(
-                                '[StatusList] Value for stock filter should be either '
-                                . Status::IN_STOCK . ', ' . Status::OUT_STOCK . ' or '
-                                . Status::DC_STOCK . ' (' . $value . ' given)',
-                                Analog::WARNING
-                            );
-                            break;
-                    }
-
-                    break;
-                default:
-                    throw new \RuntimeException(
-                        sprintf(
-                            'Unable to set property "%s::%s"!',
-                            __CLASS__,
-                            $name
-                        )
-                    );
-            }
+        if ($name !== 'stock_filter') {
+            return false;
         }
+        $this->stock_filter = $this->toChoice(
+            $name,
+            $value,
+            [Status::DC_STOCK, Status::IN_STOCK, Status::OUT_STOCK]
+        ) ?? $this->stock_filter;
+        return true;
     }
 }
