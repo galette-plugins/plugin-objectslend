@@ -28,6 +28,16 @@ class StatusController extends GaletteRoutingTestCase
     protected bool $db_transactions = false;
 
     /**
+     * Set up tests
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        //installation scripts add example statuses
+        $this->zdb->execute($this->zdb->delete(LEND_PREFIX . LendStatus::TABLE));
+    }
+
+    /**
      * Cleanup after each test method
      */
     public function tearDown(): void
