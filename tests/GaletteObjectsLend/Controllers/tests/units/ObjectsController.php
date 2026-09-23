@@ -413,4 +413,56 @@ class ObjectsController extends GaletteRoutingTestCase
         $list = $objects->getObjectsList(true);
         $this->assertCount(1, $list);
     }
+
+    /**
+     * Add an object from the form
+     *
+     * @param string $first_status First status posted
+     */
+    private function addObject(string $first_status): LendObject
+    {
+        $this->logSuperAdmin();
+        $request = $this->createRequest(
+            route_name: 'objectslend_object_action_add',
+            method: 'POST'
+        );
+        $request = $request->withParsedBody([
+            'name' => 'New object',
+            'description' => '',
+            'serial' => '',
+            'price' => '',
+            'rent_price' => '',
+            'dimension' => '',
+            'weight' => '',
+            '1st_status' => $first_status
+        ]);
+        $test_response = $this->app->handle($request);
+        $this->assertSame(301, $test_response->getStatusCode());
+
+        $select = $this->zdb->select(LEND_PREFIX . LendObject::TABLE);
+        $select->where(['name' => 'New object']);
+        $result = $this->zdb->execute($select);
+        $this->assertSame(1, $result->count());
+        return new LendObject($this->zdb, (int)$result->current()->{LendObject::PK});
+    }
+
+    /**
+     * No rent is stored when no first status has been chosen
+     */
+    public function testAddWithoutFirstStatus(): void
+    {
+        $object = $this->addObject('0');
+        $this->assertCount(0, LendRent::getRentsForObjectId($object->getId()));
+    }
+
+    /**
+     * A rent is stored with the chosen first status
+     */
+    public function testAddWithFirstStatus(): void
+    {
+        $object = $this->addObject((string)$this->instock_status);
+        $rents = LendRent::getRentsForObjectId($object->getId());
+        $this->assertCount(1, $rents);
+        $this->assertSame($this->instock_status, $rents[0]->status_id);
+    }
 }

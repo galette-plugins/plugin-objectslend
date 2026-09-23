@@ -384,10 +384,10 @@ class ObjectsController extends AbstractPluginController
         $object->is_active = ($post['is_active'] ?? false) == true;
 
         if ($object->store()) {
-            if (isset($post['1st_status'])) {
+            if (!empty($post['1st_status'])) {
                 $rent = new LendRent();
                 $rent->object_id = $object->getId();
-                $rent->status_id = $post['1st_status'];
+                $rent->status_id = (int)$post['1st_status'];
                 $rent->store();
             }
 
