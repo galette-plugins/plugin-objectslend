@@ -190,12 +190,13 @@ class StatusController extends AbstractPluginController
      */
     public function edit(Request $request, Response $response, ?int $id = null, string $action = 'edit'): Response
     {
-        if ($this->session->objectslend_status !== null) {
-            $status = $this->session->objectslend_status;
-            $this->session->objectslend_status = null;
-        } else {
-            $status = new LendStatus($this->zdb, $id);
+        $status = new LendStatus($this->zdb, $id);
+        //values posted before an error
+        $data = $this->session->objectslend_status_data ?? null;
+        if (is_array($data)) {
+            $this->fillStatus($status, $data);
         }
+        unset($this->session->objectslend_status_data);
 
         if ($status->getId() !== null) {
             $title = str_replace(
@@ -236,18 +237,13 @@ class StatusController extends AbstractPluginController
         $status = new LendStatus($this->zdb, $id);
         $error_detected = [];
 
-        $days = trim($post['rent_day_number']);
-        $status
-            ->setText($post['text'])
-            ->setInStock(isset($post['in_stock']))
-            ->setActive(isset($post['is_active']))
-            ->setRentDayNumber(strlen($days) > 0 ? (int)$days : null);
+        $this->fillStatus($status, $post);
         if (!$status->store()) {
             $error_detected[] = _T("An error occurred while storing the status.", "objectslend");
         }
 
         if (count($error_detected)) {
-            $this->session->objectslend_status = $status;
+            $this->session->objectslend_status_data = $post;
             foreach ($error_detected as $error) {
                 $this->flash->addMessage(
                     'error_detected',
@@ -279,6 +275,22 @@ class StatusController extends AbstractPluginController
                     $this->routeparser->urlFor('objectslend_statuses')
                 );
         }
+    }
+
+    /**
+     * Fill status from posted values
+     *
+     * @param LendStatus          $status Status
+     * @param array<string,mixed> $post   Posted values
+     */
+    private function fillStatus(LendStatus $status, array $post): void
+    {
+        $days = trim($post['rent_day_number']);
+        $status
+            ->setText($post['text'])
+            ->setInStock(isset($post['in_stock']))
+            ->setActive(isset($post['is_active']))
+            ->setRentDayNumber(strlen($days) > 0 ? (int)$days : null);
     }
 
     // /CRUD - Update

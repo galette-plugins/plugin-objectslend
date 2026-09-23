@@ -172,12 +172,13 @@ class CategoriesController extends AbstractPluginController
      */
     public function edit(Request $request, Response $response, ?int $id = null, string $action = 'edit'): Response
     {
-        if ($this->session->objectslend_category !== null) {
-            $category = $this->session->objectslend_category;
-            $this->session->objectslend_category = null;
-        } else {
-            $category = new LendCategory($this->zdb, $id);
+        $category = new LendCategory($this->zdb, $id);
+        //values posted before an error
+        $data = $this->session->objectslend_category_data ?? null;
+        if (is_array($data)) {
+            $this->fillCategory($category, $data);
         }
+        unset($this->session->objectslend_category_data);
 
         if ($category->getId() !== null) {
             $title = _T("Edit category", "objectslend");
@@ -219,9 +220,7 @@ class CategoriesController extends AbstractPluginController
         $category = new LendCategory($this->zdb, $id);
         $error_detected = [];
 
-        $category
-            ->setName($post['name'])
-            ->setActive(($post['is_active'] ?? false) == true);
+        $this->fillCategory($category, $post);
         if ($category->store()) {
             // picture upload
             $picture = new CategoryPicture($category->getId());
@@ -244,7 +243,12 @@ class CategoriesController extends AbstractPluginController
 
         $args = ($id === null ? [] : ['id' => $id]);
         if (count($error_detected)) {
-            $this->session->objectslend_category = $category;
+            $this->session->objectslend_category_data = $post;
+            //category may have been stored before the error
+            if ($category->getId() !== null) {
+                $action = 'edit';
+                $args = ['id' => (string)$category->getId()];
+            }
             foreach ($error_detected as $error) {
                 $this->flash->addMessage(
                     'error_detected',
@@ -272,6 +276,19 @@ class CategoriesController extends AbstractPluginController
                     $this->routeparser->urlFor('objectslend_categories', $args)
                 );
         }
+    }
+
+    /**
+     * Fill category from posted values
+     *
+     * @param LendCategory        $category Category
+     * @param array<string,mixed> $post     Posted values
+     */
+    private function fillCategory(LendCategory $category, array $post): void
+    {
+        $category
+            ->setName($post['name'])
+            ->setActive(($post['is_active'] ?? false) == true);
     }
 
     // /CRUD - Update

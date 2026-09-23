@@ -523,6 +523,28 @@ class ObjectsController extends GaletteRoutingTestCase
     }
 
     /**
+     * On error, the edit form is displayed again with posted values
+     */
+    public function testAddWithInvalidFirstStatus(): void
+    {
+        $object = $this->addObject('999999');
+        $this->expectFlashData(['error_detected' => ['This status cannot be set.']]);
+        $this->expectLogEntry(Analog::WARNING, 'Trying to change an object status to an invalid one!');
+        $this->assertCount(0, (new \GaletteObjectsLend\Repository\Rents($this->zdb))->getForObject($object->getId()));
+        $this->assertSame('New object', $this->session->objectslend_object_data['name']);
+
+        //object has been stored: posted values go to its edit form
+        $request = $this->createRequest(
+            route_name: 'objectslend_object_edit',
+            route_args: ['id' => (string)$object->getId()]
+        );
+        $test_response = $this->app->handle($request);
+        $this->assertSame(200, $test_response->getStatusCode());
+        $this->assertStringContainsString('value="New object"', (string)$test_response->getBody());
+        $this->assertNull($this->session->objectslend_object_data ?? null);
+    }
+
+    /**
      * A simple member cannot borrow when members are not allowed to
      */
     public function testMemberCannotTakeWhenMemberRentDisabled(): void

@@ -272,12 +272,13 @@ class ObjectsController extends AbstractPluginController
      */
     public function edit(Request $request, Response $response, ?int $id = null, string $action = 'edit'): Response
     {
-        if ($this->session->objectslend_object !== null) {
-            $object = $this->session->objectslend_object;
-            $this->session->objectslend_object = null;
-        } else {
-            $object = new LendObject($this->zdb, $id);
+        $object = new LendObject($this->zdb, $id);
+        //values posted before an error
+        $data = $this->session->objectslend_object_data ?? null;
+        if (is_array($data)) {
+            $this->fillObject($object, $data);
         }
+        unset($this->session->objectslend_object_data);
 
         $categories = new Categories($this->zdb, $this->login);
         $categories_list = $categories->getCategoriesList(true);
@@ -348,27 +349,7 @@ class ObjectsController extends AbstractPluginController
         $object = new LendObject($this->zdb, $id);
         $error_detected = [];
 
-        $object
-            ->setName($post['name'])
-            ->setDescription($post['description'])
-            //TODO: check if category do exits?
-            ->setCategoryId(empty($post['category_id']) ? null : (int)$post['category_id'])
-            ->setSerialNumber($post['serial'])
-            ->setPricePerDay(($post['price_per_day'] ?? false) == true)
-            ->setDimension($post['dimension'])
-            ->setActive(($post['is_active'] ?? false) == true);
-        if ($post['price'] != '') {
-            //FIXME: better currency format handler
-            $object->setPrice((float)str_replace(' ', '', str_replace(',', '.', $post['price'])));
-        }
-        if ($post['rent_price'] != '') {
-            //FIXME: better currency format handler
-            $object->setRentPrice((float)str_replace(' ', '', str_replace(',', '.', $post['rent_price'])));
-        }
-        if ($post['weight'] != '') {
-            //FIXME: better format handler
-            $object->setWeight((float)str_replace(' ', '', str_replace(',', '.', $post['weight'])));
-        }
+        $this->fillObject($object, $post);
 
         if ($object->store()) {
             if (!empty($post['1st_status'])) {
@@ -398,7 +379,7 @@ class ObjectsController extends AbstractPluginController
         }
 
         if (count($error_detected)) {
-            $this->session->objectslend_object = $object;
+            $this->session->objectslend_object_data = $post;
             foreach ($error_detected as $error) {
                 $this->flash->addMessage(
                     'error_detected',
@@ -406,15 +387,14 @@ class ObjectsController extends AbstractPluginController
                 );
             }
 
-            $args = ($action == 'add' ? [] : ['id' => $object->getId()]);
+            //object may have been stored before the error
             return $response
                 ->withStatus(301)
                 ->withHeader(
                     'Location',
-                    $this->routeparser->urlFor(
-                        'objectslend_object_' . $action,
-                        $args
-                    )
+                    $object->getId() === null
+                        ? $this->routeparser->urlFor('objectslend_object_add')
+                        : $this->routeparser->urlFor('objectslend_object_edit', ['id' => (string)$object->getId()])
                 );
         } else {
             //redirect to objects list
@@ -429,6 +409,37 @@ class ObjectsController extends AbstractPluginController
                     'Location',
                     $this->routeparser->urlFor('objectslend_objects')
                 );
+        }
+    }
+
+    /**
+     * Fill object from posted values
+     *
+     * @param LendObject          $object Object
+     * @param array<string,mixed> $post   Posted values
+     */
+    private function fillObject(LendObject $object, array $post): void
+    {
+        $object
+            ->setName($post['name'])
+            ->setDescription($post['description'])
+            //TODO: check if category do exits?
+            ->setCategoryId(empty($post['category_id']) ? null : (int)$post['category_id'])
+            ->setSerialNumber($post['serial'])
+            ->setPricePerDay(($post['price_per_day'] ?? false) == true)
+            ->setDimension($post['dimension'])
+            ->setActive(($post['is_active'] ?? false) == true);
+        if ($post['price'] != '') {
+            //FIXME: better currency format handler
+            $object->setPrice((float)str_replace(' ', '', str_replace(',', '.', $post['price'])));
+        }
+        if ($post['rent_price'] != '') {
+            //FIXME: better currency format handler
+            $object->setRentPrice((float)str_replace(' ', '', str_replace(',', '.', $post['rent_price'])));
+        }
+        if ($post['weight'] != '') {
+            //FIXME: better format handler
+            $object->setWeight((float)str_replace(' ', '', str_replace(',', '.', $post['weight'])));
         }
     }
 
