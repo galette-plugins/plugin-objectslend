@@ -17,7 +17,7 @@
 
 {% block infoline %}
     {% set infoline = {
-        'label': _Tn("%count category", "%count categories", nb, "events")|replace({"%count": nb}),
+        'label': _Tn("%count category", "%count categories", nb, "objectslend")|replace({"%count": nb}),
     } %}
     {{ parent() }}
 {% endblock %}
@@ -129,7 +129,7 @@
                     {% if login.isAdmin() %}
                         {% set actions = actions|merge([
                             {
-                                'label': _T("Remove \"%category\"", "events")|replace({"%category": categ.name}),
+                                'label': _T("Remove \"%category\"", "objectslend")|replace({"%category": categ.name}),
                                 'route': {
                                     'name': 'objectslend_remove_category',
                                     'args': {'id': categ.category_id}

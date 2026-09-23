@@ -133,7 +133,7 @@ class PdfObject extends Pdf
         }
         if ($this->lprefs->{LPreferences::PARAM_VIEW_LEND_PRICE}) {
             $this->addCell(
-                _T("Borrow price"),
+                _T("Borrow price", "objectslend"),
                 $object->rent_price . ' ' . $object->getCurrency(),
                 $wpic
             );

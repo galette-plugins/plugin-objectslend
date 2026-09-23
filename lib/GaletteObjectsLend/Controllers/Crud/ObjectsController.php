@@ -259,7 +259,7 @@ class ObjectsController extends AbstractPluginController
         } else {
             $this->flash->addMessage(
                 'error_detected',
-                _T("No object was selected, please check at least one.")
+                _T("No object was selected, please check at least one.", "objectslend")
             );
         }
 
@@ -835,7 +835,7 @@ class ObjectsController extends AbstractPluginController
                 } else {
                     $this->flash->addMessage(
                         'error_detected',
-                        _T("An error occurred while storing the contribution.")
+                        _T("An error occurred while storing the contribution.", "objectslend")
                     );
                 }
             }

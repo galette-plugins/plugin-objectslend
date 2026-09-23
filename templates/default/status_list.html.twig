@@ -18,7 +18,7 @@
 
 {% block infoline %}
     {% set infoline = {
-        'label': _Tn("%count status", "%count statuses", nb)|replace({"%count": nb}),
+        'label': _Tn("%1$s status", "%1$s statuses", nb, "objectslend")|format(nb),
         'route': {
             'name': 'objectslend_filter_statuses'
         }

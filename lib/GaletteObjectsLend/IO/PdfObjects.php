@@ -181,7 +181,7 @@ class PdfObjects extends Pdf
                     $existing_categories[] = $object->category_id;
                     $this->Cell(0, 0, $text, 0, 1, 'C');
                 } elseif (!in_array(0, $existing_categories)) {
-                    $text = _T("No category");
+                    $text = _T("No category", "objectslend");
                     $existing_categories[0] = 0;
                     $this->Cell(0, 0, $text, 0, 1, 'C');
                 }
