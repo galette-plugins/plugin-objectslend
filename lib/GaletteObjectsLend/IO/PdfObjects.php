@@ -175,7 +175,7 @@ class PdfObjects extends Pdf
                     $category = new LendCategory($this->zdb, (int)$object->category_id);
                     $text = str_replace(
                         '%category',
-                        $category->name,
+                        $category->getName(false),
                         _T("Category: %category", "objectslend")
                     );
                     $existing_categories[] = $object->category_id;

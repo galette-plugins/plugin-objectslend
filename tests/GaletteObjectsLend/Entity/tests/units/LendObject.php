@@ -169,8 +169,8 @@ class LendObject extends GaletteTestCase
         //removing category
         $rm_category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
 
-        $rm_category->name = 'Category to be removed';
-        $rm_category->is_active = true;
+        $rm_category->setName('Category to be removed');
+        $rm_category->setActive(true);
         $this->assertTrue($rm_category->store());
         $category_id = $rm_category->getId();
 
@@ -228,8 +228,8 @@ class LendObject extends GaletteTestCase
     {
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
 
-        $category->name = 'Active test category';
-        $category->is_active = true;
+        $category->setName('Active test category');
+        $category->setActive(true);
 
         $this->assertTrue($category->store());
         $this->active_category_id = $category->getId();
@@ -237,8 +237,8 @@ class LendObject extends GaletteTestCase
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
 
-        $category->name = 'Inactive test category';
-        $category->is_active = false;
+        $category->setName('Inactive test category');
+        $category->setActive(false);
 
         $this->assertTrue($category->store());
         $this->inactive_category_id = $category->getId();

@@ -7,7 +7,7 @@
 {% extends "page.html.twig" %}
 
 {% block content %}
-<form action="{% if category.category_id %}{{ url_for("objectslend_category_action_edit", {"id": category.category_id}) }}{% else %}{{ url_for("objectslend_category_action_add") }}{% endif %}" method="post" enctype="multipart/form-data" class="ui form">
+<form action="{% if category.getId() %}{{ url_for("objectslend_category_action_edit", {"id": category.getId()}) }}{% else %}{{ url_for("objectslend_category_action_add") }}{% endif %}" method="post" enctype="multipart/form-data" class="ui form">
     <div class="ui styled fluid accordion field">
         <div class="active title">
             <i class="icon dropdown"></i>
@@ -16,7 +16,7 @@
         <div class="active content">
             {% include "components/forms/text.html.twig" with {
                 id: 'name',
-                value: category.name,
+                value: category.getId() ? category.getName(false) : "",
                 label: _T("Name", "objectslend"),
                 required: true
             } %}
@@ -25,13 +25,13 @@
                 id: 'is_active',
                 value: 1,
                 label: _T("Is active", "objectslend"),
-                checked: category.is_active
+                checked: category.isActive()
             } %}
 
             <div class="inline field">
                 <label>{{ _T("Picture:", "objectslend") }}</label>
                 <img
-                    src="{% if category.category_id %}{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": category.category_id}) }}{% else %}{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail"}) }}{% endif %}"
+                    src="{% if category.getId() %}{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": category.getId()}) }}{% else %}{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail"}) }}{% endif %}"
                     class="picture"
                     width="{{ picture.getOptimalThumbWidth(olendsprefs) }}"
                     height="{{ picture.getOptimalThumbHeight(olendsprefs) }}"

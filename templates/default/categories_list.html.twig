@@ -97,30 +97,30 @@
     {% for categ in categories %}
             <tr class="{% if loop.index is odd %}odd{% else %}even{% endif %}">
                 <td class="collapsing" data-col-label="#">
-                    {{ categ.category_id }}
+                    {{ categ.getId() }}
                 </td>
                 <td data-col-label="{{ _T("Name", "objectslend") }}">
         {% if olendsprefs.imagesInLists() %}
-                    <img src="{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": categ.category_id}) }}"
+                    <img src="{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": categ.getId()}) }}"
                         class="ui middle aligned image"
-                        width="{{ categ.picture.getOptimalThumbWidth(olendsprefs) }}"
-                        height="{{ categ.picture.getOptimalThumbHeight(olendsprefs) }}"
+                        width="{{ categ.getPicture().getOptimalThumbWidth(olendsprefs) }}"
+                        height="{{ categ.getPicture().getOptimalThumbHeight(olendsprefs) }}"
                         alt=""/>
         {% endif %}
-                    {{ categ.name }}
+                    {{ categ.getName(false) }}
                 </td>
                 <td class="center collapsing" data-col-label="{{ _T("Active", "objectslend") }}">
-                    <i class="thumbs {% if categ.is_active%}up green{% else %}down red{% endif %} icon tooltip" data-html="{% if categ.is_active %}{{ _T("Active", "objectslend") }}{% else %}{{ _T("Inactive", "objectslend") }}{% endif %}"></i>
-                    <span class="visually-hidden">{% if categ.is_active %}{{ _T("Active", "objectslend") }}{% else %}{{ _T("Inactive", "objectslend") }}{% endif %}</span>
+                    <i class="thumbs {% if categ.isActive()%}up green{% else %}down red{% endif %} icon tooltip" data-html="{% if categ.isActive() %}{{ _T("Active", "objectslend") }}{% else %}{{ _T("Inactive", "objectslend") }}{% endif %}"></i>
+                    <span class="visually-hidden">{% if categ.isActive() %}{{ _T("Active", "objectslend") }}{% else %}{{ _T("Inactive", "objectslend") }}{% endif %}</span>
                 </td>
         {% if login.isAdmin() or login.isStaff() %}
                 <td class="center actions_row collapsing">
                     {% set actions = [
                         {
-                            'label': _T("Edit \"%category\"", "objectslend")|replace({"%category": categ.name}),
+                            'label': _T("Edit \"%category\"", "objectslend")|replace({"%category": categ.getName(false)}),
                             'route': {
                                 'name': 'objectslend_category_edit',
-                                'args': {'id': categ.category_id}
+                                'args': {'id': categ.getId()}
                             },
                             'icon': 'edit'
                         }
@@ -129,10 +129,10 @@
                     {% if login.isAdmin() %}
                         {% set actions = actions|merge([
                             {
-                                'label': _T("Remove \"%category\"", "objectslend")|replace({"%category": categ.name}),
+                                'label': _T("Remove \"%category\"", "objectslend")|replace({"%category": categ.getName(false)}),
                                 'route': {
                                     'name': 'objectslend_remove_category',
-                                    'args': {'id': categ.category_id}
+                                    'args': {'id': categ.getId()}
                                 },
                                 'icon': 'trash red',
                                 'extra_class': 'delete'

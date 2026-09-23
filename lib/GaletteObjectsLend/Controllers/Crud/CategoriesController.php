@@ -179,14 +179,14 @@ class CategoriesController extends AbstractPluginController
             $category = new LendCategory($this->zdb, $id);
         }
 
-        if ($category->category_id !== null) {
+        if ($category->getId() !== null) {
             $title = _T("Edit category", "objectslend");
         } else {
             $title = _T("New category", "objectslend");
         }
 
         $lendsprefs = new Preferences($this->zdb);
-        $picture = new CategoryPicture($category->category_id);
+        $picture = new CategoryPicture($category->getId());
         $params = [
             'page_title'    => $title,
             'category'      => $category,
@@ -219,11 +219,12 @@ class CategoriesController extends AbstractPluginController
         $category = new LendCategory($this->zdb, $id);
         $error_detected = [];
 
-        $category->name = $post['name'];
-        $category->is_active = ($post['is_active'] ?? false) == true;
+        $category
+            ->setName($post['name'])
+            ->setActive(($post['is_active'] ?? false) == true);
         if ($category->store()) {
             // picture upload
-            $picture = new CategoryPicture($category->category_id);
+            $picture = new CategoryPicture($category->getId());
             if (!$picture->upload($request->getUploadedFiles(), 'picture')) {
                 $error_detected = $picture->uploadErrors();
             }
@@ -232,7 +233,7 @@ class CategoriesController extends AbstractPluginController
                 if (!$picture->delete()) {
                     $error_detected[] = _T("Delete failed", "objectslend");
                     Analog::log(
-                        'Unable to delete picture for category ' . $category->name,
+                        'Unable to delete picture for category ' . $category->getName(false),
                         Analog::ERROR
                     );
                 }
@@ -309,7 +310,7 @@ class CategoriesController extends AbstractPluginController
         $category = new LendCategory($this->zdb, (int)$args['id']);
         return sprintf(
             _T('Remove category %1$s', 'objectslend'),
-            $category->name
+            $category->getName(false)
         );
     }
 

@@ -43,12 +43,6 @@ parameters:
 			path: lib/GaletteObjectsLend/Entity/LendCategory.php
 
 		-
-			message: '#^Loose comparison using \=\= between int and '''' will always evaluate to false\.$#'
-			identifier: equal.alwaysFalse
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/LendCategory.php
-
-		-
 			message: '#^Access to an undefined property ArrayObject\<string, int\|string\>\:\:\$category_id\.$#'
 			identifier: property.notFound
 			count: 1

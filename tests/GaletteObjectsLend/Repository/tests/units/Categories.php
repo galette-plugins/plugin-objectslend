@@ -51,19 +51,19 @@ class Categories extends GaletteTestCase
         $this->assertSame(0, $categories->getCount());
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
-        $category->name = 'One category';
-        $category->is_active = true;
+        $category->setName('One category');
+        $category->setActive(true);
         $this->assertTrue($category->store());
-        $cat_one_id = $category->category_id;
+        $cat_one_id = $category->getId();
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
-        $category->name = 'Another category';
-        $category->is_active = true;
+        $category->setName('Another category');
+        $category->setActive(true);
         $this->assertTrue($category->store());
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
-        $category->name = 'Yet another category';
-        $category->is_active = false;
+        $category->setName('Yet another category');
+        $category->setActive(false);
         $this->assertTrue($category->store());
 
         $filters = new \GaletteObjectsLend\Filters\CategoriesList();

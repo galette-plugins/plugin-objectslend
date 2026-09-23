@@ -44,8 +44,6 @@ class LendCategory extends GaletteTestCase
         $this->assertSame(0, $category->getObjectsNb());
         $this->assertTrue($category->isActive());
         $this->assertNull($category->getId());
-        $this->assertSame('0,00', $category->objects_price_sum); // @phpstan-ignore property.private
-        $this->assertNull($category->non_existing); // @phpstan-ignore property.notFound
 
         $category = new \GaletteObjectsLend\Entity\LendCategory(
             $this->zdb,
@@ -62,8 +60,8 @@ class LendCategory extends GaletteTestCase
     {
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
 
-        $category->name = 'Test category';
-        $category->is_active = false;
+        $category->setName('Test category');
+        $category->setActive(false);
 
         $this->assertTrue($category->store());
         $cid = $category->getId();
@@ -73,7 +71,7 @@ class LendCategory extends GaletteTestCase
         $this->assertSame('Test category (0)', $category->getName());
         $this->assertFalse($category->isActive());
 
-        $category->name = 'Test category (edited)';
+        $category->setName('Test category (edited)');
         $this->assertTrue($category->store());
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb, $cid);

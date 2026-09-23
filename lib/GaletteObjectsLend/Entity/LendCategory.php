@@ -20,11 +20,6 @@ use Laminas\Db\Sql\Predicate;
  *
  * @author Mélissa Djebel <melissa.djebel@gmx.net>
  * @author Johan Cwiklinski <johan@x-tnd.be>
- *
- * @property bool            $is_active
- * @property string          $name
- * @property int             $category_id
- * @property CategoryPicture $picture
  */
 class LendCategory
 {
@@ -37,13 +32,11 @@ class LendCategory
         'name' => 'varchar(100)',
         'is_active' => 'boolean'
     ];
-    private int $category_id;
+    private ?int $category_id = null;
     private ?string $name = null;
     private bool $is_active = true;
     private int $objects_nb = 0;
     private float $objects_price_sum = 0.0;
-    // Used to have an url for the image
-    private string $categ_image_url = '';
     private CategoryPicture $picture;
 
     /** @var array<string, bool> */
@@ -136,7 +129,7 @@ class LendCategory
                 }
             }
 
-            if (!isset($this->category_id) || $this->category_id == '') {
+            if ($this->category_id === null) {
                 unset($values['category_id']);
                 $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
                         ->values($values);
@@ -228,40 +221,33 @@ class LendCategory
     }
 
     /**
-     * Global getter method
+     * Set name
      *
-     * @param string $name name of the property we want to retrieve
-     *
-     * @return mixed the called property
+     * @param string $name Category name
      */
-    public function __get(string $name): mixed
+    public function setName(string $name): self
     {
-        switch ($name) {
-            case 'objects_price_sum':
-                return number_format($this->$name, 2, ',', '');
-            case 'is_active':
-            default:
-                return $this->$name ?? null;
-        }
+        $this->name = $name;
+        return $this;
     }
 
     /**
-     * Global setter method
+     * Set active
      *
-     * @param string $name  name of the property we want to assign a value to
-     * @param mixed  $value a relevant value for the property
+     * @param bool $active Active
      */
-    public function __set(string $name, mixed $value): void
+    public function setActive(bool $active): self
     {
-        $this->$name = $value;
+        $this->is_active = $active;
+        return $this;
     }
 
     /**
-     * Get object ID
+     * Get category ID
      */
     public function getId(): ?int
     {
-        return $this->category_id ?? null;
+        return $this->category_id;
     }
 
     /**
@@ -294,15 +280,5 @@ class LendCategory
     public function getObjectsNb(): int
     {
         return $this->objects_nb;
-    }
-
-    /**
-     * Generic isset function
-     *
-     * @param string $name Property name
-     */
-    public function __isset(string $name): bool
-    {
-        return property_exists($this, $name);
     }
 }

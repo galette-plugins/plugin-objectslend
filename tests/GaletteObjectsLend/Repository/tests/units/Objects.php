@@ -63,15 +63,15 @@ class Objects extends GaletteTestCase
         $this->assertSame(0, $objects->getCount());
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
-        $category->name = 'First category';
-        $category->is_active = true;
+        $category->setName('First category');
+        $category->setActive(true);
         $this->assertTrue($category->store());
         $first_category_id = $category->getId();
         $this->assertGreaterThan(0, $first_category_id);
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
-        $category->name = 'Second category';
-        $category->is_active = true;
+        $category->setName('Second category');
+        $category->setActive(true);
         $this->assertTrue($category->store());
         $second_category_id = $category->getId();
         $this->assertGreaterThan(0, $second_category_id);

@@ -205,7 +205,7 @@
                                 />
                                 {{ categ.getName() }}
                             {% if lendsprefs.VIEW_LIST_PRICE_SUM and lendsprefs.VIEW_PRICE and (login.isAdmin() or login.isStaff()) %}
-                                <div class="detail">{{ categ.getSum() }} &euro;</div>
+                                <div class="detail">{{ categ.getSum()|format_currency('EUR', {}, i18n.getWebID()) }}</div>
                             {% endif %}
                             </a>
                         {% endif %}
