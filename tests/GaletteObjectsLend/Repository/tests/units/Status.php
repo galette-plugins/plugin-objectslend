@@ -48,7 +48,7 @@ class Status extends GaletteTestCase
      */
     public function testGetList(): void
     {
-        $status = new \GaletteObjectsLend\Repository\Status($this->zdb, $this->login);
+        $status = new \GaletteObjectsLend\Repository\Status($this->zdb, $this->preferences, $this->login);
 
         $rs_list = $status->getList();
         $this->assertInstanceOf(\Laminas\Db\ResultSet\ResultSet::class, $rs_list);
@@ -90,7 +90,7 @@ class Status extends GaletteTestCase
         $this->assertTrue($status->store());
 
         $filters = new \GaletteObjectsLend\Filters\StatusList();
-        $status = new \GaletteObjectsLend\Repository\Status($this->zdb, $this->login, $filters);
+        $status = new \GaletteObjectsLend\Repository\Status($this->zdb, $this->preferences, $this->login, $filters);
 
         $this->assertCount(5, $status->getStatusList(true));
         $this->assertSame(5, $status->getCount());

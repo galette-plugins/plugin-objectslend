@@ -26,7 +26,6 @@ use Slim\Views\Twig;
  * @property ?int    $active_filter
  * @property ?int    $field_filter
  * @property array   $selected
- * @property string  $query
  */
 
 class ObjectsList extends Pagination
@@ -39,7 +38,6 @@ class ObjectsList extends Pagination
     /** @var array<int> */
     private array $selected;
 
-    protected string $query;
 
     /** @var array<string> */
     protected array $objectslist_fields = [
@@ -47,8 +45,7 @@ class ObjectsList extends Pagination
         'category_filter',
         'active_filter',
         'field_filter',
-        'selected',
-        'query'
+        'selected'
     ];
 
     /**
@@ -185,7 +182,6 @@ class ObjectsList extends Pagination
                     }
                     break;
                 case 'filter_str':
-                case 'query':
                     $this->$name = $value;
                     break;
                 case 'category_filter':

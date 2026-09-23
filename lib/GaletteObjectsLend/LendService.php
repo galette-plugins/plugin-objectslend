@@ -13,6 +13,7 @@ namespace GaletteObjectsLend;
 use Analog\Analog;
 use Galette\Core\Db;
 use Galette\Core\Login;
+use Galette\Core\Preferences as CorePreferences;
 use Galette\Entity\Adherent;
 use Galette\Entity\Contribution;
 use Galette\Entity\ContributionsTypes;
@@ -38,12 +39,14 @@ class LendService
     /**
      * Constructor
      *
-     * @param Db          $zdb        Database instance
-     * @param Login       $login      Logged in instance
-     * @param Preferences $lendsprefs Plugin preferences
+     * @param Db              $zdb         Database instance
+     * @param CorePreferences $preferences Preferences
+     * @param Login           $login       Logged in instance
+     * @param Preferences     $lendsprefs  Plugin preferences
      */
     public function __construct(
         private Db $zdb,
+        private CorePreferences $preferences,
         private Login $login,
         private Preferences $lendsprefs
     ) {
@@ -56,7 +59,7 @@ class LendService
      */
     public function getObject(int $id): LendObject
     {
-        return (new Objects($this->zdb, $this->lendsprefs))->getWithCurrentRent($id);
+        return (new Objects($this->zdb, $this->preferences, $this->login, $this->lendsprefs))->getWithCurrentRent($id);
     }
 
     /**
@@ -429,7 +432,7 @@ class LendService
      */
     private function getStatuses(): Status
     {
-        return new Status($this->zdb, $this->login);
+        return new Status($this->zdb, $this->preferences, $this->login);
     }
 
     /**

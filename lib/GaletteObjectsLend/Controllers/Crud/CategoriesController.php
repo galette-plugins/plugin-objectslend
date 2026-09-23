@@ -89,7 +89,7 @@ class CategoriesController extends AbstractPluginController
             }
         }
 
-        $categories = new Categories($this->zdb, $this->login, $filters);
+        $categories = new Categories($this->zdb, $this->preferences, $this->login, $filters);
         $list = $categories->getCategoriesList(true);
 
         $this->session->objectslend_filter_categories = $filters;

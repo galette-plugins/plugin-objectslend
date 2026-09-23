@@ -23,7 +23,6 @@ use GaletteObjectsLend\Repository\Categories;
  * @property ?int         $active_filter
  * @property ?bool        $not_empty
  * @property ?ObjectsList $objects_filters
- * @property string       $query
  */
 
 class CategoriesList extends Pagination
@@ -34,15 +33,13 @@ class CategoriesList extends Pagination
     private ?bool $not_empty;
     private ?ObjectsList $objects_filters;
 
-    protected string $query;
 
     /** @var array<string> */
     protected array $categorylist_fields = [
         'filter_str',
         'active_filter',
         'not_empty',
-        'objects_filters',
-        'query'
+        'objects_filters'
     ];
 
     /**
@@ -118,7 +115,6 @@ class CategoriesList extends Pagination
 
             switch ($name) {
                 case 'filter_str':
-                case 'query':
                 case 'not_empty':
                     $this->$name = $value;
                     break;

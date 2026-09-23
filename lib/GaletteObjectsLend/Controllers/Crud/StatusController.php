@@ -87,7 +87,7 @@ class StatusController extends AbstractPluginController
             }
         }
 
-        $statuses = new Status($this->zdb, $this->login, $filters);
+        $statuses = new Status($this->zdb, $this->preferences, $this->login, $filters);
         $list = $statuses->getStatusList(true);
 
         if (count($statuses->getActiveStockStatuses()) == 0) {
