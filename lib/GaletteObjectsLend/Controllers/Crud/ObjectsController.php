@@ -139,7 +139,10 @@ class ObjectsController extends AbstractPluginController
         $cat_filters = new CategoriesList();
         $cat_filters->active_filter = Categories::ACTIVE_CATEGORIES; //retrieve only active categories
         $cat_filters->not_empty = true; //retrieve only categories with objects
-        $cat_filters->setObjectsFilter($filters); //search for categories corresponding to filtered objects
+        //search for categories corresponding to filtered objects, whatever the chosen category
+        $objects_filters = clone $filters;
+        $objects_filters->category_filter = null;
+        $cat_filters->setObjectsFilter($objects_filters);
         $categories = new Categories($this->zdb, $this->preferences, $this->login, $cat_filters);
         $categories_list = $categories->getCategoriesList(true, false, false);
 
@@ -185,6 +188,10 @@ class ObjectsController extends AbstractPluginController
             //field to search into
             if (isset($post['field_filter'])) {
                 $filters->field_filter = $post['field_filter'];
+            }
+            //category, empty for all
+            if (isset($post['category_filter'])) {
+                $filters->category_filter = $post['category_filter'] === '' ? null : $post['category_filter'];
             }
             //activity to filter
             if (isset($post['active_filter'])) {
