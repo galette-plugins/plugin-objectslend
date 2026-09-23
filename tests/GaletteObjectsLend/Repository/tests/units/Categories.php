@@ -53,19 +53,19 @@ class Categories extends GaletteTestCase
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
         $category->setName('One category');
         $category->setActive(true);
-        $this->assertTrue($category->store());
+        $category->store();
         $cat_one_id = $category->getId();
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
         $category->setName('Another category');
         $category->setActive(true);
-        $this->assertTrue($category->store());
+        $category->store();
         $cat_two_id = $category->getId();
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
         $category->setName('Yet another category');
         $category->setActive(false);
-        $this->assertTrue($category->store());
+        $category->store();
 
         $filters = new \GaletteObjectsLend\Filters\CategoriesList();
         $categories = new \GaletteObjectsLend\Repository\Categories($this->zdb, $this->preferences, $this->login, $filters);
@@ -89,7 +89,7 @@ class Categories extends GaletteTestCase
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
         $object->setName('One object');
         $object->setCategoryId($cat_one_id);
-        $this->assertTrue($object->store());
+        $object->store();
 
         $this->assertCount(1, $categories->getCategoriesList(true));
 
@@ -107,7 +107,7 @@ class Categories extends GaletteTestCase
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
         $object->setName('Another object');
         $object->setCategoryId($cat_one_id);
-        $this->assertTrue($object->store());
+        $object->store();
 
         $filters->reinit();
         $this->assertCount(3, $categories->getCategoriesList(true));
@@ -117,7 +117,7 @@ class Categories extends GaletteTestCase
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
         $object->setName('Object in another category');
         $object->setCategoryId($cat_two_id);
-        $this->assertTrue($object->store());
+        $object->store();
 
         $filters->not_empty = true;
         $this->assertCount(2, $categories->getCategoriesList(true));

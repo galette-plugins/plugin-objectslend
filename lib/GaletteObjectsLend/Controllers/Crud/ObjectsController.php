@@ -30,6 +30,7 @@ use Galette\Entity\Contribution;
 use Galette\Repository\Members;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
+use Throwable;
 
 /**
  * Objects controller
@@ -363,7 +364,18 @@ class ObjectsController extends AbstractPluginController
 
         $this->fillObject($object, $post);
 
-        if ($object->store()) {
+        try {
+            $object->store();
+            $stored = true;
+        } catch (Throwable $e) {
+            Analog::log(
+                'Unable to store object #' . $object->getId() . ' | ' . $e->getMessage(),
+                Analog::ERROR
+            );
+            $stored = false;
+        }
+
+        if ($stored) {
             if (!empty($post['1st_status'])) {
                 try {
                     $this->getLendService()->changeStatus($object, (int)$post['1st_status']);
@@ -381,7 +393,7 @@ class ObjectsController extends AbstractPluginController
                 if (!$object->getPicture()->delete()) {
                     $error_detected[] = _T("Delete failed", "objectslend");
                     Analog::log(
-                        'Unable to delete picture for object ' . $object->getName(),
+                        'Unable to delete picture for object #' . $object->getId(),
                         Analog::ERROR
                     );
                 }
@@ -525,7 +537,18 @@ class ObjectsController extends AbstractPluginController
     {
         $object = new LendObject($this->zdb, $id);
 
-        if ($object->clone()) {
+        try {
+            $object->clone();
+            $cloned = true;
+        } catch (Throwable $e) {
+            Analog::log(
+                'Unable to clone object #' . $id . ' | ' . $e->getMessage(),
+                Analog::ERROR
+            );
+            $cloned = false;
+        }
+
+        if ($cloned) {
             $this->flash->addMessage(
                 'success_detected',
                 str_replace(
@@ -894,11 +917,17 @@ class ObjectsController extends AbstractPluginController
             $ids = $post['id'];
         }
 
-        $result = $objects->removeObjects($ids);
-        if ($result) {
-            unset($this->session->{$this->getFiltersKey()});
+        try {
+            $objects->removeObjects($ids);
+        } catch (Throwable $e) {
+            Analog::log(
+                'Unable to remove objects #' . implode(', #', $ids) . ' | ' . $e->getMessage(),
+                Analog::ERROR
+            );
+            return false;
         }
-        return $result;
+        unset($this->session->{$this->getFiltersKey()});
+        return true;
     }
 
     // /CRUD - Delete

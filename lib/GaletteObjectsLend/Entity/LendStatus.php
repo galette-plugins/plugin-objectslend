@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace GaletteObjectsLend\Entity;
 
-use Analog\Analog;
 use ArrayObject;
 use Galette\Core\Db;
 
@@ -52,19 +51,11 @@ class LendStatus
         $this->zdb = $zdb;
 
         if (is_int($args)) {
-            try {
-                $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
-                        ->where([self::PK => $args]);
-                $result = $this->zdb->execute($select);
-                if ($result->count() == 1) {
-                    $this->loadFromRS($result->current());
-                }
-            } catch (\Exception $e) {
-                Analog::log(
-                    'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                        . $e->getTraceAsString(),
-                    Analog::ERROR
-                );
+            $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
+                    ->where([self::PK => $args]);
+            $result = $this->zdb->execute($select);
+            if ($result->count() == 1) {
+                $this->loadFromRS($result->current());
             }
         } elseif (is_object($args)) {
             $this->loadFromRS($args);
@@ -88,75 +79,55 @@ class LendStatus
     /**
      * Store current element
      */
-    public function store(): bool
+    public function store(): void
     {
-        try {
-            $values = [];
+        $values = [];
 
-            foreach (array_keys($this->fields) as $k) {
-                if (
-                    ($k === 'is_active' || $k === 'in_stock')
-                    && $this->$k === false
-                ) {
-                    //Handle booleans for postgres ; bugs #18899 and #19354
-                    $values[$k] = $this->zdb->isPostgres() ? 'false' : 0;
-                } else {
-                    $values[$k] = $this->$k ?? null;
-                }
+        foreach (array_keys($this->fields) as $k) {
+            if (
+                ($k === 'is_active' || $k === 'in_stock')
+                && $this->$k === false
+            ) {
+                //Handle booleans for postgres ; bugs #18899 and #19354
+                $values[$k] = $this->zdb->isPostgres() ? 'false' : 0;
+            } else {
+                $values[$k] = $this->$k ?? null;
             }
+        }
 
-            if ($this->status_id === null) {
-                unset($values[self::PK]);
-                $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
-                        ->values($values);
-                $result = $this->zdb->execute($insert);
-                if ($result->count() > 0) {
-                    if ($this->zdb->isPostgres()) {
-                        /** @phpstan-ignore-next-line */
-                        $this->status_id = (int)$this->zdb->driver->getLastGeneratedValue(
-                            PREFIX_DB . 'lend_status_id_seq'
-                        );
-                    } else {
-                        $this->status_id = (int)$this->zdb->driver->getLastGeneratedValue();
-                    }
+        if ($this->status_id === null) {
+            unset($values[self::PK]);
+            $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
+                    ->values($values);
+            $result = $this->zdb->execute($insert);
+            if ($result->count() > 0) {
+                if ($this->zdb->isPostgres()) {
+                    /** @phpstan-ignore-next-line */
+                    $this->status_id = (int)$this->zdb->driver->getLastGeneratedValue(
+                        PREFIX_DB . 'lend_status_id_seq'
+                    );
                 } else {
-                    throw new \Exception(_T("Status has not been added :(", "objectslend"));
+                    $this->status_id = (int)$this->zdb->driver->getLastGeneratedValue();
                 }
             } else {
-                $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
-                        ->set($values)
-                        ->where([self::PK => $this->status_id]);
-                $this->zdb->execute($update);
+                throw new \Exception(_T("Status has not been added :(", "objectslend"));
             }
-            return true;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            return false;
+        } else {
+            $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
+                    ->set($values)
+                    ->where([self::PK => $this->status_id]);
+            $this->zdb->execute($update);
         }
     }
 
     /**
      * Delete status
      */
-    public function delete(): bool
+    public function delete(): void
     {
-        try {
-            $delete = $this->zdb->delete(LEND_PREFIX . self::TABLE)
-                    ->where([self::PK => $this->status_id]);
-            $this->zdb->execute($delete);
-            return true;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            return false;
-        }
+        $delete = $this->zdb->delete(LEND_PREFIX . self::TABLE)
+                ->where([self::PK => $this->status_id]);
+        $this->zdb->execute($delete);
     }
 
     /**

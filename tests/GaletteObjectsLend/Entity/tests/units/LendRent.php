@@ -79,7 +79,7 @@ class LendRent extends GaletteTestCase
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
         $object->setName('Test object');
-        $this->assertTrue($object->store());
+        $object->store();
         $oid = $object->getId();
 
         $bdate = new \DateTime('2024-05-22 19:46:21');
@@ -87,7 +87,7 @@ class LendRent extends GaletteTestCase
         $rent->setObjectId($oid);
         $rent->setStatusId($this->active_instock_status);
         $rent->setComments('Test comment');
-        $this->assertTrue($rent->store());
+        $rent->store();
         $rent_id = $rent->getId();
 
         $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb, $rent_id);
@@ -98,7 +98,7 @@ class LendRent extends GaletteTestCase
         $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb, $rent_id);
         $rent->setStatusId($this->active_notinstock_status);
         $rent->setAdherentId($member->id);
-        $this->assertTrue($rent->store());
+        $rent->store();
 
         $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb, $rent_id);
         $this->assertSame($this->active_notinstock_status, $rent->getStatusId());
@@ -116,7 +116,7 @@ class LendRent extends GaletteTestCase
         $rent->setObjectId($oid);
         $rent->setStatusId($this->active_instock_status);
         $rent->setComments('Test 2 comment');
-        $this->assertTrue($rent->store());
+        $rent->store();
         $rent2_id = $rent->getId();
         $this->assertNotEquals($rent_id, $rent2_id);
         $this->assertSame($rent2_edate->format('Y-m-d'), $rent->getDateForecast());
@@ -140,7 +140,7 @@ class LendRent extends GaletteTestCase
         $this->assertSame('Test 2 comment', $rent->getComments());
 
         //cleanup to avoid constraint errors
-        $this->assertTrue($object->delete());
+        $object->delete();
 
         /*$status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('One active status');
@@ -198,20 +198,20 @@ class LendRent extends GaletteTestCase
         $status->setText('One active status');
         $status->setInStock(true);
         $status->setActive(true);
-        $this->assertTrue($status->store());
+        $status->store();
         $this->active_instock_status = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('Another active status');
         $status->setInStock(false);
         $status->setActive(true);
-        $this->assertTrue($status->store());
+        $status->store();
         $this->active_notinstock_status = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('One inactive status');
         $status->setInStock(true);
         $status->setActive(false);
-        $this->assertTrue($status->store());
+        $status->store();
     }
 }

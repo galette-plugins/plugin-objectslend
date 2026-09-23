@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace GaletteObjectsLend\Controllers\tests\units;
 
+use Analog\Analog;
 use Galette\Tests\GaletteRoutingTestCase;
 use GaletteObjectsLend\Entity\LendStatus;
 use GaletteObjectsLend\Repository\Status;
@@ -23,6 +24,8 @@ class StatusController extends GaletteRoutingTestCase
 {
     protected int $seed = 20260923101542;
     protected bool $load_plugins = true;
+    //a failing query aborts the whole transaction on PostgreSQL
+    protected bool $db_transactions = false;
 
     /**
      * Cleanup after each test method
@@ -44,7 +47,7 @@ class StatusController extends GaletteRoutingTestCase
     {
         $status = new LendStatus($this->zdb);
         $status->setText($text)->setInStock($in_stock)->setActive(true);
-        $this->assertTrue($status->store());
+        $status->store();
         return $status;
     }
 
@@ -145,6 +148,28 @@ class StatusController extends GaletteRoutingTestCase
         $this->assertFalse($status->isInStock());
         $this->assertFalse($status->isActive());
         $this->assertNull($status->getRentDayNumber());
+    }
+
+    /**
+     * A status that cannot be stored brings the form back with posted values
+     */
+    public function testStoreError(): void
+    {
+        $this->logSuperAdmin();
+        $text = str_repeat('x', 150);
+        $request = $this->createRequest(route_name: 'objectslend_status_action_add', method: 'POST')
+            ->withParsedBody(['text' => $text, 'rent_day_number' => '']);
+        $test_response = $this->app->handle($request);
+        $this->assertSame(301, $test_response->getStatusCode());
+        $this->assertSame(
+            [$this->routeparser->urlFor('objectslend_status_add')],
+            $test_response->getHeader('Location')
+        );
+        $this->expectFlashData(['error_detected' => ['An error occurred while storing the status.']]);
+        $this->expectLogEntry(Analog::ERROR, 'Unable to store status #new');
+        $this->expectLogEntry(Analog::ERROR, 'Query error');
+        $this->assertSame($text, $this->session->objectslend_status_data['text']);
+        $this->assertCount(0, (new Status($this->zdb, $this->preferences, $this->login))->getList(true));
     }
 
     /**

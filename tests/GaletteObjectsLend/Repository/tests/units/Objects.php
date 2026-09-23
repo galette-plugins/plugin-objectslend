@@ -65,14 +65,14 @@ class Objects extends GaletteTestCase
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
         $category->setName('First category');
         $category->setActive(true);
-        $this->assertTrue($category->store());
+        $category->store();
         $first_category_id = $category->getId();
         $this->assertGreaterThan(0, $first_category_id);
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
         $category->setName('Second category');
         $category->setActive(true);
-        $this->assertTrue($category->store());
+        $category->store();
         $second_category_id = $category->getId();
         $this->assertGreaterThan(0, $second_category_id);
 
@@ -80,7 +80,7 @@ class Objects extends GaletteTestCase
         $object->setName('First object');
         $object->setCategoryId($first_category_id);
         $object->setActive(true);
-        $this->assertTrue($object->store());
+        $object->store();
         $first_object_id = $object->getId();
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
@@ -88,14 +88,14 @@ class Objects extends GaletteTestCase
         $object->setDescription('First description');
         $object->setCategoryId($first_category_id);
         $object->setActive(true);
-        $this->assertTrue($object->store());
+        $object->store();
         $second_object_id = $object->getId();
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
         $object->setName('Third object');
         $object->setCategoryId($second_category_id);
         $object->setActive(true);
-        $this->assertTrue($object->store());
+        $object->store();
         $third_object_id = $object->getId();
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
@@ -103,7 +103,7 @@ class Objects extends GaletteTestCase
         $object->setSerialNumber('GGABCDEXX');
         $object->setDimension('210x297');
         $object->setActive(false);
-        $this->assertTrue($object->store());
+        $object->store();
         //ids are not reset between tests, a hardcoded one may exist
         $missing_id = $object->getId() + 1;
 
@@ -217,7 +217,7 @@ class Objects extends GaletteTestCase
         $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_CATEGORY;
         $this->assertCount(4, $objects->getObjectsList(true));
 
-        $this->assertTrue($objects->removeObjects([$first_object_id, $second_object_id, $third_object_id]));
+        $objects->removeObjects([$first_object_id, $second_object_id, $third_object_id]);
         $this->assertCount(1, $objects->getObjectsList(true));
     }
 }

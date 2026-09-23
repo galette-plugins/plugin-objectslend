@@ -89,9 +89,7 @@ class Rents
             $rent
                 ->setDateEnd(date('Y-m-d H:i:s'))
                 ->setComments($comments); //FIXME: will replace any existing comments :/
-            if (!$rent->store()) {
-                throw new \RuntimeException('Unable to close rent #' . $rent->getId());
-            }
+            $rent->store();
         }
     }
 }

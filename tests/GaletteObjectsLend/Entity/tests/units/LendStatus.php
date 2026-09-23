@@ -64,21 +64,21 @@ class LendStatus extends GaletteTestCase
         $status->setText('One active status');
         $status->setInStock(true);
         $status->setActive(true);
-        $this->assertTrue($status->store());
+        $status->store();
         $status_one = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('Another active status');
         $status->setInStock(false);
         $status->setActive(true);
-        $this->assertTrue($status->store());
+        $status->store();
         $status_two = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('One inactive status');
         $status->setInStock(true);
         $status->setActive(false);
-        $this->assertTrue($status->store());
+        $status->store();
 
         $list = (new \GaletteObjectsLend\Repository\Status($this->zdb, $this->preferences, $this->login))->getActiveTakeAwayStatuses();
         $this->assertCount(1, $list);
@@ -96,12 +96,12 @@ class LendStatus extends GaletteTestCase
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb, $status_one);
         $status->setText('One active status (edited)');
-        $this->assertTrue($status->store());
+        $status->store();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb, $status_one);
         $this->assertSame('One active status (edited)', $status->getText());
 
-        $this->assertTrue($status->delete());
+        $status->delete();
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb, $status_one);
         $this->assertNull($status->getId());
     }

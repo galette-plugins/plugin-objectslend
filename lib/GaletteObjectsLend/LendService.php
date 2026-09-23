@@ -285,9 +285,7 @@ class LendService
         if ($date_forecast !== null) {
             $rent->setDateForecast($date_forecast);
         }
-        if (!$rent->store()) {
-            throw new \RuntimeException('Unable to store rent for object #' . $object_id);
-        }
+        $rent->store();
 
         $update = $this->zdb->update(LEND_PREFIX . LendObject::TABLE)
             ->set([LendRent::PK => $rent->getId()])

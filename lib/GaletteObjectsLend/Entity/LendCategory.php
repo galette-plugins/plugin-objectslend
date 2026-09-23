@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace GaletteObjectsLend\Entity;
 
-use Analog\Analog;
 use ArrayObject;
 use Galette\Core\Db;
 use Laminas\Db\Sql\Predicate;
@@ -69,19 +68,11 @@ class LendCategory
         }
 
         if (is_int($args)) {
-            try {
-                $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
-                        ->where([self::PK => $args]);
-                $results = $this->zdb->execute($select);
-                if ($results->count() == 1) {
-                    $this->loadFromRS($results->current());
-                }
-            } catch (\Exception $e) {
-                Analog::log(
-                    'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                    Analog::ERROR
-                );
+            $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
+                    ->where([self::PK => $args]);
+            $results = $this->zdb->execute($select);
+            if ($results->count() == 1) {
+                $this->loadFromRS($results->current());
             }
         } elseif (is_object($args)) {
             $this->loadFromRS($args);
@@ -115,58 +106,48 @@ class LendCategory
     /**
      * Store category
      */
-    public function store(): bool
+    public function store(): void
     {
-        try {
-            $values = [];
+        $values = [];
 
-            foreach (array_keys($this->fields) as $k) {
-                if ($k === 'is_active' && $this->$k === false) {
-                    //Handle booleans for postgres ; bugs #18899 and #19354
-                    $values[$k] = $this->zdb->isPostgres() ? 'false' : 0;
-                } else {
-                    $values[$k] = $this->$k ?? null;
-                }
+        foreach (array_keys($this->fields) as $k) {
+            if ($k === 'is_active' && $this->$k === false) {
+                //Handle booleans for postgres ; bugs #18899 and #19354
+                $values[$k] = $this->zdb->isPostgres() ? 'false' : 0;
+            } else {
+                $values[$k] = $this->$k ?? null;
             }
+        }
 
-            if ($this->category_id === null) {
-                unset($values['category_id']);
-                $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
-                        ->values($values);
-                $result = $this->zdb->execute($insert);
-                if ($result->count() > 0) {
-                    if ($this->zdb->isPostgres()) {
-                        /** @phpstan-ignore-next-line */
-                        $this->category_id = (int)$this->zdb->driver->getLastGeneratedValue(
-                            PREFIX_DB . 'lend_category_id_seq'
-                        );
-                    } else {
-                        $this->category_id = (int)$this->zdb->driver->getLastGeneratedValue();
-                    }
+        if ($this->category_id === null) {
+            unset($values['category_id']);
+            $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
+                    ->values($values);
+            $result = $this->zdb->execute($insert);
+            if ($result->count() > 0) {
+                if ($this->zdb->isPostgres()) {
+                    /** @phpstan-ignore-next-line */
+                    $this->category_id = (int)$this->zdb->driver->getLastGeneratedValue(
+                        PREFIX_DB . 'lend_category_id_seq'
+                    );
                 } else {
-                    throw new \RuntimeException('Unable to add category!');
+                    $this->category_id = (int)$this->zdb->driver->getLastGeneratedValue();
                 }
             } else {
-                $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
-                        ->set($values)
-                        ->where([self::PK => $this->category_id]);
-                $this->zdb->execute($update);
+                throw new \RuntimeException('Unable to add category!');
             }
-            return true;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            return false;
+        } else {
+            $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
+                    ->set($values)
+                    ->where([self::PK => $this->category_id]);
+            $this->zdb->execute($update);
         }
     }
 
     /**
      * Drop a category. All objects for removed category will be assigned to none.
      */
-    public function delete(): bool
+    public function delete(): void
     {
         $need_transaction = !$this->zdb->inTransaction();
         try {
@@ -190,17 +171,11 @@ class LendCategory
             if ($need_transaction) {
                 $this->zdb->commit();
             }
-            return true;
         } catch (\Exception $e) {
             if ($need_transaction) {
                 $this->zdb->rollback();
             }
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            return false;
+            throw $e;
         }
     }
 

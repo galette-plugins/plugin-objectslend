@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace GaletteObjectsLend\Controllers\Crud;
 
+use Analog\Analog;
 use DI\Attribute\Inject;
 use Galette\Controllers\Crud\AbstractPluginController;
 use Galette\Core\Pagination;
@@ -19,6 +20,7 @@ use GaletteObjectsLend\Filters\CategoriesList;
 use GaletteObjectsLend\Filters\StatusList;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
+use Throwable;
 
 /**
  * Common code for categories and statuses: list, filter, edit and delete
@@ -290,9 +292,11 @@ abstract class AbstractListController extends AbstractPluginController
         $entity = $this->loadEntity($id);
         $this->fillEntity($entity, $post);
 
-        if ($entity->store()) {
+        try {
+            $entity->store();
             $errors = $this->afterStore($entity, $request, $post);
-        } else {
+        } catch (Throwable $e) {
+            $this->logError('store', $entity, $e);
             $errors = [$this->getStoreErrorMessage()];
         }
 
@@ -363,7 +367,35 @@ abstract class AbstractListController extends AbstractPluginController
      */
     protected function doDelete(array $args, array $post): bool
     {
-        return $this->loadEntity((int)$args['id'])->delete();
+        $entity = $this->loadEntity((int)$args['id']);
+        try {
+            $entity->delete();
+            return true;
+        } catch (Throwable $e) {
+            $this->logError('remove', $entity, $e);
+            return false;
+        }
+    }
+
+    /**
+     * Log an error on an entity
+     *
+     * @param string    $action Action that failed
+     * @param TEntity   $entity Entity
+     * @param Throwable $e      Error
+     */
+    private function logError(string $action, LendCategory|LendStatus $entity, Throwable $e): void
+    {
+        Analog::log(
+            sprintf(
+                'Unable to %1$s %2$s #%3$s | %4$s',
+                $action,
+                $this->getEntityRouteName(),
+                $entity->getId() ?? 'new',
+                $e->getMessage()
+            ),
+            Analog::ERROR
+        );
     }
 
     // /CRUD - Delete

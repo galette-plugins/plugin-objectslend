@@ -63,31 +63,31 @@ class Status extends GaletteTestCase
         $status->setText('One active in stock status');
         $status->setInStock(true);
         $status->setActive(true);
-        $this->assertTrue($status->store());
+        $status->store();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('One active in stock status');
         $status->setInStock(true);
         $status->setActive(true);
-        $this->assertTrue($status->store());
+        $status->store();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('One active not in stock status');
         $status->setInStock(false);
         $status->setActive(true);
-        $this->assertTrue($status->store());
+        $status->store();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('One inactive in stock status');
         $status->setInStock(true);
         $status->setActive(false);
-        $this->assertTrue($status->store());
+        $status->store();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('One inactive not in stock status');
         $status->setInStock(false);
         $status->setActive(false);
-        $this->assertTrue($status->store());
+        $status->store();
 
         $filters = new \GaletteObjectsLend\Filters\StatusList();
         $status = new \GaletteObjectsLend\Repository\Status($this->zdb, $this->preferences, $this->login, $filters);

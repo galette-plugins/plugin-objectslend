@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace GaletteObjectsLend\Entity;
 
-use Analog\Analog;
 use ArrayObject;
 use Galette\Core\Db;
 use Galette\Util\Html;
@@ -82,19 +81,11 @@ class LendObject
     public function __construct(private Db $zdb, int|ArrayObject|null $args = null)
     {
         if (is_int($args)) {
-            try {
-                $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
-                    ->where([self::PK => $args]);
-                $results = $this->zdb->execute($select);
-                if ($results->count() == 1) {
-                    $this->loadFromRS($results->current());
-                }
-            } catch (\Exception $e) {
-                Analog::log(
-                    'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                        . $e->getTraceAsString(),
-                    Analog::ERROR
-                );
+            $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
+                ->where([self::PK => $args]);
+            $results = $this->zdb->execute($select);
+            if ($results->count() == 1) {
+                $this->loadFromRS($results->current());
             }
         } elseif (is_object($args)) {
             $this->loadFromRS($args);
@@ -157,62 +148,52 @@ class LendObject
     /**
      * Store object
      */
-    public function store(): bool
+    public function store(): void
     {
-        try {
-            $values = [];
+        $values = [];
 
-            foreach (array_keys($this->fields) as $k) {
-                if (
-                    ($k === 'is_active' || $k === 'price_per_day')
-                    && $this->$k === false
-                ) {
-                    //Handle booleans for postgres ; bugs #18899 and #19354
-                    $values[$k] = $this->zdb->isPostgres() ? 'false' : 0;
-                } else {
-                    $values[$k] = $this->$k;
-                }
-            }
-
-            if ($this->object_id === null) {
-                unset($values[self::PK]);
-                $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
-                        ->values($values);
-                $result = $this->zdb->execute($insert);
-                if ($result->count() > 0) {
-                    if ($this->zdb->isPostgres()) {
-                        // @phpstan-ignore arguments.count (laminas does not respect its own interfaces)
-                        $this->object_id = (int)$this->zdb->driver->getLastGeneratedValue(
-                            PREFIX_DB . 'lend_objects_id_seq'
-                        );
-                    } else {
-                        $this->object_id = (int)$this->zdb->driver->getLastGeneratedValue();
-                    }
-                    $this->picture = null;
-                } else {
-                    throw new \Exception(_T("Object has not been added :(", "objectslend"));
-                }
+        foreach (array_keys($this->fields) as $k) {
+            if (
+                ($k === 'is_active' || $k === 'price_per_day')
+                && $this->$k === false
+            ) {
+                //Handle booleans for postgres ; bugs #18899 and #19354
+                $values[$k] = $this->zdb->isPostgres() ? 'false' : 0;
             } else {
-                $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
-                        ->set($values)
-                        ->where([self::PK => $this->object_id]);
-                $this->zdb->execute($update);
+                $values[$k] = $this->$k;
             }
-            return true;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            throw $e;
+        }
+
+        if ($this->object_id === null) {
+            unset($values[self::PK]);
+            $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
+                    ->values($values);
+            $result = $this->zdb->execute($insert);
+            if ($result->count() > 0) {
+                if ($this->zdb->isPostgres()) {
+                    // @phpstan-ignore arguments.count (laminas does not respect its own interfaces)
+                    $this->object_id = (int)$this->zdb->driver->getLastGeneratedValue(
+                        PREFIX_DB . 'lend_objects_id_seq'
+                    );
+                } else {
+                    $this->object_id = (int)$this->zdb->driver->getLastGeneratedValue();
+                }
+                $this->picture = null;
+            } else {
+                throw new \Exception(_T("Object has not been added :(", "objectslend"));
+            }
+        } else {
+            $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
+                    ->set($values)
+                    ->where([self::PK => $this->object_id]);
+            $this->zdb->execute($update);
         }
     }
 
     /**
      * Delete object
      */
-    public function delete(): bool
+    public function delete(): void
     {
         $need_transaction = !$this->zdb->inTransaction();
         try {
@@ -233,16 +214,10 @@ class LendObject
             if ($need_transaction) {
                 $this->zdb->commit();
             }
-            return true;
         } catch (\Exception $e) {
             if ($need_transaction) {
                 $this->zdb->rollback();
             }
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
             throw $e;
         }
     }
@@ -252,12 +227,12 @@ class LendObject
      *
      * The copy has neither picture nor rents.
      */
-    public function clone(): bool
+    public function clone(): void
     {
         $this->object_id = null;
         $this->rent_id = null;
         $this->picture = null;
-        return $this->store();
+        $this->store();
     }
 
     /**

@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace GaletteObjectsLend\Repository;
 
-use Analog\Analog;
 use ArrayObject;
 use Galette\Core\Db;
 use Galette\Core\Login;
@@ -112,7 +111,7 @@ class Objects extends AbstractRepository
      *
      * @param array<int> $ids Objects identifiers to delete
      */
-    public function removeObjects(array $ids): bool
+    public function removeObjects(array $ids): void
     {
         $need_transaction = !$this->zdb->inTransaction();
         try {
@@ -122,52 +121,26 @@ class Objects extends AbstractRepository
 
             $update = $this->zdb->update(LEND_PREFIX . self::TABLE);
             $update->set(['rent_id' => null]);
-            $update->where->in(
-                self::PK,
-                $ids
-            );
+            $update->where->in(self::PK, $ids);
             $this->zdb->execute($update);
 
             $delete = $this->zdb->delete(LEND_PREFIX . LendRent::TABLE);
-            $delete->where->in(
-                self::PK,
-                $ids
-            );
+            $delete->where->in(self::PK, $ids);
             $this->zdb->execute($delete);
 
             $delete = $this->zdb->delete(LEND_PREFIX . self::TABLE);
-            $delete->where->in(
-                self::PK,
-                $ids
-            );
+            $delete->where->in(self::PK, $ids);
             $this->zdb->execute($delete);
+
             if ($need_transaction) {
                 $this->zdb->commit();
             }
-            return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             if ($need_transaction) {
                 $this->zdb->rollback();
             }
-
-            if ($this->zdb->isForeignKeyException($e)) {
-                Analog::log(
-                    'Object mays still have existing dependencies in the '
-                    . 'database.'
-                    . 'Please remove dependencies before trying '
-                    . 'to remove it.',
-                    Analog::ERROR
-                );
-            } else {
-                Analog::log(
-                    'Unable to delete selected object(s) |'
-                    . $e->getMessage(),
-                    Analog::ERROR
-                );
-            }
+            throw $e;
         }
-
-        return false;
     }
 
     /**
