@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace GaletteObjectsLend\Controllers;
 
 use Galette\Controllers\PdfController as GPdfController;
+use GaletteObjectsLend\Controllers\Crud\ObjectsController;
 use GaletteObjectsLend\Entity\Preferences;
 use GaletteObjectsLend\Filters\ObjectsList;
 use GaletteObjectsLend\Repository\Objects;
@@ -58,11 +59,8 @@ class PdfController extends GPdfController
     {
         $lendsprefs = new Preferences($this->zdb);
 
-        if (isset($this->session->objectslend_filter_objects)) {
-            $filters =  clone $this->session->objectslend_filter_objects;
-        } else {
-            $filters = new ObjectsList();
-        }
+        $filters = clone ($this->session->{$this->getFilterName(ObjectsController::getDefaultFilterName())}
+            ?? new ObjectsList());
 
         if ($filters->orderby !== Objects::ORDERBY_CATEGORY) {
             $filters->orderby = Objects::ORDERBY_CATEGORY;

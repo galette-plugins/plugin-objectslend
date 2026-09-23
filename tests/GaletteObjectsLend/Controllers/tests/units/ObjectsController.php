@@ -462,7 +462,7 @@ class ObjectsController extends GaletteRoutingTestCase
         $test_response = $this->app->handle($request);
         $this->assertSame(301, $test_response->getStatusCode());
 
-        $filters = $this->session->objectslend_filter_objects;
+        $filters = $this->session->plugin_objectslend_objects_filter;
         $this->assertSame(\GaletteObjectsLend\Repository\Objects::FILTER_SERIAL, $filters->field_filter);
 
         $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->preferences, $this->login, new Preferences($this->zdb), $filters);

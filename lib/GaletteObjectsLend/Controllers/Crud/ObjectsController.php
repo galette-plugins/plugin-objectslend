@@ -45,6 +45,30 @@ class ObjectsController extends AbstractPluginController
     #[Inject("Plugin Galette Objects Lend")]
     protected array $module_info;
 
+    /**
+     * Default filter name, used to store filters in session
+     */
+    public static function getDefaultFilterName(): string
+    {
+        return 'objects';
+    }
+
+    /**
+     * Session key of the filters
+     */
+    private function getFiltersKey(): string
+    {
+        return $this->getFilterName(self::getDefaultFilterName());
+    }
+
+    /**
+     * Get filters from session
+     */
+    private function getFilters(): ObjectsList
+    {
+        return $this->session->{$this->getFiltersKey()} ?? new ObjectsList();
+    }
+
     // CRUD - Create
 
     /**
@@ -82,11 +106,7 @@ class ObjectsController extends AbstractPluginController
      */
     public function list(Request $request, Response $response, ?string $option = null, int|string|null $value = null): Response
     {
-        if (isset($this->session->objectslend_filter_objects)) {
-            $filters = $this->session->objectslend_filter_objects;
-        } else {
-            $filters = new ObjectsList();
-        }
+        $filters = $this->getFilters();
 
         if ($option !== null) {
             switch ($option) {
@@ -109,7 +129,7 @@ class ObjectsController extends AbstractPluginController
         $objects = new Objects($this->zdb, $this->preferences, $this->login, $lendsprefs, $filters);
         $list = $objects->getObjectsList(true);
 
-        $this->session->objectslend_filter_objects = $filters;
+        $this->session->{$this->getFiltersKey()} = $filters;
 
         //assign pagination variables to the template and add pagination links
         $filters->setViewCommonsFilters($lendsprefs, $this->view);
@@ -151,11 +171,7 @@ class ObjectsController extends AbstractPluginController
     public function filter(Request $request, Response $response): Response
     {
         $post = $request->getParsedBody();
-        if (isset($this->session->objectslend_filter_objects)) {
-            $filters = $this->session->objectslend_filter_objects;
-        } else {
-            $filters = new ObjectsList();
-        }
+        $filters = $this->getFilters();
 
         //reintialize filters
         if (isset($post['clear_filter'])) {
@@ -181,7 +197,7 @@ class ObjectsController extends AbstractPluginController
             }
         }
 
-        $this->session->objectslend_filter_objects = $filters;
+        $this->session->{$this->getFiltersKey()} = $filters;
 
         return $response
             ->withStatus(301)
@@ -225,14 +241,10 @@ class ObjectsController extends AbstractPluginController
         $post = $request->getParsedBody();
 
         if (isset($post['entries_sel'])) {
-            if (isset($this->session->objectslend_filter_objects)) {
-                $filters = $this->session->objectslend_filter_objects;
-            } else {
-                $filters = new ObjectsList();
-            }
+            $filters = $this->getFilters();
 
             $filters->selected = $post['entries_sel'];
-            $this->session->objectslend_filter_objects = $filters;
+            $this->session->{$this->getFiltersKey()} = $filters;
 
             if (isset($post['delete'])) {
                 return $response
@@ -834,7 +846,7 @@ class ObjectsController extends AbstractPluginController
         if (isset($args['id'])) {
             return (int)$args['id'];
         } else {
-            $filters = $this->session->objectslend_filter_objects;
+            $filters = $this->getFilters();
             return $filters->selected;
         }
     }
@@ -855,7 +867,7 @@ class ObjectsController extends AbstractPluginController
             );
         } else {
             //batch objects removal
-            $filters = $this->session->objectslend_filter_objects;
+            $filters = $this->getFilters();
             return str_replace(
                 '%count',
                 count($filters->selected),
@@ -872,11 +884,7 @@ class ObjectsController extends AbstractPluginController
      */
     protected function doDelete(array $args, array $post): bool
     {
-        if (isset($this->session->objectslend_filter_objects)) {
-            $filters =  $this->session->objectslend_filter_objects;
-        } else {
-            $filters = new ObjectsList();
-        }
+        $filters = $this->getFilters();
         $lendsprefs = new Preferences($this->zdb);
         $objects = new Objects($this->zdb, $this->preferences, $this->login, $lendsprefs, $filters);
 
@@ -888,7 +896,7 @@ class ObjectsController extends AbstractPluginController
 
         $result = $objects->removeObjects($ids);
         if ($result) {
-            unset($this->session->objectslend_filter_objects);
+            unset($this->session->{$this->getFiltersKey()});
         }
         return $result;
     }
