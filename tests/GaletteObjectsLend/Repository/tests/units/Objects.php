@@ -104,6 +104,8 @@ class Objects extends GaletteTestCase
         $object->dimension = '210x297';
         $object->is_active = false;
         $this->assertTrue($object->store());
+        //ids are not reset between tests, a hardcoded one may exist
+        $missing_id = $object->getId() + 1;
 
         $filters = new \GaletteObjectsLend\Filters\ObjectsList();
         $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->lend_prefs, $filters);
@@ -168,7 +170,7 @@ class Objects extends GaletteTestCase
         $this->assertCount(1, $objects->getObjectsList(true));
         $this->assertSame(1, $objects->getCount());
 
-        $filters->filter_str = '42';
+        $filters->filter_str = (string)$missing_id;
         $this->assertCount(0, $objects->getObjectsList(true));
         $this->assertSame(0, $objects->getCount());
 
