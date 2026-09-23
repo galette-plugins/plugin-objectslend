@@ -95,9 +95,6 @@ class LendStatus extends GaletteTestCase
         $this->assertSame($status_one, $active_one->status_id);
         $this->assertSame('One active status', $active_one->status_text);
 
-        $list = $status::getActiveStatuses($this->zdb);
-        $this->assertCount(2, $list);
-
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb, $status_one);
         $status->status_text = 'One active status (edited)';
         $this->assertTrue($status->store());

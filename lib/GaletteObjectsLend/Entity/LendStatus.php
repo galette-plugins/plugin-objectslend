@@ -146,36 +146,6 @@ class LendStatus
     }
 
     /**
-     * Get all active statuses sorted by name
-     *
-     * @param Db $zdb Database instance
-     *
-     * @return LendStatus[]
-     */
-    public static function getActiveStatuses(Db $zdb): array
-    {
-        try {
-            $select = $zdb->select(LEND_PREFIX . self::TABLE)
-                    ->where(['is_active' => 1])
-                    ->order('status_text');
-
-            $status = [];
-            $result = $zdb->execute($select);
-            foreach ($result as $r) {
-                $status[] = new LendStatus($zdb, $r);
-            }
-            return $status;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            throw $e;
-        }
-    }
-
-    /**
      * Get all borrowed active statuses sorted by
      *
      * @param Db $zdb Database instance

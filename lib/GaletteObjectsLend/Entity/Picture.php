@@ -248,52 +248,6 @@ class Picture extends \Galette\Core\Picture
     }
 
     /**
-     * Restore objects images from database blob
-     *
-     * @param string[] $success Success messages
-     * @param string[] $error   Error messages
-     */
-    public function restorePictures(array &$success, array &$error): void
-    {
-        global $zdb;
-
-        try {
-            $select_all = $zdb->select($this->tbl_prefix . static::TABLE);
-            $results = $zdb->execute($select_all);
-            $success[] = str_replace(
-                '%count',
-                (string)count($results),
-                _T("Found %count pictures in database")
-            );
-            foreach ($results as $picture) {
-                $path = realpath($this->store_path . $picture->{static::PK} . '.' . $picture->format);
-                if (file_exists($path)) {
-                    unlink($path);
-                    $success[] = str_replace(
-                        '%path',
-                        $path,
-                        _T("Picture '%path' deleted")
-                    );
-                }
-
-                file_put_contents($path, $picture->picture);
-                $success[] = str_replace(
-                    '%path',
-                    $path,
-                    _T("Picture '%path' written")
-                );
-            }
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            $error[] = _T("An error occurred :(");
-        }
-    }
-
-    /**
      * Get thumbnail file path
      */
     public function getThumbPath(): string

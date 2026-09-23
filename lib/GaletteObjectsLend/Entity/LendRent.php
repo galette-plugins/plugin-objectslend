@@ -13,7 +13,6 @@ namespace GaletteObjectsLend\Entity;
 use Analog\Analog;
 use ArrayObject;
 use Galette\Entity\Adherent;
-use Galette\Repository\Members;
 
 /**
  * Rents
@@ -283,37 +282,6 @@ class LendRent
                 Analog::ERROR
             );
             return false;
-        }
-    }
-
-    /**
-     * Get active members sorted by name
-     *
-     * @return Adherent[]
-     */
-    public static function getAllActivesAdherents(): array
-    {
-        try {
-            $filters = new \Galette\Filters\MembersList();
-            $filters->filter_account = Members::ACTIVE_ACCOUNT;
-            $members = new Members($filters);
-            $adherents = $members->getMembersList(
-                true,
-                null,
-                false,
-                false,
-                false,
-                false
-            );
-
-            return $adherents;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            throw $e;
         }
     }
 

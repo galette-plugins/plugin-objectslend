@@ -105,9 +105,6 @@ class LendRent extends GaletteTestCase
         $this->assertSame($this->active_notinstock_status, $rent->status_id);
         $this->assertSame($member->id, $rent->adherent_id);
 
-        //active members
-        $this->assertCount(1, $rent::getAllActivesAdherents());
-
         //another (older) rent
         $rent = new \GaletteObjectsLend\Entity\LendRent();
         $bdate = new \DateTime('2024-05-22 19:46:21');
@@ -180,9 +177,6 @@ class LendRent extends GaletteTestCase
         $active_one = $list[0];
         $this->assertSame($status_one, $active_one->status_id);
         $this->assertSame('One active status', $active_one->status_text);
-
-        $list = $status::getActiveStatuses($this->zdb);
-        $this->assertCount(2, $list);
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb, $status_one);
         $status->status_text = 'One active status (edited)';
