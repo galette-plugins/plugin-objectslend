@@ -1,0 +1,457 @@
+<?php
+
+/**
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+declare(strict_types=1);
+
+namespace GaletteObjectsLend;
+
+use Analog\Analog;
+use Galette\Core\Db;
+use Galette\Core\Login;
+use Galette\Entity\Adherent;
+use Galette\Entity\Contribution;
+use Galette\Entity\ContributionsTypes;
+use GaletteObjectsLend\Entity\LendObject;
+use GaletteObjectsLend\Entity\LendRent;
+use GaletteObjectsLend\Entity\LendStatus;
+use GaletteObjectsLend\Entity\Preferences;
+use Throwable;
+
+/**
+ * Lends: take, give back and status changes
+ *
+ * This is the only place where rents are closed and opened, and where
+ * the object current rent is set.
+ *
+ * @author Johan Cwiklinski <johan@x-tnd.be>
+ */
+class LendService
+{
+    /**
+     * Constructor
+     *
+     * @param Db          $zdb        Database instance
+     * @param Login       $login      Logged in instance
+     * @param Preferences $lendsprefs Plugin preferences
+     */
+    public function __construct(
+        private Db $zdb,
+        private Login $login,
+        private Preferences $lendsprefs
+    ) {
+    }
+
+    /**
+     * Load an object with all information lend operations rely on
+     *
+     * @param int $id Object ID
+     */
+    public function getObject(int $id): LendObject
+    {
+        return new LendObject(
+            $this->zdb,
+            $id,
+            [
+                'last_rent' => true,
+                'status'    => true,
+                'member'    => true,
+                'category'  => true
+            ]
+        );
+    }
+
+    /**
+     * Can current user borrow objects?
+     */
+    public function canTake(): bool
+    {
+        return $this->isManager()
+            || $this->lendsprefs->{Preferences::PARAM_ENABLE_MEMBER_RENT_OBJECT};
+    }
+
+    /**
+     * Can current user give back an object?
+     *
+     * Staff and admins always can; members only when they are allowed
+     * to borrow objects and hold the object.
+     *
+     * @param LendObject $object Object, loaded with getObject()
+     */
+    public function canGiveBack(LendObject $object): bool
+    {
+        if ($this->isManager()) {
+            return true;
+        }
+
+        return $this->lendsprefs->{Preferences::PARAM_ENABLE_MEMBER_RENT_OBJECT}
+            && $object->getIdAdh() !== null
+            && $this->login->id == $object->getIdAdh();
+    }
+
+    /**
+     * Can current user change the status of an object?
+     */
+    public function canChangeStatus(): bool
+    {
+        return $this->isManager();
+    }
+
+    /**
+     * Is object available to be borrowed?
+     *
+     * @param LendObject $object Object, loaded with getObject()
+     */
+    public function isAvailable(LendObject $object): bool
+    {
+        return $object->getId() !== null
+            && $object->isActive()
+            && ($object->getRentId() === null || $object->inStock());
+    }
+
+    /**
+     * Is object currently lent?
+     *
+     * @param LendObject $object Object, loaded with getObject()
+     */
+    public function isLent(LendObject $object): bool
+    {
+        return $object->getId() !== null
+            && $object->getRentId() !== null
+            && !$object->inStock();
+    }
+
+    /**
+     * Borrow an object
+     *
+     * When contribution generation is enabled and the rent is not free,
+     * the contribution is stored along with the rent; if it cannot be,
+     * nothing is stored.
+     *
+     * @param LendObject $object        Object, loaded with getObject()
+     * @param int        $status_id     Take away status
+     * @param ?string    $date_forecast Expected return date
+     * @param ?int       $member_id     Borrower; only staff may lend to someone else
+     * @param ?float     $rent_price    Rent price; only staff may change it
+     * @param ?int       $payment_type  Payment type of the contribution
+     *
+     * @return ?Contribution Generated contribution, if any
+     *
+     * @throws LendException
+     */
+    public function take(
+        LendObject $object,
+        int $status_id,
+        ?string $date_forecast = null,
+        ?int $member_id = null,
+        ?float $rent_price = null,
+        ?int $payment_type = null
+    ): ?Contribution {
+        if (!$this->canTake()) {
+            $this->refuse(
+                'Trying to borrow an object without appropriate rights!',
+                $object,
+                _T("You do not have rights to borrow objects!", "objectslend")
+            );
+        }
+
+        if (
+            !$this->isAvailable($object)
+            || !$this->isAllowedStatus($status_id, LendStatus::getActiveTakeAwayStatuses($this->zdb))
+        ) {
+            $this->refuse(
+                'Trying to borrow an unavailable object or with an invalid status!',
+                $object,
+                _T("This object cannot be borrowed.", "objectslend")
+            );
+        }
+
+        if ($member_id === null || !$this->isManager()) {
+            $member_id = $this->login->id;
+        }
+
+        if ($rent_price === null || !$this->isManager()) {
+            $rent_price = $object->getRentPrice();
+        }
+
+        return $this->inTransaction(function () use ($object, $status_id, $member_id, $date_forecast, $rent_price, $payment_type) {
+            $rent = $this->openRent($object, $status_id, $member_id, '', $date_forecast);
+
+            if ($this->lendsprefs->{Preferences::PARAM_AUTO_GENERATE_CONTRIBUTION} && $rent_price > 0) {
+                return $this->storeContribution($object, $rent, $rent_price, $payment_type);
+            }
+            return null;
+        });
+    }
+
+    /**
+     * Give back an object
+     *
+     * @param LendObject $object    Object, loaded with getObject()
+     * @param int        $status_id In stock status
+     *
+     * @throws LendException
+     */
+    public function giveBack(LendObject $object, int $status_id): LendRent
+    {
+        if (!$this->canGiveBack($object)) {
+            $this->refuse(
+                'Trying to return an object without appropriate rights!',
+                $object,
+                _T("You do not have rights to return objects!", "objectslend")
+            );
+        }
+
+        if (
+            !$this->isLent($object)
+            || !$this->isAllowedStatus($status_id, LendStatus::getActiveStockStatuses($this->zdb))
+        ) {
+            $this->refuse(
+                'Trying to return an object that is not lent or with an invalid status!',
+                $object,
+                _T("This object cannot be returned.", "objectslend")
+            );
+        }
+
+        return $this->inTransaction(
+            fn() => $this->openRent($object, $status_id, null, '')
+        );
+    }
+
+    /**
+     * Change object status, whatever its current one
+     *
+     * @param LendObject $object    Object
+     * @param int        $status_id New status
+     * @param ?int       $member_id Member holding the object, if any
+     * @param string     $comments  Comment on the closed rent
+     *
+     * @throws LendException
+     */
+    public function changeStatus(
+        LendObject $object,
+        int $status_id,
+        ?int $member_id = null,
+        string $comments = ''
+    ): LendRent {
+        if (!$this->canChangeStatus()) {
+            $this->refuse(
+                'Trying to change an object status without appropriate rights!',
+                $object,
+                _T("You do not have rights to change objects status!", "objectslend")
+            );
+        }
+
+        $status = new LendStatus($this->zdb, $status_id);
+        if ($object->getId() === null || $status->status_id === null || !$status->is_active) {
+            $this->refuse(
+                'Trying to change an object status to an invalid one!',
+                $object,
+                _T("This status cannot be set.", "objectslend")
+            );
+        }
+
+        return $this->inTransaction(
+            fn() => $this->openRent($object, $status_id, $member_id, $comments)
+        );
+    }
+
+    /**
+     * Close current rents, open a new one and set it as the object current one
+     *
+     * @param LendObject $object        Object
+     * @param int        $status_id     Status of the new rent
+     * @param ?int       $member_id     Member of the new rent
+     * @param string     $comments      Comment on closed rents
+     * @param ?string    $date_forecast Expected return date
+     */
+    private function openRent(
+        LendObject $object,
+        int $status_id,
+        ?int $member_id,
+        string $comments,
+        ?string $date_forecast = null
+    ): LendRent {
+        $object_id = (int)$object->getId();
+
+        if (!LendRent::closeAllRentsForObject($object_id, $comments)) {
+            throw new \RuntimeException('Unable to close rents for object #' . $object_id);
+        }
+
+        $rent = new LendRent();
+        $rent->object_id = $object_id;
+        $rent->status_id = $status_id;
+        $rent->adherent_id = $member_id;
+        if ($date_forecast !== null) {
+            $rent->date_forecast = $date_forecast;
+        }
+        if (!$rent->store()) {
+            throw new \RuntimeException('Unable to store rent for object #' . $object_id);
+        }
+
+        $update = $this->zdb->update(LEND_PREFIX . LendObject::TABLE)
+            ->set([LendRent::PK => $rent->rent_id])
+            ->where([LendObject::PK => $object_id]);
+        $this->zdb->execute($update);
+
+        return $rent;
+    }
+
+    /**
+     * Store contribution for a rent
+     *
+     * @param LendObject $object       Object
+     * @param LendRent   $rent         Rent
+     * @param float      $amount       Amount
+     * @param ?int       $payment_type Payment type
+     *
+     * @throws LendException
+     */
+    private function storeContribution(
+        LendObject $object,
+        LendRent $rent,
+        float $amount,
+        ?int $payment_type
+    ): Contribution {
+        $info = str_replace(
+            [
+                '{NAME}',
+                '{DESCRIPTION}',
+                '{SERIAL_NUMBER}',
+                '{PRICE}',
+                '{RENT_PRICE}',
+                '{WEIGHT}',
+                '{DIMENSION}'
+            ],
+            [
+                $object->name,
+                $object->description,
+                $object->serial_number,
+                $object->price,
+                $object->rent_price,
+                $object->weight,
+                $object->dimension
+            ],
+            $this->lendsprefs->{Preferences::PARAM_GENERATED_CONTRIB_INFO_TEXT}
+        );
+
+        $values = [
+            'montant_cotis'         => $amount,
+            ContributionsTypes::PK  => $this->lendsprefs->{Preferences::PARAM_GENERATED_CONTRIBUTION_TYPE_ID},
+            'date_enreg'            => date("Y-m-d"),
+            'date_debut_cotis'      => date("Y-m-d"),
+            'type_paiement_cotis'   => $payment_type,
+            'info_cotis'            => $info,
+            Adherent::PK            => $rent->adherent_id
+        ];
+
+        //borrower has already been checked: members can only borrow for themselves
+        $contrib = new Contribution($this->zdb, $this->login);
+        $contrib->setNoCheckLogin();
+        $valid = $contrib->check($values, [], []);
+        if ($valid !== true) {
+            Analog::log(
+                'Unable to generate contribution for object #' . $object->getId() . ': '
+                . implode(' ', (array)$valid),
+                Analog::ERROR
+            );
+            throw new LendException(
+                _T("An error occurred while storing the contribution.", "objectslend")
+            );
+        }
+
+        try {
+            $contrib->store();
+        } catch (Throwable $e) {
+            Analog::log(
+                'Unable to store contribution for object #' . $object->getId() . ': ' . $e->getMessage(),
+                Analog::ERROR
+            );
+            throw new LendException(
+                _T("An error occurred while storing the contribution.", "objectslend"),
+                previous: $e
+            );
+        }
+
+        return $contrib;
+    }
+
+    /**
+     * Run callback in a transaction
+     *
+     * When caller already runs a transaction, it is up to it to roll back
+     * on failure.
+     *
+     * @template T
+     *
+     * @param callable(): T $callback Callback
+     *
+     * @return T
+     */
+    private function inTransaction(callable $callback): mixed
+    {
+        $own_transaction = !$this->zdb->inTransaction();
+        if ($own_transaction) {
+            $this->zdb->beginTransaction();
+        }
+        try {
+            $result = $callback();
+            if ($own_transaction) {
+                $this->zdb->commit();
+            }
+            return $result;
+        } catch (Throwable $e) {
+            //contribution may already have rolled back
+            if ($own_transaction && $this->zdb->inTransaction()) {
+                $this->zdb->rollback();
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Log and refuse operation
+     *
+     * @param string     $log     Log message
+     * @param LendObject $object  Object
+     * @param string     $message Message for the user
+     *
+     * @throws LendException
+     */
+    private function refuse(string $log, LendObject $object, string $message): never
+    {
+        Analog::log(
+            $log . ' (Object ' . $object->getId() . ', user ' . $this->login->login . ')',
+            Analog::WARNING
+        );
+        throw new LendException($message);
+    }
+
+    /**
+     * Is current user staff or admin?
+     */
+    private function isManager(): bool
+    {
+        return $this->login->isAdmin() || $this->login->isStaff();
+    }
+
+    /**
+     * Is status part of allowed ones?
+     *
+     * @param int          $status_id Status ID
+     * @param LendStatus[] $statuses  Allowed statuses
+     */
+    private function isAllowedStatus(int $status_id, array $statuses): bool
+    {
+        foreach ($statuses as $status) {
+            if ($status->status_id === $status_id) {
+                return true;
+            }
+        }
+        return false;
+    }
+}

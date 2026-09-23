@@ -343,6 +343,11 @@ parameters:
 			path: lib/GaletteObjectsLend/IO/PdfObjects.php
 
 		-
+			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, array\<int, float\|string\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: lib/GaletteObjectsLend/LendService.php
+		-
 			message: '#^Property GaletteObjectsLend\\PluginGaletteObjectslend\:\:\$zdb is never written, only read\.$#'
 			identifier: property.onlyRead
 			count: 1

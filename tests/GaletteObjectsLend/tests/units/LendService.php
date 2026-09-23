@@ -1,0 +1,209 @@
+<?php
+
+/**
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+declare(strict_types=1);
+
+namespace GaletteObjectsLend\tests\units;
+
+use Analog\Analog;
+use Galette\Tests\GaletteTestCase;
+use GaletteObjectsLend\Entity\LendObject;
+use GaletteObjectsLend\Entity\LendRent;
+use GaletteObjectsLend\Entity\LendStatus;
+use GaletteObjectsLend\Entity\Preferences;
+use GaletteObjectsLend\LendException;
+
+/**
+ * Lend service tests
+ *
+ * Tests run outside a transaction, so the service ones are real.
+ *
+ * @author Johan Cwiklinski <johan@x-tnd.be>
+ */
+class LendService extends GaletteTestCase
+{
+    protected int $seed = 20260923081245;
+    protected bool $db_transactions = false;
+
+    private int $instock_status;
+    private int $lent_status;
+    private int $object_id;
+    /** @var array<string,mixed> */
+    private array $orig_prefs;
+
+    /**
+     * Set up tests
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $prefs = new Preferences($this->zdb);
+        $this->orig_prefs = $prefs->getPreferences();
+        $values = $this->orig_prefs;
+        $values[Preferences::PARAM_ENABLE_MEMBER_RENT_OBJECT] = 1;
+        $values[Preferences::PARAM_AUTO_GENERATE_CONTRIBUTION] = 1;
+        $values[Preferences::PARAM_GENERATED_CONTRIBUTION_TYPE_ID] = 5;
+        $values[Preferences::PARAM_GENERATED_CONTRIB_INFO_TEXT] = 'Service rent of {NAME}';
+        $this->assertTrue($prefs->store($values));
+
+        $status = new LendStatus($this->zdb);
+        $status->status_text = 'In stock';
+        $status->in_stock = true;
+        $status->is_active = true;
+        $this->assertTrue($status->store());
+        $this->instock_status = $status->status_id;
+
+        $status = new LendStatus($this->zdb);
+        $status->status_text = 'Lent';
+        $status->in_stock = false;
+        $status->is_active = true;
+        $this->assertTrue($status->store());
+        $this->lent_status = $status->status_id;
+
+        $object = new LendObject($this->zdb);
+        $object->name = 'Service object';
+        $object->rent_price = 3.5;
+        $this->assertTrue($object->store());
+        $this->object_id = $object->object_id;
+    }
+
+    /**
+     * Cleanup after each test method
+     */
+    public function tearDown(): void
+    {
+        $this->login->logout();
+
+        $prefs = new Preferences($this->zdb);
+        $prefs->store($this->orig_prefs);
+
+        $update = $this->zdb->update(LEND_PREFIX . LendObject::TABLE)
+            ->set([LendRent::PK => null]);
+        $this->zdb->execute($update);
+
+        $delete = $this->zdb->delete(LEND_PREFIX . LendRent::TABLE);
+        $this->zdb->execute($delete);
+
+        $delete = $this->zdb->delete(LEND_PREFIX . LendObject::TABLE);
+        $this->zdb->execute($delete);
+
+        $delete = $this->zdb->delete(LEND_PREFIX . LendStatus::TABLE);
+        $this->zdb->execute($delete);
+
+        $delete = $this->zdb->delete(\Galette\Entity\Contribution::TABLE);
+        $delete->where->like('info_cotis', 'Service rent of %');
+        $this->zdb->execute($delete);
+        $this->cleanMembers();
+
+        parent::tearDown();
+    }
+
+    /**
+     * Get service instance
+     */
+    private function getService(): \GaletteObjectsLend\LendService
+    {
+        return new \GaletteObjectsLend\LendService($this->zdb, $this->login, new Preferences($this->zdb));
+    }
+
+    /**
+     * Count stored contributions from this test
+     */
+    private function countContributions(): int
+    {
+        $select = $this->zdb->select(\Galette\Entity\Contribution::TABLE);
+        $select->where->like('info_cotis', 'Service rent of %');
+        return $this->zdb->execute($select)->count();
+    }
+
+    /**
+     * Test take stores rent, current rent and contribution
+     */
+    public function testTake(): void
+    {
+        $member = $this->getMemberOne();
+        $this->logSuperAdmin();
+        $service = $this->getService();
+
+        $contribution = $service->take(
+            $service->getObject($this->object_id),
+            $this->lent_status,
+            member_id: $member->id
+        );
+        $this->assertInstanceOf(\Galette\Entity\Contribution::class, $contribution);
+        $this->assertSame(1, $this->countContributions());
+
+        $object = $service->getObject($this->object_id);
+        $this->assertTrue($service->isLent($object));
+        $this->assertFalse($service->isAvailable($object));
+        $this->assertSame($member->id, $object->getIdAdh());
+    }
+
+    /**
+     * Test nothing is stored when contribution cannot be
+     */
+    public function testTakeRollsBackOnContributionError(): void
+    {
+        $member = $this->getMemberOne();
+        $this->logSuperAdmin();
+        $service = $this->getService();
+
+        try {
+            $service->take(
+                $service->getObject($this->object_id),
+                $this->lent_status,
+                member_id: $member->id,
+                payment_type: 999999
+            );
+            $this->fail('Take should have failed');
+        } catch (LendException $e) {
+            $this->assertSame('An error occurred while storing the contribution.', $e->getMessage());
+        }
+        $this->expectLogEntry(Analog::WARNING, 'Unknown payment type 999999');
+        $this->expectLogEntry(Analog::ERROR, 'Some errors has been threw attempting to edit/store a contribution');
+        $this->expectLogEntry(Analog::ERROR, 'Unable to generate contribution for object #' . $this->object_id);
+
+        $this->assertSame(0, $this->countContributions());
+        $this->assertCount(0, LendRent::getRentsForObjectId($this->object_id));
+        $object = $service->getObject($this->object_id);
+        $this->assertNull($object->getRentId());
+        $this->assertTrue($service->isAvailable($object));
+    }
+
+    /**
+     * Test status change refuses unknown and inactive statuses
+     */
+    public function testChangeStatusInvalid(): void
+    {
+        $status = new LendStatus($this->zdb);
+        $status->status_text = 'Inactive';
+        $status->in_stock = true;
+        $status->is_active = false;
+        $this->assertTrue($status->store());
+
+        $this->logSuperAdmin();
+        $service = $this->getService();
+        $object = $service->getObject($this->object_id);
+
+        foreach ([$status->status_id, 999999] as $status_id) {
+            try {
+                $service->changeStatus($object, (int)$status_id);
+                $this->fail('Status change should have failed');
+            } catch (LendException $e) {
+                $this->assertSame('This status cannot be set.', $e->getMessage());
+            }
+            $this->expectLogEntry(Analog::WARNING, 'Trying to change an object status to an invalid one!');
+        }
+
+        $service->changeStatus($object, $this->instock_status);
+        $object = $service->getObject($this->object_id);
+        $this->assertNotNull($object->getRentId());
+        $this->assertTrue($service->isAvailable($object));
+    }
+}
