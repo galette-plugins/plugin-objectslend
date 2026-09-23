@@ -105,14 +105,14 @@ class PdfObject extends Pdf
                 } else {
                     $hpic = $th;
                 }
-                $wpic = round($hpic * $ratio);
+                $wpic = (int)round($hpic * $ratio);
             } else {
                 if ($tw > 16) {
                     $wpic = 30;
                 } else {
                     $wpic = $tw;
                 }
-                $hpic = round($wpic / $ratio);
+                $hpic = (int)round($wpic / $ratio);
             }
 
             $this->Image($object->picture->getThumbPath(), 10, 10, $wpic, $hpic);
@@ -134,12 +134,8 @@ class PdfObject extends Pdf
         if ($this->lprefs->{LPreferences::PARAM_VIEW_LEND_PRICE}) {
             $this->addCell(
                 _T("Borrow price", "objectslend"),
-                $object->rent_price . ' ' . $object->getCurrency(),
-                $wpic
-            );
-            $this->addCell(
-                _T("Price per rental day", "objectslend"),
-                $object->price_per_day . ' ' . $object->getCurrency(),
+                $object->rent_price . ' ' . $object->getCurrency()
+                    . ($object->isPricePerDay() ? ' ' . _T("(per day)", "objectslend") : ''),
                 $wpic
             );
         }
