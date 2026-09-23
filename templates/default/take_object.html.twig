@@ -263,13 +263,10 @@
 
     function validStatus() {
         var _disabled = false;
-        if ($('#status').val() === 'null') {
+        if ($('#status').val() === '-1') {
             _disabled = true;
         }
-        if ($('#id_adh').val() === 'null') {
-            _disabled = true;
-        }
-        if ($('#payment_type').val() === 'null') {
+        if ($('#id_adh_input').val() === '') {
             _disabled = true;
         }
 
@@ -316,15 +313,15 @@
         });
     }
 
-    {if not $ajax}
+    {% if not ajax %}
     $(function () {
         _init_giveobject_js();
     });
-    {/if}
+    {% endif %}
 
     function validStatus() {
         var _lyes = $('button[name="valid"]');
-        if ($('#status').val() === 'null') {
+        if ($('#status').val() === '-1') {
             _lyes.addClass('disabled');
         } else {
             _lyes.removeClass('disabled');
