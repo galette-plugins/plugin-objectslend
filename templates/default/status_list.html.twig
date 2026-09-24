@@ -35,6 +35,7 @@
 } %}
 
 {% import "macros.twig" as macros %}
+{% import "@PluginGaletteObjectslend/macros.twig" as lend %}
 
 {% block infoline %}
     {% set infoline = {
@@ -59,69 +60,13 @@
 {% block search %}
     <form action="{{ url_for("objectslend_filter_statuses") }}" method="post" id="filtre" class="ui form filters">
         <div class="ui secondary yellow segment">
-            <div class="three fields">
-                <div class="field">
-                    <label for="filter_str">{{ _T("Search:") }}</label>
-                    <input type="search" name="filter_str" id="filter_str" value="{{ filters.filter_str }}" placeholder="{{ _T("Enter a value") }}"/>
-                </div>
-                <div class="field">
-                    <label for="filter_dc_active">{{ _T("Active:", "objectslend") }}</label>
-                    <div class="inline fields">
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_dc_active" value="{{ constant('GaletteObjectsLend\\Repository\\Status::ALL') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Status::ALL') %} checked="checked"{% endif %}>
-                                <label for="filter_dc_active">{{ _T("Don't care") }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_yes_active" value="{{ constant('GaletteObjectsLend\\Repository\\Status::ACTIVE') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Status::ACTIVE') %} checked="checked"{% endif %}>
-                                <label for="filter_yes_active">{{ _T("Yes") }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_no_active" value="{{ constant('GaletteObjectsLend\\Repository\\Status::INACTIVE') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Status::INACTIVE') %} checked="checked"{% endif %}>
-                                <label for="filter_no_active">{{ _T("No") }}</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="field">
-                    <label for="filter_dc_stock">{{ _T("In stock:", "objectslend") }}</label>
-                    <div class="inline fields">
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="stock_filter" id="filter_dc_stock" value="{{ constant('GaletteObjectsLend\\Repository\\Status::DC_STOCK') }}"{% if filters.stock_filter == constant('GaletteObjectsLend\\Repository\\Status::DC_STOCK') %} checked="checked"{% endif %}>
-                                <label for="filter_dc_stock">{{ _T("Don't care") }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="stock_filter" id="filter_yes_stock" value="{{ constant('GaletteObjectsLend\\Repository\\Status::IN_STOCK') }}"{% if filters.stock_filter == constant('GaletteObjectsLend\\Repository\\Status::IN_STOCK') %} checked="checked"{% endif %}>
-                                <label for="filter_yes_stock">{{ _T("Yes") }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="stock_filter" id="filter_no_stock" value="{{ constant('GaletteObjectsLend\\Repository\\Status::OUT_STOCK') }}"{% if filters.stock_filter == constant('GaletteObjectsLend\\Repository\\Status::OUT_STOCK') %} checked="checked"{% endif %}>
-                                <label for="filter_no_stock">{{ _T("No") }}</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            {{ lend.searchField(filters.filter_str) }}
+            <div class="two fields">
+                {{ lend.triStateFilter('active_filter', 'active', _T("Active:", "objectslend"), filters.active_filter, {dc: constant('GaletteObjectsLend\\Repository\\Status::ALL'), yes: constant('GaletteObjectsLend\\Repository\\Status::ACTIVE'), no: constant('GaletteObjectsLend\\Repository\\Status::INACTIVE')}) }}
+                {{ lend.triStateFilter('stock_filter', 'stock', _T("In stock:", "objectslend"), filters.stock_filter, {dc: constant('GaletteObjectsLend\\Repository\\Status::DC_STOCK'), yes: constant('GaletteObjectsLend\\Repository\\Status::IN_STOCK'), no: constant('GaletteObjectsLend\\Repository\\Status::OUT_STOCK')}) }}
             </div>
             <div class="fields last-child">
-                <div class="ui right aligned basic fitted segment sixteen wide field">
-                    <button type="submit" class="tooltip action ui labeled icon primary button" title="{{ _T('Apply filters') }}" name="filter">
-                        <i class="search icon" aria-hidden="true"></i>
-                        {{ _T('Filter') }}
-                    </button>
-                    <button type="submit" name="clear_filter" class="ui labeled icon button tooltip" title="{{ _T('Reset all filters to defaults') }}">
-                        <i class="trash alt red icon" aria-hidden="true"></i>
-                        {{ _T('Clear filter') }}
-                    </button>
-                </div>
+                {{ lend.filterButtons('sixteen wide') }}
             </div>
         </div>
     </form>

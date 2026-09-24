@@ -6,6 +6,7 @@
 
 {% extends 'elements/list.html.twig' %}
 {% import "macros.twig" as macros %}
+{% import "@PluginGaletteObjectslend/macros.twig" as lend %}
 
 {% set nb = nb_objects %}
 
@@ -125,10 +126,7 @@
     <form id="filtre" method="POST" action="{{ url_for("objectslend_filter_objects") }}" class="ui form filters">
         <div class="ui secondary yellow segment">
             <div class="{% if lendsprefs.view_category and categories|length > 0 %}three{% else %}two{% endif %} fields">
-                <div class="field">
-                    <label for="filter_str">{{ _T('Search:') }}</label>
-                    <input type="search" name="filter_str" id="filter_str" value="{{ filters.filter_str }}" placeholder="{{ _T('Enter a value') }}"/>
-                </div>
+                {{ lend.searchField(filters.filter_str) }}
                 <div class="field">
                     <label for="field_filter">{{ _T('in:') }}</label>
                     <select name="field_filter" id="field_filter" class="ui search dropdown nochosen">
@@ -164,39 +162,8 @@
                 {% endif %}
             </div>
             <div class="two fields last-child">
-                <div class="field">
-                    <div class="inline fields">
-                        <label for="filter_dc_active">{{ _T("Active:", "objectslend") }}</label>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_dc_active" value="{{ constant('GaletteObjectsLend\\Repository\\Objects::ALL_OBJECTS') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Objects::ALL_OBJECTS') %} checked="checked"{% endif %}>
-                                <label for="filter_dc_active">{{ _T("Don't care") }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_yes_active" value="{{ constant('GaletteObjectsLend\\Repository\\Objects::ACTIVE_OBJECTS') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Objects::ACTIVE_OBJECTS') %} checked="checked"{% endif %}>
-                                <label for="filter_yes_active">{{ _T('Yes') }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_no_active" value="{{ constant('GaletteObjectsLend\\Repository\\Objects::INACTIVE_OBJECTS') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Objects::INACTIVE_OBJECTS') %} checked="checked"{% endif %}>
-                                <label for="filter_no_active">{{ _T('No') }}</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="ui right aligned basic fitted segment field">
-                    <button type="submit"  class="ui labeled icon primary button" title="{{ _T("Apply filters") }}" name="filter">
-                        <i class="search icon"></i>
-                        {{ _T("Filter") }}
-                    </button>
-                    <button type="submit" name="clear_filter" class="ui labeled icon button tooltip" title="{{ _T("Reset all filters to defaults") }}">
-                        <i class="trash alt red icon" aria-hidden="true"></i>
-                        {{ _T("Clear filter") }}
-                    </button>
-                </div>
+                {{ lend.triStateFilter('active_filter', 'active', _T("Active:", "objectslend"), filters.active_filter, {dc: constant('GaletteObjectsLend\\Repository\\Objects::ALL_OBJECTS'), yes: constant('GaletteObjectsLend\\Repository\\Objects::ACTIVE_OBJECTS'), no: constant('GaletteObjectsLend\\Repository\\Objects::INACTIVE_OBJECTS')}) }}
+                {{ lend.filterButtons() }}
             </div>
         </div>
     </form>
