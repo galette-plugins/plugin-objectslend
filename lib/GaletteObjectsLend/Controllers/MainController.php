@@ -10,10 +10,12 @@ declare(strict_types=1);
 
 namespace GaletteObjectsLend\Controllers;
 
+use Analog\Analog;
 use DI\Attribute\Inject;
 use Galette\Controllers\AbstractPluginController;
 use Galette\Entity\ContributionsTypes;
 use GaletteObjectsLend\LendPreferences;
+use GaletteObjectsLend\SampleData;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 
@@ -44,7 +46,8 @@ class MainController extends AbstractPluginController
         $params = [
             'page_title'    => _T('ObjectsLend preferences', 'objectslend'),
             'type_cotis_options'        => $ctypes->getList(),
-            'lendsprefs'    => (new LendPreferences($this->preferences))->toArray()
+            'lendsprefs'    => (new LendPreferences($this->preferences))->toArray(),
+            'sample_data'   => !(new SampleData($this->zdb))->hasObjects()
         ];
 
         // display page
@@ -104,5 +107,46 @@ class MainController extends AbstractPluginController
                 'Location',
                 $this->routeparser->urlFor('objectslend_preferences')
             );
+    }
+
+    /**
+     * Load sample data into an empty catalog
+     *
+     * @param Request  $request  PSR Request
+     * @param Response $response PSR Response
+     */
+    public function loadSampleData(Request $request, Response $response): Response
+    {
+        $sample = new SampleData($this->zdb);
+
+        if ($sample->hasObjects()) {
+            $this->flash->addMessage(
+                'error_detected',
+                _T("Sample data can only be loaded into an empty catalog.", "objectslend")
+            );
+        } else {
+            try {
+                $created = $sample->load($sample->getMembers());
+                $this->flash->addMessage(
+                    'success_detected',
+                    sprintf(
+                        //TRANS: %1$d is the number of objects, %2$d the number of rents
+                        _T('Sample data loaded: %1$d objects, %2$d rents.', 'objectslend'),
+                        $created['objects'],
+                        $created['rents']
+                    )
+                );
+            } catch (\Throwable $e) {
+                Analog::log('Unable to load sample data | ' . $e->getMessage(), Analog::ERROR);
+                $this->flash->addMessage(
+                    'error_detected',
+                    _T("Sample data could not be loaded.", "objectslend")
+                );
+            }
+        }
+
+        return $response
+            ->withStatus(302)
+            ->withHeader('Location', $this->routeparser->urlFor('objectslend_objects'));
     }
 }

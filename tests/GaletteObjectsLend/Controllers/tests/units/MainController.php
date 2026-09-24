@@ -11,6 +11,8 @@ declare(strict_types=1);
 namespace GaletteObjectsLend\Controllers\tests\units;
 
 use Galette\Tests\GaletteRoutingTestCase;
+use GaletteObjectsLend\Entity\LendObject;
+use GaletteObjectsLend\Entity\LendRent;
 use GaletteObjectsLend\LendPreferences;
 
 /**
@@ -133,5 +135,38 @@ class MainController extends GaletteRoutingTestCase
             ->withParsedBody([LendPreferences::THUMB_MAX_WIDTH => '222']);
         $this->app->handle($request);
         $this->assertNotSame(222, (new LendPreferences($this->preferences))->getThumbWidth());
+    }
+
+    /**
+     * Sample data are offered and loaded on an empty catalog only
+     */
+    public function testLoadSampleData(): void
+    {
+        $this->zdb->execute($this->zdb->update(LEND_PREFIX . LendObject::TABLE)->set([LendRent::PK => null]));
+        $this->zdb->execute($this->zdb->delete(LEND_PREFIX . LendRent::TABLE));
+        $this->zdb->execute($this->zdb->delete(LEND_PREFIX . LendObject::TABLE));
+
+        $this->logSuperAdmin();
+        $body = (string)$this->app->handle($this->createRequest(route_name: 'objectslend_preferences'))->getBody();
+        $this->assertStringContainsString($this->routeparser->urlFor('objectslend_sample_data'), $body);
+
+        $request = $this->createRequest(route_name: 'objectslend_sample_data', method: 'POST');
+        $test_response = $this->app->handle($request);
+        $this->assertSame(302, $test_response->getStatusCode());
+        $this->assertSame(
+            [$this->routeparser->urlFor('objectslend_objects')],
+            $test_response->getHeader('Location')
+        );
+        $flash = $this->flash_data['slimFlash'] ?? [];
+        $this->flash_data = [];
+        $this->assertArrayHasKey('success_detected', $flash);
+        $this->assertStringStartsWith('Sample data loaded: 16 objects', $flash['success_detected'][0]);
+
+        //no longer offered, and refused
+        $body = (string)$this->app->handle($this->createRequest(route_name: 'objectslend_preferences'))->getBody();
+        $this->assertStringNotContainsString($this->routeparser->urlFor('objectslend_sample_data'), $body);
+
+        $this->app->handle($this->createRequest(route_name: 'objectslend_sample_data', method: 'POST'));
+        $this->expectFlashData(['error_detected' => ['Sample data can only be loaded into an empty catalog.']]);
     }
 }

@@ -153,4 +153,18 @@
     </div>
 </form>
 
+{% if sample_data %}
+<form action="{{ url_for("objectslend_sample_data") }}" method="post" class="ui form">
+    <div class="ui icon info visible message">
+        <i class="database icon" aria-hidden="true"></i>
+        <div class="content">
+            <div class="header">{{ _T("Sample data", "objectslend") }}</div>
+            <p>{{ _T("The catalog is empty. You can fill it with sample categories, statuses and objects, along with a rents history given to existing members.", "objectslend") }}</p>
+            <button type="submit" class="ui labeled icon button">
+                <i class="download icon" aria-hidden="true"></i> {{ _T("Load sample data", "objectslend") }}
+            </button>
+        </div>
+    </div>
+</form>
+{% endif %}
 {% endblock %}

@@ -20,6 +20,7 @@ $this->register(
     acls: [
         'objectslend_preferences'       => 'admin',
         'store_objectlend_preferences'  => 'admin',
+        'objectslend_sample_data'       => 'admin',
         'objectslend_category_add'      => 'staff',
         'objectslend_category_edit'     => 'staff',
         'objectslend_category_action_add' => 'staff',

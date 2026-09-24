@@ -32,6 +32,11 @@ $app->post(
     [MainController::class, 'storePreferences']
 )->setName('store_objectlend_preferences')->add(Authenticate::class);
 
+$app->post(
+    '/sample-data',
+    [MainController::class, 'loadSampleData']
+)->setName('objectslend_sample_data')->add(Authenticate::class);
+
 $app->get(
     '/category/add',
     [CategoriesController::class, 'add']
