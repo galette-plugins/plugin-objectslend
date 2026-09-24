@@ -126,7 +126,16 @@
         <div class="sixteen wide tablet six wide computer five wide widescreen column">
             <div class="position-sticky">
                 <div class="ui segment">
-                    <div class="ui small header">{{ _T("Object's photo", "objectslend") }}</div>
+                    <div class="ui small header">
+                        {{ _T("Object's photo", "objectslend") }}
+                        {# out of the header's direct children, which Fomantic draws as a big icon #}
+                        <span>
+                            {% include "components/forms/max_size.html.twig" with {
+                                max_size: preferences.pref_upload_size_images,
+                                input_id: "picture_file"
+                            } %}
+                        </span>
+                    </div>
                     <div class="ui center aligned basic fitted segment">
                         <img
                             src="{% if object.getId() %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail", "id": object.getId()}) }}{% else %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail"}) }}{% endif %}"
@@ -146,7 +155,7 @@
                 {% endif %}
                         <div class="field">
                             <div class="ui fluid file action input">
-                                <input id="picture_file" type="file" name="picture" form="objectform"/>
+                                <input id="picture_file" type="file" name="picture" form="objectform" aria-describedby="picture_file-tip"/>
                                 <label for="picture_file" class="ui button">
                                     <i class="blue upload icon" aria-hidden="true"></i>
                                     {% if picture.hasPicture() %}{{ _T("Choose another file") }}{% else %}{{ _T("Choose a file") }}{% endif %}

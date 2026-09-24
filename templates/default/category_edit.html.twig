@@ -29,7 +29,12 @@
             } %}
 
             <div class="inline field">
-                <label>{{ _T("Picture:", "objectslend") }}</label>
+                {% include "components/forms/max_size.html.twig" with {
+                    label: _T("Picture:", "objectslend"),
+                    for: "picture_file",
+                    max_size: preferences.pref_upload_size_images,
+                    input_id: "picture_file"
+                } %}
                 <img
                     src="{% if category.getId() %}{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": category.getId()}) }}{% else %}{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail"}) }}{% endif %}"
                     class="picture"
@@ -45,7 +50,7 @@
                         required: false
                     } %}
                 {% endif %}
-                <input class="labelalign" type="file" name="picture"/>
+                <input class="labelalign" id="picture_file" type="file" name="picture" aria-describedby="picture_file-tip"/>
             </div>
         </div>
     </div>
