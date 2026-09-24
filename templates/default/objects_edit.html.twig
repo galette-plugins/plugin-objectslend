@@ -5,6 +5,7 @@
  #}
 
 {% extends 'page.html.twig' %}
+{% import "@PluginGaletteObjectslend/macros.twig" as lend %}
 
 {% block content %}
 <div class="ui stackable grid">
@@ -91,17 +92,7 @@
 
 
                     {% if not object.getId() %}
-                        {% set state_list_values = {(0): _T("--- Select a status ---", "objectslend")} %}
-                        {% for sta in statuses %}
-                            {% set state_list_values = state_list_values + {(sta.getId()): sta.getText()} %}
-                        {% endfor %}
-
-                        {% include "components/forms/select.html.twig" with {
-                            id: '1st_status',
-                            value: '',
-                            values: state_list_values,
-                            label: _T("Where is the object?", "objectslend")
-                        } %}
+                        {{ lend.statusSelect('1st_status', _T("Where is the object?", "objectslend"), statuses, 0) }}
                     {% endif %}
                 </div>
 
@@ -178,21 +169,7 @@
 
                 <form action="{{ url_for("objectslend_object_updatestatus", {"id": object.getId()}) }}" method="post" class="ui form segment">
                     <div class="ui small header">{{ _T("Change status", "objectslend") }}</div>
-                            {% set state_list_values = {(-1): _T("--- Select a status ---", "objectslend")} %}
-                            {% for sta in statuses %}
-                                {% set text = sta.getText() %}
-                                {% if sta.isInStock() %}
-                                    {% set text = text ~ ' (' ~ _T("In stock", "objectslend") ~ ')' %}
-                                {% endif %}
-                                {% set state_list_values = state_list_values + {(sta.getId()): text} %}
-                            {% endfor %}
-
-                            {% include "components/forms/select.html.twig" with {
-                                id: 'new_status',
-                                value: '',
-                                values: state_list_values,
-                                label: _T("Status", "objectslend")
-                            } %}
+                            {{ lend.statusSelect('new_status', _T("Status", "objectslend"), statuses, -1, 'stock') }}
 
                             {% include "components/forms/text.html.twig" with {
                                 id: 'new_comment',

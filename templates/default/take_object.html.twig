@@ -5,6 +5,7 @@
  #}
 
 {% extends 'page.html.twig' %}
+{% import "@PluginGaletteObjectslend/macros.twig" as lend %}
 
 {% block content %}
 <form action="{% if takeorgive == 'take' %}{{ url_for("objectslend_object_dotake", {"id": object.getId()}) }}{% else %}{{ url_for("objectslend_object_doreturn", {"id": object.getId()}) }}{% endif %}" method="post" id="form_take_object" class="ui form info">
@@ -103,21 +104,7 @@
                 {% endif %}
 
                 <div class="inline field">
-                    {% set state_list_values = {(-1): _T("--- Select a status ---", "objectslend")} %}
-                    {% for sta in statuses %}
-                        {% set text = sta.getText() %}
-                        {% if sta.getRentDayNumber() %}
-                            {% set text = text ~ ' (' ~ _T("%days days", "objectslend")|replace({'%days': sta.getRentDayNumber()}) ~ ')' %}
-                        {% endif %}
-                        {% set state_list_values = state_list_values + {(sta.getId()): text} %}
-                    {% endfor %}
-
-                    {% include "components/forms/select.html.twig" with {
-                        id: 'status',
-                        value: '',
-                        values: state_list_values,
-                        label: _T("Status:", "objectslend")
-                    } %}
+                    {{ lend.statusSelect('status', _T("Status:", "objectslend"), statuses, -1, 'days') }}
                 </div>
 
                 <div class="inline field">
@@ -147,17 +134,7 @@
             </div>
             <div class="active content">
                 <div class="inline field">
-                    {% set state_list_values = {(-1): _T("--- Select a status ---", "objectslend")} %}
-                    {% for sta in statuses %}
-                        {% set state_list_values = state_list_values + {(sta.getId()): sta.getText()} %}
-                    {% endfor %}
-
-                    {% include "components/forms/select.html.twig" with {
-                        id: 'status',
-                        value: '',
-                        values: state_list_values,
-                        label: _T("Status:", "objectslend")
-                    } %}
+                    {{ lend.statusSelect('status', _T("Status:", "objectslend"), statuses, -1) }}
                 </div>
 
                 <div class="inline field">

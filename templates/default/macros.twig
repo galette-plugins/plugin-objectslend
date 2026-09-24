@@ -42,3 +42,24 @@
         </button>
     </div>
 {% endmacro %}
+
+{# Status menu; detail adds the rent days ("days") or the stock state ("stock") to each status #}
+{% macro statusSelect(id, label, statuses, empty_value, detail) %}
+    {% set values = {(empty_value): _T("--- Select a status ---", "objectslend")} %}
+    {% for sta in statuses %}
+        {% set text = sta.getText() %}
+        {% if detail == 'days' and sta.getRentDayNumber() %}
+            {% set text = text ~ ' (' ~ _T("%days days", "objectslend")|replace({'%days': sta.getRentDayNumber()}) ~ ')' %}
+        {% elseif detail == 'stock' and sta.isInStock() %}
+            {% set text = text ~ ' (' ~ _T("In stock", "objectslend") ~ ')' %}
+        {% endif %}
+        {% set values = values + {(sta.getId()): text} %}
+    {% endfor %}
+
+    {% include "components/forms/select.html.twig" with {
+        id: id,
+        value: '',
+        values: values,
+        label: label
+    } %}
+{% endmacro %}
