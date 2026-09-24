@@ -9,6 +9,18 @@
 
 {% set nb = nb_categories %}
 
+{% set columns = [
+    {
+        'label': '#',
+        'collapse': true
+    },
+    {'label': _T("Name", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Categories::ORDERBY_NAME')},
+    {
+        'label': _T("Active", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Categories::ORDERBY_ACTIVITY'),
+        'collapse': true
+    },
+] %}
+
 {% set form = {
     'order': {
         'name': 'objectslend_categories'
@@ -32,27 +44,12 @@
     </a>
 {% endblock %}
 
-{% block header %}
-    {% set columns = [
-        {
-            'label': '#',
-            'collapse': true
-        },
-        {'label': _T("Name", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Categories::ORDERBY_NAME')},
-        {
-            'label': _T("Active", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Categories::ORDERBY_ACTIVITY'),
-            'collapse': true
-        },
-    ] %}
-    {{ parent() }}
-{% endblock %}
-
 {% block search %}
     <form action="{{ url_for("objectslend_filter_categories") }}" method="post" id="filtre" class="ui form filters">
         <div class="ui secondary yellow segment">
             <div class="field">
                 <label for="filter_str">{{ _T("Search:") }}</label>
-                <input type="text" name="filter_str" id="filter_str" value="{{ filters.filter_str }}" type="search" placeholder="{{ _T("Enter a value") }}"/>
+                <input type="search" name="filter_str" id="filter_str" value="{{ filters.filter_str }}" placeholder="{{ _T("Enter a value") }}"/>
             </div>
             <div class="two fields last-child">
                 <div class="field">
@@ -148,8 +145,7 @@
             </tr>
     {% else %}
             <tr>
-                <td colspan="4">{{ _T("No category", "objectslend") }}</td>
+                <td colspan="{{ columns_count }}" class="emptylist">{{ _T("No category", "objectslend") }}</td>
             </tr>
     {% endfor %}
-</table>
 {% endblock %}

@@ -8,6 +8,26 @@
 
 {% set nb = nb_status %}
 
+{% set columns = [
+    {
+        'label': '#', order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_ID'),
+        'collapse': true
+    },
+    {'label': _T("Status", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_NAME')},
+    {
+        'label': _T("Active", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_ACTIVE'),
+        'collapse': true
+    },
+    {
+        'label': _T("Stock", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_STOCK'),
+        'collapse': true
+    },
+    {
+        'label': _T("Days for rent", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_RENTDAYS'),
+        'collapse': true
+    }
+] %}
+
 {% set form = {
     'order': {
         'name': "objectslend_statuses"
@@ -36,37 +56,13 @@
     </a>
 {% endblock %}
 
-{% block header %}
-    {% set columns = [
-        {
-            'label': '#', order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_ID'),
-            'collapse': true
-        },
-        {'label': _T("Status", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_NAME')},
-        {
-            'label': _T("Active", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_ACTIVE'),
-            'collapse': true
-        },
-        {
-            'label': _T("Stock", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_STOCK'),
-            'collapse': true
-        },
-        {
-            'label': _T("Days for rent", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_RENTDAYS'),
-            'collapse': true
-        }
-    ] %}
-
-    {{ parent() }}
-{% endblock %}
-
 {% block search %}
     <form action="{{ url_for("objectslend_filter_statuses") }}" method="post" id="filtre" class="ui form filters">
         <div class="ui secondary yellow segment">
             <div class="three fields">
                 <div class="field">
                     <label for="filter_str">{{ _T("Search:") }}</label>
-                    <input type="text" name="filter_str" id="filter_str" value="{{ filters.filter_str }}" type="search" placeholder="{{ _T("Enter a value") }}"/>
+                    <input type="search" name="filter_str" id="filter_str" value="{{ filters.filter_str }}" placeholder="{{ _T("Enter a value") }}"/>
                 </div>
                 <div class="field">
                     <label for="filter_dc_active">{{ _T("Active:", "objectslend") }}</label>
@@ -192,6 +188,6 @@
             </td>
         </tr>
     {% else %}
-        <tr><td colspan="6" class="emptylist">{{ _T("No status has been found", "objectslend") }}</td></tr>
+        <tr><td colspan="{{ columns_count }}" class="emptylist">{{ _T("No status has been found", "objectslend") }}</td></tr>
     {% endfor %}
 {% endblock %}

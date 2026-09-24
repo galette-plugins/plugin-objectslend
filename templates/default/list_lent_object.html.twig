@@ -10,33 +10,29 @@
 {% set no_action = true %}
 {% set is_paginated = false %}
 
+{% set columns = [
+    {
+        'label': _T("Id", "objectslend"),
+        'collapse': true
+    },
+    {'label': _T("Status", "objectslend")},
+    {
+        'label': _T("Begin date", "objectslend"),
+        'collapse': true
+    },
+    {
+        'label': _T("End date", "objectslend"),
+        'collapse': true
+    },
+    {
+        'label': _T("Return", "objectslend"),
+        'collapse': true
+    },
+    {'label': _T("Name", "objectslend")},
+    {'label': _T("Comments", "objectslend")},
+] %}
+
 {% block infoline %}
-{% endblock %}
-
-{% block header %}
-    {% set columns = [
-        {
-            'label': _T("Id", "objectslend"),
-            'collapse': true
-        },
-        {'label': _T("Status", "objectslend")},
-        {
-            'label': _T("Begin date", "objectslend"),
-            'collapse': true
-        },
-        {
-            'label': _T("End date", "objectslend"),
-            'collapse': true
-        },
-        {
-            'label': _T("Return", "objectslend"),
-            'collapse': true
-        },
-        {'label': _T("Name", "objectslend")},
-        {'label': _T("Comments", "objectslend")},
-    ] %}
-
-    {{ parent() }}
 {% endblock %}
 
 {% block body %}
@@ -55,7 +51,7 @@
         </tr>
     {% else %}
         <tr>
-            <td colspan="7" class="center">{{ _T("No lend found", "objectslend") }}</td>
+            <td colspan="{{ columns_count }}" class="emptylist">{{ _T("No lend found", "objectslend") }}</td>
         </tr>
     {% endfor %}
 {% endblock %}

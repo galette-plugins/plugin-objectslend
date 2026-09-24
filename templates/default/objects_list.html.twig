@@ -9,6 +9,87 @@
 
 {% set nb = nb_objects %}
 
+{% set columns = [] %}
+
+{% if login.isAdmin() or login.isStaff() %}
+    {% set columns = columns|merge([
+        {
+            'label': '#',
+            'collapse': true
+        },
+    ]) %}
+{% endif %}
+
+{% if olendsprefs.imagesInLists() %}
+    {% set columns = columns|merge([
+        {
+            'label': _T("Picture"),
+            'collapse': true
+        },
+    ]) %}
+{% endif %}
+
+{% set columns = columns|merge([
+    {'label': _T("Name", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_NAME")},
+]) %}
+
+{% if lendsprefs.view_serial %}
+    {% set columns = columns|merge([
+        {'label': _T("Serial", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_SERIAL")},
+    ]) %}
+{% endif %}
+
+{% if lendsprefs.view_price %}
+    {% set columns = columns|merge([
+        {'label': _T("Price", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_PRICE")},
+    ]) %}
+{% endif %}
+
+{% if lendsprefs.view_lend_price %}
+    {% set columns = columns|merge([
+        {'label': _T("Borrow price", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_RENTPRICE")},
+    ]) %}
+{% endif %}
+
+{% if lendsprefs.view_dimension %}
+    {% set columns = columns|merge([
+        {'label': _T("Dimensions", "objectslend")},
+    ]) %}
+{% endif %}
+
+{% if lendsprefs.view_weight %}
+    {% set columns = columns|merge([
+        {'label': _T("Weight", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_WEIGHT")},
+    ]) %}
+{% endif %}
+
+{% set columns = columns|merge([
+    {'label': _T("Status", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_STATUS")},
+    {
+        'label': _T("Since", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_BDATE"),
+        'collapse': true
+    },
+    {'label': _T("By", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_MEMBER")},
+]) %}
+
+{% if lendsprefs.view_date_forecast %}
+    {% set columns = columns|merge([
+        {
+            'label': _T("Return", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_FDATE"),
+            'collapse': true
+        },
+    ]) %}
+{% endif %}
+
+{% if login.isAdmin() or login.isStaff() %}
+    {% set columns = columns|merge([
+        {
+            'label': _T("Active", "objectslend"),
+            'collapse': true
+        },
+    ]) %}
+{% endif %}
+
 {% set form = {
     'order': {
         'name': "objectslend_objects"
@@ -40,98 +121,13 @@
     {% endif %}
 {% endblock %}
 
-{% block header %}
-    {% set columns = [] %}
-
-    {% if login.isAdmin() or login.isStaff() %}
-        {% set columns = columns|merge([
-            {
-                'label': '#',
-                'collapse': true
-            },
-        ]) %}
-    {% endif %}
-
-    {% if olendsprefs.imagesInLists() %}
-        {% set columns = columns|merge([
-            {
-                'label': _T("Picture"),
-                'collapse': true
-            },
-        ]) %}
-    {% endif %}
-
-    {% set columns = columns|merge([
-        {'label': _T("Name", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_NAME")},
-    ]) %}
-
-    {% if lendsprefs.view_serial %}
-        {% set columns = columns|merge([
-            {'label': _T("Serial", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_SERIAL")},
-        ]) %}
-    {% endif %}
-
-    {% if lendsprefs.view_price %}
-        {% set columns = columns|merge([
-            {'label': _T("Price", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_PRICE")},
-        ]) %}
-    {% endif %}
-
-    {% if lendsprefs.view_lend_price %}
-        {% set columns = columns|merge([
-            {'label': _T("Borrow price", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_RENTPRICE")},
-        ]) %}
-    {% endif %}
-
-    {% if lendsprefs.view_dimension %}
-        {% set columns = columns|merge([
-            {'label': _T("Dimensions", "objectslend")},
-        ]) %}
-    {% endif %}
-
-    {% if lendsprefs.view_weight %}
-        {% set columns = columns|merge([
-            {'label': _T("Weight", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_WEIGHT")},
-        ]) %}
-    {% endif %}
-
-    {% set columns = columns|merge([
-        {'label': _T("Status", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_STATUS")},
-        {
-            'label': _T("Since", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_BDATE"),
-            'collapse': true
-        },
-        {'label': _T("By", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_MEMBER")},
-    ]) %}
-
-    {% if lendsprefs.view_date_forecast %}
-        {% set columns = columns|merge([
-            {
-                'label': _T("Return", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_FDATE"),
-                'collapse': true
-            },
-        ]) %}
-    {% endif %}
-
-    {% if login.isAdmin() or login.isStaff() %}
-        {% set columns = columns|merge([
-            {
-                'label': _T("Active", "objectslend"),
-                'collapse': true
-            },
-        ]) %}
-    {% endif %}
-
-    {{ parent() }}
-{% endblock %}
-
 {% block search %}
     <form id="filtre" method="POST" action="{{ url_for("objectslend_filter_objects") }}" class="ui form filters">
         <div class="ui secondary yellow segment">
             <div class="{% if lendsprefs.view_category and categories|length > 0 %}three{% else %}two{% endif %} fields">
                 <div class="field">
                     <label for="filter_str">{{ _T('Search:') }}</label>
-                    <input type="text" name="filter_str" id="filter_str" value="{{ filters.filter_str }}" type="search" placeholder="{{ _T('Enter a value') }}"/>
+                    <input type="search" name="filter_str" id="filter_str" value="{{ filters.filter_str }}" placeholder="{{ _T('Enter a value') }}"/>
                 </div>
                 <div class="field">
                     <label for="field_filter">{{ _T('in:') }}</label>
@@ -375,9 +371,8 @@
             </td>
         </tr>
     {% else %}
-        {# FIXME: calculate colspan #}
         <tr>
-            <td colspan="14" class="emptylist">{{ _T("No object has been found", "objectslend") }}</td>
+            <td colspan="{{ columns_count }}" class="emptylist">{{ _T("No object has been found", "objectslend") }}</td>
         </tr>
     {% endfor %}
 {% endblock %}
