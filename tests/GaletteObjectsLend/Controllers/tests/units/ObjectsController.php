@@ -375,6 +375,27 @@ class ObjectsController extends GaletteRoutingTestCase
     }
 
     /**
+     * Comment of the return form goes on the closed rent, cut to its column size
+     */
+    public function testReturnComments(): void
+    {
+        $this->setPrefs(true);
+        $this->logSuperAdmin();
+        $this->lendObject($this->getMemberOne()->id);
+
+        $test_response = $this->app->handle($this->returnRequest(['comments' => ' Back, all good ']));
+        $this->assertSame(301, $test_response->getStatusCode());
+        $closed = array_values(array_filter($this->getRents(), fn($rent) => $rent->getDateEnd() !== ''));
+        $this->assertCount(1, $closed);
+        $this->assertSame('Back, all good', $closed[0]->getComments());
+
+        $this->lendObject($this->getMemberOne()->id);
+        $this->app->handle($this->returnRequest(['comments' => str_repeat('é', 250)]));
+        $comments = array_map(fn($rent) => $rent->getComments(), $this->getRents());
+        $this->assertContains(str_repeat('é', 200), $comments);
+    }
+
+    /**
      * Giving back requires an "in stock" status, and a lent object
      */
     public function testReturnInvalid(): void

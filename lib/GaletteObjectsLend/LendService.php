@@ -189,10 +189,11 @@ class LendService
      *
      * @param LendObject $object    Object, loaded with getObject()
      * @param int        $status_id In stock status
+     * @param string     $comments  Comment on the closed rent
      *
      * @throws LendException
      */
-    public function giveBack(LendObject $object, int $status_id): LendRent
+    public function giveBack(LendObject $object, int $status_id, string $comments = ''): LendRent
     {
         if (!$this->canGiveBack($object)) {
             $this->refuse(
@@ -214,7 +215,7 @@ class LendService
         }
 
         return $this->inTransaction(
-            fn() => $this->openRent($object, $status_id, null, '')
+            fn() => $this->openRent($object, $status_id, null, $comments)
         );
     }
 

@@ -231,13 +231,13 @@ class LendRent
     }
 
     /**
-     * Set comments
+     * Set comments, cut to the column size
      *
      * @param string $comments Comments
      */
     public function setComments(string $comments): self
     {
-        $this->comments = $comments;
+        $this->comments = mb_substr($comments, 0, 200);
         return $this;
     }
 

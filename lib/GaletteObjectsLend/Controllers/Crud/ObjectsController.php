@@ -778,7 +778,7 @@ class ObjectsController extends AbstractPluginController
         $object = $service->getObject($id);
 
         try {
-            $service->giveBack($object, (int)($post['status'] ?? 0));
+            $service->giveBack($object, (int)($post['status'] ?? 0), trim($post['comments'] ?? ''));
         } catch (LendException $e) {
             $this->flash->addMessage('error_detected', $e->getMessage());
             return $response
