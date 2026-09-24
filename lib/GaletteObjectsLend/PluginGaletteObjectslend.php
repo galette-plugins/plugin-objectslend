@@ -130,4 +130,14 @@ class PluginGaletteObjectslend extends GalettePlugin implements InstallableInter
                 && $this->zdb->tableExists(LEND_PREFIX . ObjectPicture::TABLE)
         ;
     }
+
+    /**
+     * Database version of tables installed before versions tracking
+     *
+     * Parameters table has been dropped in 1.1, when preferences moved to core.
+     */
+    public function getLegacyDbVersion(): ?float
+    {
+        return $this->zdb->tableExists(LEND_PREFIX . 'parameters') ? 1.0 : null;
+    }
 }
