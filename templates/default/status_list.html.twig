@@ -83,19 +83,19 @@
             </td>
             <td class="center collapsing" data-col-label="{{ _T("Active", "objectslend") }}">
                 {% if status.isActive() %}
-                    <i class="check circle green icon tooltip" data-html="{{ _T("Active", "objectslend") }}"></i>
+                    <i class="check circle green icon tooltip" data-html="{{ _T("Active", "objectslend") }}" aria-hidden="true"></i>
                     <span class="visually-hidden">{{ _T("Active", "objectslend") }}</span>
                 {% else %}
-                    <i class="times circle red icon tooltip" data-html="{{ _T("Inactive", "objectslend") }}"></i>
+                    <i class="times circle red icon tooltip" data-html="{{ _T("Inactive", "objectslend") }}" aria-hidden="true"></i>
                     <span class="visually-hidden">{{ _T("Inactive", "objectslend") }}</span>
                 {% endif %}
             </td>
             <td class="center collapsing" data-col-label="{{ _T("Stock", "objectslend") }}">
                 {% if status.isInStock() %}
-                    <i class="warehouse green icon tooltip" data-html="{{ _T("In stock", "objectslend") }}"></i>
+                    <i class="warehouse green icon tooltip" data-html="{{ _T("In stock", "objectslend") }}" aria-hidden="true"></i>
                     <span class="visually-hidden">{{ _T("In stock", "objectslend") }}</span>
                 {% else %}
-                    <i class="hand holding orange icon tooltip" data-html="{{ _T("Not in stock", "objectslend") }}"></i>
+                    <i class="hand holding orange icon tooltip" data-html="{{ _T("Not in stock", "objectslend") }}" aria-hidden="true"></i>
                     <span class="visually-hidden">{{ _T("Not in stock", "objectslend") }}</span>
                 {% endif %}
             </td>

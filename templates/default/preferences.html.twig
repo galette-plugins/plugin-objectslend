@@ -67,7 +67,7 @@
                         <div id="contribution_type" class="ui dropdown selection">
                             {% set selectedid = lendsprefs.generated_contribution_type_id %}
                             <input id="id_type_cotis_input" type="hidden" name="pref_objectslend_generated_contribution_type_id" value="{{ selectedid }}"{% if lendsprefs.auto_generate_contribution %} required="required"{% endif %}>
-                            <i class="dropdown icon"></i>
+                            <i class="dropdown icon" aria-hidden="true"></i>
                             <div class="text">{% for key, values in type_cotis_options %}{% if key == selectedid %}{{ values.label }}{% endif %}{% endfor %}</div>
                             <div class="menu">
                                 {% for key, values in type_cotis_options %}
@@ -153,7 +153,7 @@
 
     <div class="ui basic center aligned segment">
         <button type="submit" class="ui labeled icon primary button action">
-            <i class="save icon"></i> {{ _T("Save") }}
+            <i class="save icon" aria-hidden="true"></i> {{ _T("Save") }}
         </button>
     </div>
 </form>

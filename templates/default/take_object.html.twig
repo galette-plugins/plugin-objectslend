@@ -10,83 +10,78 @@
 {% block content %}
 <form action="{% if takeorgive == 'take' %}{{ url_for("objectslend_object_dotake", {"id": object.getId()}) }}{% else %}{{ url_for("objectslend_object_doreturn", {"id": object.getId()}) }}{% endif %}" method="post" id="form_take_object" class="ui form info" data-mode="{{ takeorgive }}">
     <div class="ui styled fluid accordion field">
-        <div class="active title">
-            <i class="icon dropdown"></i>
+        <div class="active title" role="heading" aria-level="2">
+            <i class="icon dropdown" aria-hidden="true"></i>
             {{ _T("Object", "objectslend") }}
         </div>
-        <div class="active content">
-            <div class="inline field">
-                <label>{{ _T("Name:", "objectslend") }}</label>
-                {{ object.getName() }}
-                {{ lend.thumbnail("object", object.getId(), object.getPicture(), olendsprefs, _T("Object photo", "objectslend"), "fright") }}
+        <div class="active content field">
+            <div class="ui stackable grid">
+                <div class="twelve wide column">
+                    <table class="ui very basic definition compact collapsing stackable table">
+                        <tr>
+                            <th scope="row">{{ _T("Name:", "objectslend") }}</th>
+                            <td>{{ object.getName() }}</td>
+                        </tr>
+            {% if lendsprefs.view_description %}
+                        <tr>
+                            <th scope="row">{{ _T("Description:", "objectslend") }}</th>
+                            <td>{{ object.getDescriptionHtml()|raw }}</td>
+                        </tr>
+            {% endif %}
+            {% if lendsprefs.view_serial %}
+                        <tr>
+                            <th scope="row">{{ _T("Serial number:", "objectslend") }}</th>
+                            <td>{{ object.getSerialNumber() }}</td>
+                        </tr>
+            {% endif %}
+            {% if lendsprefs.view_price %}
+                        <tr>
+                            <th scope="row">{{ _T("Price:", "objectslend") }}</th>
+                            <td>{{ object.getPrice()|format_currency('EUR', {}, i18n.getWebID()) }}</td>
+                        </tr>
+            {% endif %}
+            {% if lendsprefs.view_dimension %}
+                        <tr>
+                            <th scope="row">{{ _T("Dimensions:", "objectslend") }}</th>
+                            <td>{% if object.getDimension() != '' %}{{ object.getDimension() }} {{ _T("Cm", "objectslend") }}{% else %}-{% endif %}</td>
+                        </tr>
+            {% endif %}
+            {% if lendsprefs.view_weight %}
+                        <tr>
+                            <th scope="row">{{ _T("Weight:", "objectslend") }}</th>
+                            <td>{% if object.getWeight() %}{{ object.getWeight()|format_number({fraction_digit: 3}, 'decimal', 'default', i18n.getWebID()) }} {{ _T("Kg", "objectslend") }}{% else %}-{% endif %}</td>
+                        </tr>
+            {% endif %}
+                        <tr>
+            {% if takeorgive == 'take' and (login.isAdmin() or login.isStaff()) %}
+                            <th scope="row"><label for="rent_price">{{ _T("Borrow price:", "objectslend") }}</label></th>
+                            <td>
+                                <div class="ui right labeled input">
+                                    <input type="text" name="rent_price" id="rent_price" value="{{ object.getRentPrice()|number_format(2, '.', '') }}" size="10">
+                                    <div class="ui basic label">€</div>
+                                </div>
+            {% else %}
+                            <th scope="row">{{ _T("Borrow price:", "objectslend") }}</th>
+                            <td>
+                                <input type="hidden" name="rent_price" id="rent_price" value="{{ object.getRentPrice()|number_format(2, '.', '') }}">
+                                {{ object.getRentPrice()|format_currency('EUR', {}, i18n.getWebID()) }}
+            {% endif %}
+                                {% if object.isPricePerDay() %}{{ _T("(per day)", "objectslend") }}{% else %}{{ _T("(at once)", "objectslend") }}{% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="four wide right aligned column">
+                    {{ lend.thumbnail("object", object.getId(), object.getPicture(), olendsprefs, _T("Object photo", "objectslend")) }}
+                </div>
             </div>
-
-    {% if lendsprefs.view_description %}
-            <div class="inline field">
-                <label>{{ _T("Description:", "objectslend") }}</label>
-                {{ object.getDescriptionHtml()|raw }}
-            </div>
-    {% endif %}
-
-    {% if lendsprefs.view_serial %}
-            <div class="inline field">
-                <label>{{ _T("Serial number:", "objectslend") }}</label>
-                {{ object.getSerialNumber() }}
-            </div>
-    {% endif %}
-
-    {% if lendsprefs.view_price %}
-            <div class="inline field">
-                <label>{{ _T("Price:", "objectslend") }}</label>
-                {{ object.getPrice()|format_currency('EUR', {}, i18n.getWebID()) }}
-            </div>
-    {% endif %}
-
-    {% if lendsprefs.view_dimension %}
-            <div class="inline field">
-                <label>{{ _T("Dimensions:", "objectslend") }}</label>
-                {% if object.getDimension() != '' %}
-                    {{ object.getDimension() }} {{ _T("Cm", "objectslend") }}
-                {% else %}
-                -
-                {% endif %}
-            </div>
-    {% endif %}
-
-    {% if lendsprefs.view_weight %}
-            <div class="inline field">
-                <label>{{ _T("Weight:", "objectslend") }}</label>
-                {% if object.getWeight() %}
-                    {{ object.getWeight()|format_number({fraction_digit: 3}, 'decimal', 'default', i18n.getWebID()) }} {{ _T("Kg", "objectslend") }}
-                {% else %}
-                    -
-                {% endif %}
-            </div>
-    {% endif %}
-
-            <div class="inline field">
-                <label>{{ _T("Borrow price:", "objectslend") }}</label>
-                {% if takeorgive == 'take' and (login.isAdmin() or login.isStaff()) %}
-                    <input type="text" name="rent_price" id="rent_price" value="{{ object.getRentPrice()|number_format(2, '.', '') }}" size="10"> €
-                {% else %}
-                    <input type="hidden" name="rent_price" id="rent_price" value="{{ object.getRentPrice()|number_format(2, '.', '') }}">
-                    <span id="rent_price_label">{{ object.getRentPrice()|format_currency('EUR', {}, i18n.getWebID()) }}</span>
-                {% endif %}
-
-                {% if object.isPricePerDay() %}
-                    {{ _T("(per day)", "objectslend") }}
-                {% else %}
-                    {{ _T("(at once)", "objectslend") }}
-                {% endif %}
-            </div>
-
         </div>
     </div>
 
     {% if takeorgive == 'take' %}
         <div class="ui styled fluid accordion field">
-            <div class="active title">
-                <i class="icon dropdown"></i>
+            <div class="active title" role="heading" aria-level="2">
+                <i class="icon dropdown" aria-hidden="true"></i>
                 {{ _T("Borrow information", "objectslend") }}
             </div>
             <div class="active content">
@@ -124,8 +119,8 @@
         </div>
     {% else %}
         <div class="ui styled fluid accordion field">
-            <div class="active title">
-                <i class="icon dropdown"></i>
+            <div class="active title" role="heading" aria-level="2">
+                <i class="icon dropdown" aria-hidden="true"></i>
                 {{ _T("Return information", "objectslend") }}
             </div>
             <div class="active content">
@@ -133,10 +128,10 @@
                     {{ lend.statusSelect('status', _T("Status:", "objectslend"), statuses, -1) }}
                 </div>
 
-                <div class="inline field">
-                    <label>{{ _T("Time:", "objectslend") }}</label>
+                <p>
+                    <strong>{{ _T("Time:", "objectslend") }}</strong>
                     {{ _T("From %begindate to %enddate", "objectslend")|replace({"%begindate": last_rent.getDateBegin(), "%enddate": "now"|date(_T("Y-m-d"))}) }}
-                </div>
+                </p>
                 <div>
                     {% include "components/forms/textarea.html.twig" with {
                         id: 'comments',
@@ -170,7 +165,7 @@
 
     <div class="ui basic center aligned fitted segment">
         <button type="submit" name="valid" class="action ui labeled icon primary button">
-            <i class="save icon"></i> {% if takeorgive == 'take' %}{{ _T("Borrow object", "objectslend") }}{% else %}{{ _T("Return object", "objectslend") }}{% endif %}
+            <i class="save icon" aria-hidden="true"></i> {% if takeorgive == 'take' %}{{ _T("Borrow object", "objectslend") }}{% else %}{{ _T("Return object", "objectslend") }}{% endif %}
         </button>
         <input type="hidden" name="mode" value="{% if ajax %}ajax{% endif %}"/>
     </div>

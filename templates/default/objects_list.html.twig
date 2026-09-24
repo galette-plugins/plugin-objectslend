@@ -175,7 +175,8 @@
             {% if login.isAdmin() or login.isStaff() %}
                 <td class="center collapsing" data-scope="row">
                     <span class="ui checkbox">
-                        <input type="checkbox" name="entries_sel[]" value="{{ object.getId() }}">
+                        <input type="checkbox" name="entries_sel[]" id="object_checkbox_{{ object.getId() }}" value="{{ object.getId() }}">
+                        <label for="object_checkbox_{{ object.getId() }}"><span class="visually-hidden">{{ object.getName() }}</span></label>
                     </span>
                 </td>
             {% endif %}
@@ -242,7 +243,8 @@
                 <td class="center collapsing" data-col-label="{{ _T("Active", "objectslend") }}">
                     <i
                         class="{% if object.isActive() %}check circle green{% else %}times circle red{% endif %} icon tooltip"
-                        title="{% if object.isActive() %}{{ _T("Object is active", "objectslend") }}{% else %}{{ _T("Object is inactive", "objectslend") }}{% endif %}">
+                        title="{% if object.isActive() %}{{ _T("Object is active", "objectslend") }}{% else %}{{ _T("Object is inactive", "objectslend") }}{% endif %}"
+                        aria-hidden="true">
                     </i>
                     <span class="visually-hidden">{% if object.isActive() %}{{ _T("Active", "objectslend") }}{% else %}{{ _T("Inactive", "objectslend") }}{% endif %}</span>
                 </td>

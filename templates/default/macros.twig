@@ -12,11 +12,12 @@
     </div>
 {% endmacro %}
 
-{# "Don't care", "Yes" and "No" radio buttons; values are keyed by dc, yes and no #}
+{# "Don't care", "Yes" and "No" radio buttons; values are keyed by dc, yes and no.
+   A radio group rather than a fieldset, whose border does not belong in a filter form. #}
 {% macro triStateFilter(name, suffix, label, current, values) %}
     <div class="field">
-        <div class="inline fields">
-            <label for="filter_dc_{{ suffix }}">{{ label }}</label>
+        <div class="inline fields" role="radiogroup" aria-labelledby="filter_{{ suffix }}_label">
+            <label id="filter_{{ suffix }}_label">{{ label }}</label>
     {% for key, text in {dc: _T("Don't care"), yes: _T("Yes"), no: _T("No")} %}
             <div class="field inline">
                 <div class="ui radio checkbox">

@@ -9,8 +9,8 @@
 {% block content %}
     <form action="{% if status.getId() %}{{ url_for("objectslend_status_action_edit", {"id": status.getId()}) }}{% else %}{{ url_for("objectslend_status_action_add") }}{% endif %}" method="post" class="ui form">
         <div class="ui styled fluid accordion field">
-            <div class="active title">
-                <i class="icon dropdown"></i>
+            <div class="active title" role="heading" aria-level="2">
+                <i class="icon dropdown" aria-hidden="true"></i>
                 {{ _T("Status", "objectslend") }}
             </div>
             <div class="active content">
@@ -51,7 +51,7 @@
 
         <div class="ui basic center aligned fitted segment">
             <button type="submit" name="valid" class="action ui labeled icon primary button">
-                <i class="save icon"></i> {{ _T("Save") }}
+                <i class="save icon" aria-hidden="true"></i> {{ _T("Save") }}
             </button>
             <input type="hidden" name="id" id="id" value="{{ status.getId() }}"/>
         </div>
