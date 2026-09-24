@@ -282,7 +282,7 @@
             {% if login.isAdmin() or login.isStaff() %}
                 <td class="center collapsing" data-col-label="{{ _T("Active", "objectslend") }}">
                     <i
-                        class="thumbs {% if object.isActive() %}up green{% else %}down red{% endif %} icon tooltip"
+                        class="{% if object.isActive() %}check circle green{% else %}times circle red{% endif %} icon tooltip"
                         title="{% if object.isActive() %}{{ _T("Object is active", "objectslend") }}{% else %}{{ _T("Object is inactive", "objectslend") }}{% endif %}">
                     </i>
                     <span class="visually-hidden">{% if object.isActive() %}{{ _T("Active", "objectslend") }}{% else %}{{ _T("Inactive", "objectslend") }}{% endif %}</span>
