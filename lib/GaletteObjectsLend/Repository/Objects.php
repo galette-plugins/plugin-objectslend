@@ -19,6 +19,7 @@ use GaletteObjectsLend\Entity\LendCategory;
 use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Entity\LendRent;
 use GaletteObjectsLend\Entity\LendStatus;
+use GaletteObjectsLend\Entity\ObjectPicture;
 use GaletteObjectsLend\LendPreferences;
 use GaletteObjectsLend\Filters\ObjectsList;
 use Laminas\Db\ResultSet\ResultSet;
@@ -117,6 +118,14 @@ class Objects extends AbstractRepository
         try {
             if ($need_transaction) {
                 $this->zdb->beginTransaction();
+            }
+
+            //a picture file removed here comes back from the database on rollback
+            foreach ($ids as $id) {
+                $picture = new ObjectPicture($id);
+                if ($picture->hasPicture() && !$picture->delete(false)) {
+                    throw new \RuntimeException('Unable to remove picture for object #' . $id);
+                }
             }
 
             $update = $this->zdb->update(LEND_PREFIX . self::TABLE);

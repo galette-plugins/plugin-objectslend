@@ -200,6 +200,11 @@ class LendObject
             if ($need_transaction) {
                 $this->zdb->beginTransaction();
             }
+            //a picture file removed here comes back from the database on rollback
+            $picture = $this->getPicture();
+            if ($picture->hasPicture() && !$picture->delete(false)) {
+                throw new \RuntimeException('Unable to remove picture');
+            }
             //remove rents
             $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
                     ->set([LendRent::PK => null])

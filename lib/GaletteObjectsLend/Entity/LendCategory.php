@@ -154,6 +154,11 @@ class LendCategory
             if ($need_transaction) {
                 $this->zdb->beginTransaction();
             }
+            //a picture file removed here comes back from the database on rollback
+            $picture = new CategoryPicture($this->category_id);
+            if ($picture->hasPicture() && !$picture->delete(false)) {
+                throw new \RuntimeException('Unable to remove picture');
+            }
             $select = $this->zdb->select(LEND_PREFIX . LendObject::TABLE)
                     ->where(['category_id' => $this->category_id]);
             $results = $this->zdb->execute($select);
