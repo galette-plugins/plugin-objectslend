@@ -41,13 +41,7 @@ class ImagesController extends GImagesController
         $picture = new $class($id);
 
         $this->lendsprefs = new LendPreferences($this->preferences);
-        $thumb = false;
-        if (!$this->lendsprefs->showFullsize() || $mode == 'thumbnail') {
-            //force thumbnail display from preferences
-            $thumb = true;
-        }
-
-        if ($thumb) {
+        if ($mode == 'thumbnail') {
             return $picture->displayThumb($response, $this->lendsprefs);
         } else {
             return $picture->display($response);

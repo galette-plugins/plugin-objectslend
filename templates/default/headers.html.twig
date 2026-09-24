@@ -4,7 +4,7 @@
  # SPDX-License-Identifier: GPL-3.0-or-later
  #}
 
-{% if olendsprefs is defined and olendsprefs.showFullsize() %}
+{% if olendsprefs is defined %}
 <script type="text/javascript">
     var _init_fullimage = function() {
         $('.picture').css('cursor', 'pointer').attr('title', '{{ _T("Click to view fullsize image", "objectslend")|e('js') }}');

@@ -211,9 +211,7 @@
     var _init_takeobject_js = function() {
         $('button[name="valid"]').addClass('disabled');
 
-    {% if olendsprefs.showFullsize() %}
         _init_fullimage();
-    {% endif %}
 
         $('#id_adh, #status, #payment_type').on('change',function() {
             validStatus()

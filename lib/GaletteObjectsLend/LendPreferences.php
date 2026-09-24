@@ -40,8 +40,6 @@ final class LendPreferences
     public const string THUMB_MAX_HEIGHT = self::PREFIX . 'thumb_max_height';
     /** Show images in objects and categories lists */
     public const string VIEW_THUMBNAIL = self::PREFIX . 'view_thumbnail';
-    /** Show fullsize images clicking on thumbnails */
-    public const string VIEW_FULLSIZE = self::PREFIX . 'view_fullsize';
     /** Show categories on the objects list */
     public const string VIEW_CATEGORY = self::PREFIX . 'view_category';
     /** Show the forecast return date */
@@ -129,7 +127,6 @@ final class LendPreferences
             self::ENABLE_MEMBER_RENT_OBJECT => true,
             self::AUTO_GENERATE_CONTRIBUTION => true,
             self::VIEW_THUMBNAIL => true,
-            self::VIEW_FULLSIZE => true,
             self::VIEW_CATEGORY => false,
             self::VIEW_DATE_FORECAST => true,
             self::VIEW_DESCRIPTION => true,
@@ -190,16 +187,6 @@ final class LendPreferences
     public function imagesInLists(): bool
     {
         return $this->isEnabled(self::VIEW_THUMBNAIL);
-    }
-
-    /**
-     * Shall we show fullsize images?
-     *
-     * Would appear editing object, and on thumbnails click
-     */
-    public function showFullsize(): bool
-    {
-        return $this->isEnabled(self::VIEW_FULLSIZE);
     }
 
     /**

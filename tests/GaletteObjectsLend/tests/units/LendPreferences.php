@@ -29,7 +29,7 @@ class LendPreferences extends GaletteTestCase
     public function testDefaults(): void
     {
         $schema = \GaletteObjectsLend\LendPreferences::getSchema();
-        $this->assertCount(17, $schema);
+        $this->assertCount(16, $schema);
         foreach (array_keys($schema) as $name) {
             $this->assertStringStartsWith(\GaletteObjectsLend\LendPreferences::PREFIX, $name);
             $this->assertSame('objectslend', PreferencesSchema::getOwner($name));
@@ -39,14 +39,13 @@ class LendPreferences extends GaletteTestCase
         $this->assertSame(128, $prefs->getThumbWidth());
         $this->assertSame(128, $prefs->getThumbHeight());
         $this->assertTrue($prefs->imagesInLists());
-        $this->assertTrue($prefs->showFullsize());
         $this->assertTrue($prefs->isEnabled(\GaletteObjectsLend\LendPreferences::ENABLE_MEMBER_RENT_OBJECT));
         $this->assertFalse($prefs->isEnabled(\GaletteObjectsLend\LendPreferences::VIEW_SERIAL));
         $this->assertSame(5, $prefs->getContributionTypeId());
         $this->assertSame('Location de {NAME} {DESCRIPTION} {SERIAL_NUMBER}', $prefs->getContributionText());
 
         $values = $prefs->toArray();
-        $this->assertCount(17, $values);
+        $this->assertCount(16, $values);
         $this->assertSame(128, $values['thumb_max_width']);
         $this->assertFalse($values['view_serial']);
     }
