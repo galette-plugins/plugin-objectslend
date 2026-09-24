@@ -116,7 +116,7 @@ class PdfObject extends Pdf
                 $hpic = (int)round($wpic / $ratio);
             }
 
-            $this->Image($pic->getThumbPath(), 10, 10, $wpic, $hpic);
+            $this->Image($pic->getThumb($this->lprefs), 10, 10, $wpic, $hpic);
         }
 
         $this->addCell(_T("Name", "objectslend"), $object->getName(), $wpic);
