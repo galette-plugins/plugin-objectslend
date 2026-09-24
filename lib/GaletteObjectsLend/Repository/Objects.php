@@ -19,7 +19,7 @@ use GaletteObjectsLend\Entity\LendCategory;
 use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Entity\LendRent;
 use GaletteObjectsLend\Entity\LendStatus;
-use GaletteObjectsLend\Entity\Preferences as LendPreferences;
+use GaletteObjectsLend\LendPreferences;
 use GaletteObjectsLend\Filters\ObjectsList;
 use Laminas\Db\ResultSet\ResultSet;
 use Laminas\Db\Sql\Select;
@@ -286,7 +286,7 @@ class Objects extends AbstractRepository
 
         switch ($this->filters->field_filter) {
             case self::FILTER_NAME:
-                if ($this->lendsprefs->{LendPreferences::PARAM_VIEW_DESCRIPTION}) {
+                if ($this->lendsprefs->isEnabled(LendPreferences::VIEW_DESCRIPTION)) {
                     $select->where
                         ->nest()
                             ->addPredicate($this->contains('o.name', $search))

@@ -15,7 +15,7 @@ use Galette\Core\Pagination;
 use GaletteObjectsLend\Entity\CategoryPicture;
 use GaletteObjectsLend\Entity\LendCategory;
 use GaletteObjectsLend\Entity\LendStatus;
-use GaletteObjectsLend\Entity\Preferences;
+use GaletteObjectsLend\LendPreferences;
 use GaletteObjectsLend\Filters\CategoriesList;
 use GaletteObjectsLend\Repository\Categories;
 use Slim\Psr7\Request;
@@ -79,7 +79,7 @@ class CategoriesController extends AbstractListController
                 'page_title'    => _T("Categories list", "objectslend"),
                 'categories'    => $list,
                 'nb_categories' => count($list),
-                'olendsprefs'   => new Preferences($this->zdb),
+                'olendsprefs'   => new LendPreferences($this->preferences),
                 'time'          => time()
             ]
         ];
@@ -126,7 +126,7 @@ class CategoriesController extends AbstractListController
                     : _T("New category", "objectslend"),
                 'category'      => $entity,
                 'time'          => time(),
-                'olendsprefs'   => new Preferences($this->zdb),
+                'olendsprefs'   => new LendPreferences($this->preferences),
                 'picture'       => new CategoryPicture($entity->getId())
             ]
         ];

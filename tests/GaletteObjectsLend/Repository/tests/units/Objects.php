@@ -20,8 +20,9 @@ use Galette\Tests\GaletteTestCase;
 class Objects extends GaletteTestCase
 {
     protected int $seed = 20240526224135;
+    protected bool $load_plugins = true;
 
-    protected \GaletteObjectsLend\Entity\Preferences $lend_prefs;
+    protected \GaletteObjectsLend\LendPreferences $lend_prefs;
 
     /**
      * Set up tests
@@ -29,7 +30,7 @@ class Objects extends GaletteTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->lend_prefs = new \GaletteObjectsLend\Entity\Preferences($this->zdb);
+        $this->lend_prefs = new \GaletteObjectsLend\LendPreferences($this->preferences);
     }
 
     /**
@@ -153,17 +154,18 @@ class Objects extends GaletteTestCase
         $this->assertSame(2, $objects->getCount());
 
         //disable view description
-        $orig_prefs = $this->lend_prefs->getPreferences();
-        $all_prefs = $orig_prefs;
-        $all_prefs[\GaletteObjectsLend\Entity\Preferences::PARAM_VIEW_DESCRIPTION] = 0;
-        $this->assertTrue($this->lend_prefs->store($all_prefs));
+        $this->assertTrue(
+            $this->preferences->setValue(\GaletteObjectsLend\LendPreferences::VIEW_DESCRIPTION, 0, $this->login)
+        );
 
         //only one result (first in name only)
         $this->assertCount(1, $objects->getObjectsList(true));
         $this->assertSame(1, $objects->getCount());
 
         //reset prefs
-        $this->assertTrue($this->lend_prefs->store($orig_prefs));
+        $this->assertTrue(
+            $this->preferences->setValue(\GaletteObjectsLend\LendPreferences::VIEW_DESCRIPTION, 1, $this->login)
+        );
 
         $filters->field_filter = \GaletteObjectsLend\Repository\Objects::FILTER_ID;
         $filters->filter_str = (string)$third_object_id;

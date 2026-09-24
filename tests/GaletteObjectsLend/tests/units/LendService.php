@@ -15,7 +15,7 @@ use Galette\Tests\GaletteTestCase;
 use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Entity\LendRent;
 use GaletteObjectsLend\Entity\LendStatus;
-use GaletteObjectsLend\Entity\Preferences;
+use GaletteObjectsLend\LendPreferences;
 use GaletteObjectsLend\LendException;
 
 /**
@@ -29,6 +29,7 @@ class LendService extends GaletteTestCase
 {
     protected int $seed = 20260923081245;
     protected bool $db_transactions = false;
+    protected bool $load_plugins = true;
 
     private int $instock_status;
     private int $lent_status;
@@ -43,14 +44,19 @@ class LendService extends GaletteTestCase
     {
         parent::setUp();
 
-        $prefs = new Preferences($this->zdb);
-        $this->orig_prefs = $prefs->getPreferences();
-        $values = $this->orig_prefs;
-        $values[Preferences::PARAM_ENABLE_MEMBER_RENT_OBJECT] = 1;
-        $values[Preferences::PARAM_AUTO_GENERATE_CONTRIBUTION] = 1;
-        $values[Preferences::PARAM_GENERATED_CONTRIBUTION_TYPE_ID] = 5;
-        $values[Preferences::PARAM_GENERATED_CONTRIB_INFO_TEXT] = 'Service rent of {NAME}';
-        $this->assertTrue($prefs->store($values));
+        $this->orig_prefs = [];
+        foreach (array_keys(LendPreferences::getSchema()) as $name) {
+            $this->orig_prefs[$name] = $this->preferences->getPluginValue($name);
+        }
+        $values = [
+            LendPreferences::ENABLE_MEMBER_RENT_OBJECT => 1,
+            LendPreferences::AUTO_GENERATE_CONTRIBUTION => 1,
+            LendPreferences::GENERATED_CONTRIBUTION_TYPE_ID => 5,
+            LendPreferences::GENERATED_CONTRIB_INFO_TEXT => 'Service rent of {NAME}',
+        ];
+        foreach ($values as $name => $value) {
+            $this->assertTrue($this->preferences->setValue($name, $value, $this->login));
+        }
 
         $status = new LendStatus($this->zdb);
         $status->setText('In stock');
@@ -80,8 +86,9 @@ class LendService extends GaletteTestCase
     {
         $this->login->logout();
 
-        $prefs = new Preferences($this->zdb);
-        $prefs->store($this->orig_prefs);
+        foreach ($this->orig_prefs as $name => $value) {
+            $this->preferences->setValue($name, $value, $this->login);
+        }
 
         $update = $this->zdb->update(LEND_PREFIX . LendObject::TABLE)
             ->set([LendRent::PK => null]);
@@ -109,7 +116,7 @@ class LendService extends GaletteTestCase
      */
     private function getService(): \GaletteObjectsLend\LendService
     {
-        return new \GaletteObjectsLend\LendService($this->zdb, $this->preferences, $this->login, new Preferences($this->zdb));
+        return new \GaletteObjectsLend\LendService($this->zdb, $this->preferences, $this->login, new LendPreferences($this->preferences));
     }
 
     /**

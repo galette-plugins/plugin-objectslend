@@ -6,28 +6,17 @@
 
 {% extends 'page.html.twig' %}
 
-{% macro yesno_checkbox(label, name, tip, yes, no) %}
-    <div class="field">
-        <div class="inline fields">
-            <label title="{{ tip|e() }}">{{ label }}
-    {% if tip is not null %}
-                <i class="circular small basic question icon tooltip" data-html="{{ tip|e() }}"></i>
-    {% endif %}
-            </label>
-            <div class="field inline">
-                <div class="ui radio checkbox">
-                    <input type="radio" name="{{ name }}" id="{{ yes.name }}" value="1" {% if yes.checked %}checked="checked"{% endif %}/>
-                    <label for="{{ yes.name }}">{{ _T("Yes") }}</label>
-                </div>
-            </div>
-            <div class="field inline">
-                <div class="ui radio checkbox">
-                    <input type="radio" name="{{ name }}" id="{{ no.name }}" value="0" {% if no.checked %}checked="checked"{% endif %}/>
-                    <label for="{{ no.name }}">{{ _T("No") }}</label>
-                </div>
-            </div>
-        </div>
-    </div>
+{% macro toggles(boxes, values) %}
+    {% for box in boxes %}
+        {% include "components/forms/checkbox.html.twig" with {
+            id: box.name,
+            name: 'pref_objectslend_' ~ box.name,
+            value: 1,
+            label: box.label,
+            checked: values[box.name],
+            tip_html: box.tip ?? '',
+        } %}
+    {% endfor %}
 {% endmacro %}
 
 {% block content %}
@@ -41,56 +30,25 @@
     <div class="ui active tab segment" data-tab="plugin_preferences">
         <div class="ui stackable grid">
             <div class="column">
-                {% set yesno_boxes = [
+                {{ _self.toggles([
                     {
                         label: _T("Members can borrow:", "objectslend"),
-                        name: 'ENABLE_MEMBER_RENT_OBJECT',
+                        name: 'enable_member_rent_object',
                         tip: _T("Allow a member (not staff neither admin) to borrow an object. If set to 'No', only admin and staff members can access the 'Take object' page", "objectslend"),
-                        yes: {
-                            name: 'yes_memberborrow',
-                            checked: lendsprefs.ENABLE_MEMBER_RENT_OBJECT == '1'
-                        },
-                        no: {
-                            name: 'no_memberborrow',
-                            checked: lendsprefs.ENABLE_MEMBER_RENT_OBJECT == '0'
-                        }
                     },
                     {
                         label: _T("Generate contribution:", "objectslend"),
-                        name: 'AUTO_GENERATE_CONTRIBUTION',
+                        name: 'auto_generate_contribution',
                         tip: _T("Automatically generate a contribution for the member of the amount of the rental price of the object", "objectslend"),
-                        yes: {
-                            name: 'yes_contrib',
-                            checked: lendsprefs.AUTO_GENERATE_CONTRIBUTION == '1'
-                        },
-                        no: {
-                            name: 'no_contrib',
-                            checked: lendsprefs.AUTO_GENERATE_CONTRIBUTION == '0'
-                        }
                     }
-                ] %}
+                ], lendsprefs) }}
 
-                {% for yesno_box in yesno_boxes %}
-                    {{ _self.yesno_checkbox(
-                        yesno_box.label,
-                        yesno_box.name,
-                        yesno_box.tip,
-                        yesno_box.yes,
-                        yesno_box.no
-                    ) }}
-                {% endfor %}
-
-                {% set ctype_list_values = {(0): _T("Choose a contribution type", "objectslend")} %}
-                {% for id, ctype in ctypes %}
-                    {% set ctype_list_values = ctype_list_values + {(id): ctype} %}
-                {% endfor %}
-
-                {# TODO: hide this one if AUTO_GENERATE_CONTRIBUTION is off #}
-                <div class="field{% if lendsprefs.AUTO_GENERATE_CONTRIBUTION == '1' %} required{% endif %}">
+                {# TODO: hide this one if auto_generate_contribution is off #}
+                <div class="field{% if lendsprefs.auto_generate_contribution %} required{% endif %}">
                     <label for="contribution_type">{{ _T("Contribution type:") }}</label>
                     <div id="contribution_type" class="ui dropdown selection">
-                        {% set selectedid = lendsprefs.GENERATED_CONTRIBUTION_TYPE_ID %}
-                        <input id="id_type_cotis_input" type="hidden" name="id_type_cotis" value="{{ selectedid }}"{% if lendsprefs.AUTO_GENERATE_CONTRIBUTION == '1' %} required="required"{% endif %}>
+                        {% set selectedid = lendsprefs.generated_contribution_type_id %}
+                        <input id="id_type_cotis_input" type="hidden" name="pref_objectslend_generated_contribution_type_id" value="{{ selectedid }}"{% if lendsprefs.auto_generate_contribution %} required="required"{% endif %}>
                         <i class="dropdown icon"></i>
                         <div class="text">{% for key, values in type_cotis_options %}{% if key == selectedid %}{{ values.label }}{% endif %}{% endfor %}</div>
                         <div class="menu">
@@ -103,12 +61,12 @@
 
                 {% include "components/forms/text.html.twig" with {
                     id: 'contrib_text',
-                    name: 'GENERATED_CONTRIB_INFO_TEXT',
-                    value: lendsprefs.GENERATED_CONTRIB_INFO_TEXT,
+                    name: 'pref_objectslend_generated_contrib_info_text',
+                    value: lendsprefs.generated_contrib_info_text,
                     label: _T("Contribution text:", "objectslend"),
                     title: _T("Comment text to add on generated contribution", "objectslend"),
                     tip_html: _T("Comment text to add on generated contribution. Automatically replaced values (put into curly brackets): <br/>- NAME: Name<br/>- DESCRIPTION: Description<br/>- SERIAL_NUMBER: Serial number<br/>- PRICE: Price<br/>- RENT_PRICE: Borrow price<br/>- WEIGHT: Weight<br/>- DIMENSION: Dimensions", "objectslend"),
-                    required: lendsprefs.AUTO_GENERATE_CONTRIBUTION == '1',
+                    required: lendsprefs.auto_generate_contribution,
                     component_class: 'field',
                 } %}
 
@@ -121,58 +79,30 @@
             <div class="column">
                 {% include "components/forms/number.html.twig" with {
                     id: 'max_thumb_height',
-                    name: 'THUMB_MAX_HEIGHT',
-                    value: lendsprefs.THUMB_MAX_HEIGHT,
+                    name: 'pref_objectslend_thumb_max_height',
+                    value: lendsprefs.thumb_max_height,
                     label: _T("Max thumb height (in px)", "objectslend"),
                 } %}
 
                 {% include "components/forms/number.html.twig" with {
                     id: 'max_thumb_width',
-                    name: 'THUMB_MAX_WIDTH',
-                    value: lendsprefs.THUMB_MAX_WIDTH,
+                    name: 'pref_objectslend_thumb_max_width',
+                    value: lendsprefs.thumb_max_width,
                     label: _T("Max thumb width (in px)", "objectslend"),
                 } %}
 
-                {% set yesno_boxes = [
+                {{ _self.toggles([
                     {
                         label: _T("Images in lists:", "objectslend"),
-                        name: 'VIEW_THUMBNAIL',
-                        title: _T("Display images in objects and categories lists", "objectslend"),
+                        name: 'view_thumbnail',
                         tip: _T("Display images in objects and categories lists", "objectslend"),
-                        yes: {
-                            name: 'yes_view_thumb',
-                            checked: lendsprefs.VIEW_THUMBNAIL == '1'
-                        },
-                        no: {
-                            name: 'no_view_thumb',
-                            checked: lendsprefs.VIEW_THUMBNAIL == '0'
-                        }
                     },
                     {
                         label: _T("Enable fullsize:", "objectslend"),
-                        name: 'VIEW_FULLSIZE',
-                        title: _T("Show fullsize image or just thumbs", "objectslend"),
+                        name: 'view_fullsize',
                         tip: _T("Will permit to see fullsize image clicking on thumbnails.<br/>If disabled, only thumbnails will be displayed, but full images are still kept.", "objectslend"),
-                        yes: {
-                            name: 'yes_view_fullsize',
-                            checked: lendsprefs.VIEW_FULLSIZE == '1'
-                        },
-                        no: {
-                            name: 'no_view_fullsize',
-                            checked: lendsprefs.VIEW_FULLSIZE == '0'
-                        }
                     }
-                ] %}
-
-                {% for yesno_box in yesno_boxes %}
-                    {{ _self.yesno_checkbox(
-                        yesno_box.label,
-                        yesno_box.name,
-                        yesno_box.tip,
-                        yesno_box.yes,
-                        yesno_box.no
-                    ) }}
-                {% endfor %}
+                ], lendsprefs) }}
             </div>
         </div>
     </div>
@@ -180,128 +110,21 @@
     <div class="ui tab segment" data-tab="plugin_display">
         <div class="ui stackable grid">
             <div class="column">
-                {% set yesno_boxes = [
-                    {
-                        label: _T("View category:", "objectslend"),
-                        name: 'VIEW_CATEGORY',
-                        yes: {
-                            name: 'yes_view_category',
-                            checked: lendsprefs.VIEW_CATEGORY == '1'
-                        },
-                        no: {
-                            name: 'no_view_category',
-                            checked: lendsprefs.VIEW_CATEGORY == '0'
-                        }
-                    },
-                    {
-                        label: _T("View forecast return date:", "objectslend"),
-                        name: 'VIEW_DATE_FORECAST',
-                        yes: {
-                            name: 'yes_view_dateforecast',
-                            checked: lendsprefs.VIEW_DATE_FORECAST == '1'
-                        },
-                        no: {
-                            name: 'no_view_dateforecats',
-                            checked: lendsprefs.VIEW_DATE_FORECAST == '0'
-                        }
-                    },
-                    {
-                        label: _T("View description", "objectslend"),
-                        name: 'VIEW_DESCRIPTION',
-                        yes: {
-                            name: 'yes_view_description',
-                            checked: lendsprefs.VIEW_DESCRIPTION == '1'
-                        },
-                        no: {
-                            name: 'no_view_description',
-                            checked: lendsprefs.VIEW_DESCRIPTION == '0'
-                        }
-                    },
-                    {
-                        label: _T("View dimensions:", "objectslend"),
-                        name: 'VIEW_DIMENSION',
-                        yes: {
-                            name: 'yes_view_dimension',
-                            checked: lendsprefs.VIEW_DIMENSION == '1'
-                        },
-                        no: {
-                            name: 'no_view_dimension',
-                            checked: lendsprefs.VIEW_DIMENSION == '0'
-                        }
-                    },
-                    {
-                        label: _T("View borrow price:", "objectslend"),
-                        name: 'VIEW_LEND_PRICE',
-                        yes: {
-                            name: 'yes_view_lendprice',
-                            checked: lendsprefs.VIEW_LEND_PRICE == '1'
-                        },
-                        no: {
-                            name: 'no_view_lendprice',
-                            checked: lendsprefs.VIEW_LEND_PRICE == '0'
-                        }
-                    },
+                {{ _self.toggles([
+                    {label: _T("View category:", "objectslend"), name: 'view_category'},
+                    {label: _T("View forecast return date:", "objectslend"), name: 'view_date_forecast'},
+                    {label: _T("View description", "objectslend"), name: 'view_description'},
+                    {label: _T("View dimensions:", "objectslend"), name: 'view_dimension'},
+                    {label: _T("View borrow price:", "objectslend"), name: 'view_lend_price'},
                     {
                         label: _T("View price sum:", "objectslend"),
-                        name: 'VIEW_LIST_PRICE_SUM',
+                        name: 'view_list_price_sum',
                         tip: _T("View the objects buy price sum on the list under the category", "objectslend"),
-                        yes: {
-                            name: 'yes_view_pricesum',
-                            checked: lendsprefs.VIEW_LIST_PRICE_SUM == '1'
-                        },
-                        no: {
-                            name: 'no_view_pricesum',
-                            checked: lendsprefs.VIEW_LIST_PRICE_SUM == '0'
-                        }
                     },
-                    {
-                        label: _T("View buy price:", "objectslend"),
-                        name: 'VIEW_PRICE',
-                        yes: {
-                            name: 'yes_view_price',
-                            checked: lendsprefs.VIEW_PRICE == '1'
-                        },
-                        no: {
-                            name: 'no_view_price',
-                            checked: lendsprefs.VIEW_PRICE == '0'
-                        }
-                    },
-                    {
-                        label: _T("View serial number:", "objectslend"),
-                        name: 'VIEW_SERIAL',
-                        yes: {
-                            name: 'yes_view_serial',
-                            checked: lendsprefs.VIEW_SERIAL == '1'
-                        },
-                        no: {
-                            name: 'no_view_serial',
-                            checked: lendsprefs.VIEW_SERIAL == '0'
-                        }
-                    },
-                    {
-                        label: _T("View weight", "objectslend"),
-                        name: 'VIEW_WEIGHT',
-                        yes: {
-                            name: 'yes_view_weight',
-                            checked: lendsprefs.VIEW_WEIGHT == '1'
-                        },
-                        no: {
-                            name: 'no_view_weight',
-                            checked: lendsprefs.VIEW_WEIGHT == '0'
-                        }
-                    },
-
-                ] %}
-
-                {% for yesno_box in yesno_boxes %}
-                    {{ _self.yesno_checkbox(
-                        yesno_box.label,
-                        yesno_box.name,
-                        yesno_box.tip ?? null,
-                        yesno_box.yes,
-                        yesno_box.no
-                    ) }}
-                {% endfor %}
+                    {label: _T("View buy price:", "objectslend"), name: 'view_price'},
+                    {label: _T("View serial number:", "objectslend"), name: 'view_serial'},
+                    {label: _T("View weight", "objectslend"), name: 'view_weight'},
+                ], lendsprefs) }}
             </div>
         </div>
     </div>

@@ -16,7 +16,7 @@ use Galette\Core\Login;
 use Galette\Core\Preferences;
 use GaletteObjectsLend\Entity\LendCategory;
 use GaletteObjectsLend\Entity\LendObject;
-use GaletteObjectsLend\Entity\Preferences as LendPreferences;
+use GaletteObjectsLend\LendPreferences;
 use GaletteObjectsLend\Filters\CategoriesList;
 use GaletteObjectsLend\Filters\ObjectsList;
 use Laminas\Db\ResultSet\ResultSet;
@@ -113,7 +113,7 @@ class Categories extends AbstractRepository
                 $this->zdb,
                 $this->preferences,
                 $this->login,
-                new LendPreferences($this->zdb),
+                new LendPreferences($this->preferences),
                 $this->filters->objects_filters
             );
             $objects->applyFilters($select);

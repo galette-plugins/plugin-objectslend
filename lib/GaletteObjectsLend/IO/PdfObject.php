@@ -13,7 +13,7 @@ namespace GaletteObjectsLend\IO;
 use Galette\IO\Pdf;
 use Galette\Core\Db;
 use Galette\Core\Preferences;
-use GaletteObjectsLend\Entity\Preferences as LPreferences;
+use GaletteObjectsLend\LendPreferences;
 use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Repository\Rents;
 
@@ -25,16 +25,16 @@ use GaletteObjectsLend\Repository\Rents;
 class PdfObject extends Pdf
 {
     private Db $zdb;
-    private LPreferences $lprefs;
+    private LendPreferences $lprefs;
 
     /**
      * Main constructor
      *
-     * @param Db           $zdb    Database instance
-     * @param Preferences  $prefs  Preferences instance
-     * @param LPreferences $lprefs Plugin Preferences instance
+     * @param Db              $zdb    Database instance
+     * @param Preferences     $prefs  Preferences instance
+     * @param LendPreferences $lprefs Plugin Preferences instance
      */
-    public function __construct(Db $zdb, Preferences $prefs, LPreferences $lprefs)
+    public function __construct(Db $zdb, Preferences $prefs, LendPreferences $lprefs)
     {
         parent::__construct($prefs);
         // Disable Auto Page breaks
@@ -120,19 +120,19 @@ class PdfObject extends Pdf
         }
 
         $this->addCell(_T("Name", "objectslend"), $object->getName(), $wpic);
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_DESCRIPTION}) {
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_DESCRIPTION)) {
             $this->addCell(_T("Description", "objectslend"), $object->getDescription(), $wpic);
         }
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_CATEGORY}) {
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_CATEGORY)) {
             $this->addCell(_T("Category", "objectslend"), $object->getCategoryName() ?? '', $wpic);
         }
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_SERIAL}) {
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_SERIAL)) {
             $this->addCell(_T("Serial number", "objectslend"), $object->getSerialNumber(), $wpic);
         }
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_PRICE}) {
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_PRICE)) {
             $this->addCell(_T("Price", "objectslend"), number_format($object->getPrice(), 2, ',', ' '), $wpic);
         }
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_LEND_PRICE}) {
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_LEND_PRICE)) {
             $this->addCell(
                 _T("Borrow price", "objectslend"),
                 number_format($object->getRentPrice(), 2, ',', ' ') . ' €'
@@ -140,17 +140,17 @@ class PdfObject extends Pdf
                 $wpic
             );
         }
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_DIMENSION}) {
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_DIMENSION)) {
             $this->addCell(_T("Dimensions", "objectslend"), $object->getDimension() . ' ' . _T('Cm', 'objectslend'), $wpic);
         }
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_WEIGHT}) {
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_WEIGHT)) {
             $this->addCell(_T("Weight", "objectslend"), number_format($object->getWeight(), 3, ',', ' ') . ' ' . _T('Kg', 'objectslend'), $wpic);
         }
         $this->addCell(_T("Active", "objectslend"), $object->isObjectActive() ? 'X' : '', $wpic);
         $this->addCell(_T("Location", "objectslend"), $object->getStatusText(), $wpic);
         $this->addCell(_T("Since", "objectslend"), $object->getDateBegin(), $wpic);
         $this->addCell(_T("Member", "objectslend"), $object->getMemberName(), $wpic);
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_DATE_FORECAST}) {
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_DATE_FORECAST)) {
             $this->addCell(_T("Return", "objectslend"), $object->getDateForecast(), $wpic);
         }
 

@@ -21,7 +21,7 @@ use GaletteObjectsLend\Repository\Rents;
 use GaletteObjectsLend\Repository\Status;
 use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Entity\LendRent;
-use GaletteObjectsLend\Entity\Preferences;
+use GaletteObjectsLend\LendPreferences;
 use GaletteObjectsLend\LendException;
 use GaletteObjectsLend\LendService;
 use Galette\Controllers\Crud\AbstractPluginController;
@@ -126,7 +126,7 @@ class ObjectsController extends AbstractPluginController
             }
         }
 
-        $lendsprefs = new Preferences($this->zdb);
+        $lendsprefs = new LendPreferences($this->preferences);
         $objects = new Objects($this->zdb, $this->preferences, $this->login, $lendsprefs, $filters);
         $list = $objects->getObjectsList(true);
 
@@ -156,7 +156,7 @@ class ObjectsController extends AbstractPluginController
                 'objects' => $list,
                 'nb_objects' => count($list),
                 'filters' => $filters,
-                'lendsprefs' => $lendsprefs->getPreferences(),
+                'lendsprefs' => $lendsprefs->toArray(),
                 'olendsprefs' => $lendsprefs,
                 'time' => time(),
                 'module_id' => $this->getModuleId(),
@@ -314,14 +314,14 @@ class ObjectsController extends AbstractPluginController
         $statuses = new Status($this->zdb, $this->preferences, $this->login, $sfilter);
         $slist = $statuses->getStatusList(true);
 
-        $lendsprefs = new Preferences($this->zdb);
+        $lendsprefs = new LendPreferences($this->preferences);
         $params = [
             'page_title'    => $title,
             'object'        => $object,
             'rents'         => $object->getId() !== null ? (new Rents($this->zdb))->getForObject($object->getId()) : [],
             'time'          => time(),
             'action'        => $action,
-            'lendsprefs'    => $lendsprefs->getPreferences(),
+            'lendsprefs'    => $lendsprefs->toArray(),
             'olendsprefs'   => $lendsprefs,
             'categories'    => $categories_list,
             'statuses'      => $slist,
@@ -592,7 +592,7 @@ class ObjectsController extends AbstractPluginController
      */
     public function lend(Request $request, Response $response, string $action, int $id): Response
     {
-        $lendsprefs = new Preferences($this->zdb);
+        $lendsprefs = new LendPreferences($this->preferences);
 
         $params = [
             'page_title'    => (
@@ -604,7 +604,7 @@ class ObjectsController extends AbstractPluginController
             'statuses'      => ($action == 'take'
                 ? (new Status($this->zdb, $this->preferences, $this->login))->getActiveTakeAwayStatuses()
                 : (new Status($this->zdb, $this->preferences, $this->login))->getActiveStockStatuses()),
-            'lendsprefs'    => $lendsprefs->getPreferences(),
+            'lendsprefs'    => $lendsprefs->toArray(),
             'olendsprefs'   => $lendsprefs,
             'ajax'          => $this->isAjax($request),
             'takeorgive'    => $action,
@@ -826,11 +826,11 @@ class ObjectsController extends AbstractPluginController
     /**
      * Get lend service
      *
-     * @param ?Preferences $lendsprefs Plugin preferences, loaded if not provided
+     * @param ?LendPreferences $lendsprefs Plugin preferences, loaded if not provided
      */
-    private function getLendService(?Preferences $lendsprefs = null): LendService
+    private function getLendService(?LendPreferences $lendsprefs = null): LendService
     {
-        return new LendService($this->zdb, $this->preferences, $this->login, $lendsprefs ?? new Preferences($this->zdb));
+        return new LendService($this->zdb, $this->preferences, $this->login, $lendsprefs ?? new LendPreferences($this->preferences));
     }
 
     // /CRUD - Update
@@ -915,7 +915,7 @@ class ObjectsController extends AbstractPluginController
     protected function doDelete(array $args, array $post): bool
     {
         $filters = $this->getFilters();
-        $lendsprefs = new Preferences($this->zdb);
+        $lendsprefs = new LendPreferences($this->preferences);
         $objects = new Objects($this->zdb, $this->preferences, $this->login, $lendsprefs, $filters);
 
         if (!is_array($post['id'])) {

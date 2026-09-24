@@ -13,7 +13,7 @@ namespace GaletteObjectsLend\Controllers;
 use DI\Attribute\Inject;
 use Galette\Controllers\AbstractPluginController;
 use Galette\Entity\ContributionsTypes;
-use GaletteObjectsLend\Entity\Preferences;
+use GaletteObjectsLend\LendPreferences;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 
@@ -39,25 +39,12 @@ class MainController extends AbstractPluginController
      */
     public function preferences(Request $request, Response $response): Response
     {
-        if ($this->session->objectslend_preferences !== null) {
-            $lendsprefs = $this->session->objectslend_preferences;
-            $this->session->objectslend_preferences = null;
-        } else {
-            $lendsprefs = new Preferences($this->zdb);
-        }
-
         $ctypes = new ContributionsTypes($this->zdb);
-        $types_list = $ctypes->getList();
-        $ctypes_params = [0 => _T("Choose a contribution type", "objectslend")];
-        foreach ($types_list as $id => $type) {
-            $ctypes_params[$id] = $type['label'];
-        }
 
         $params = [
             'page_title'    => _T('ObjectsLend preferences', 'objectslend'),
             'type_cotis_options'        => $ctypes->getList(),
-            'ctypes'        => $ctypes_params,
-            'lendsprefs'    => $lendsprefs->getPreferences()
+            'lendsprefs'    => (new LendPreferences($this->preferences))->toArray()
         ];
 
         // display page
@@ -70,7 +57,10 @@ class MainController extends AbstractPluginController
     }
 
     /**
-     * Objects lends preferences
+     * Store objects lends preferences
+     *
+     * Only declared preferences are read from the request. A yes/no one
+     * missing from it is an unchecked box, and is set off.
      *
      * @param Request  $request  PSR Request
      * @param Response $response PSR Response
@@ -78,26 +68,38 @@ class MainController extends AbstractPluginController
     public function storePreferences(Request $request, Response $response): Response
     {
         $post = $request->getParsedBody();
-        $lendsprefs = new Preferences($this->zdb);
+        $booleans = LendPreferences::getBooleans();
 
-        $error_detected = [];
-        if ($lendsprefs->store($post)) {
+        $stored = true;
+        $errors = [];
+        foreach (array_keys(LendPreferences::getSchema()) as $name) {
+            if (isset($booleans[$name])) {
+                $value = (int)isset($post[$name]);
+            } elseif (isset($post[$name])) {
+                $value = trim((string)$post[$name]);
+            } else {
+                continue;
+            }
+
+            if (!$this->preferences->setValue($name, $value, $this->login)) {
+                $stored = false;
+                $errors = array_merge($errors, $this->preferences->getErrors());
+            }
+        }
+
+        if ($stored) {
             $this->flash->addMessage(
                 'success_detected',
                 _T("Preferences have been successfully stored!", "objectslend")
             );
         } else {
-            $this->session->objectslend_preferences = $lendsprefs;
-            foreach ($error_detected as $error) {
-                $this->flash->addMessage(
-                    'error_detected',
-                    $error
-                );
+            foreach (array_unique($errors) as $error) {
+                $this->flash->addMessage('error_detected', $error);
             }
         }
 
         return $response
-            ->withStatus(301)
+            ->withStatus(302)
             ->withHeader(
                 'Location',
                 $this->routeparser->urlFor('objectslend_preferences')

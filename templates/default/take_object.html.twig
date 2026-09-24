@@ -24,28 +24,28 @@
                 alt="{{ _T("Object photo", "objectslend") }}"/>
             </div>
 
-    {% if lendsprefs.VIEW_DESCRIPTION %}
+    {% if lendsprefs.view_description %}
             <div class="inline field">
                 <label>{{ _T("Description:", "objectslend") }}</label>
                 {{ object.getDescriptionHtml()|raw }}
             </div>
     {% endif %}
 
-    {% if lendsprefs.VIEW_SERIAL %}
+    {% if lendsprefs.view_serial %}
             <div class="inline field">
                 <label>{{ _T("Serial number:", "objectslend") }}</label>
                 {{ object.getSerialNumber() }}
             </div>
     {% endif %}
 
-    {% if lendsprefs.VIEW_PRICE %}
+    {% if lendsprefs.view_price %}
             <div class="inline field">
                 <label>{{ _T("Price:", "objectslend") }}</label>
                 {{ object.getPrice()|format_currency('EUR', {}, i18n.getWebID()) }}
             </div>
     {% endif %}
 
-    {% if lendsprefs.VIEW_DIMENSION %}
+    {% if lendsprefs.view_dimension %}
             <div class="inline field">
                 <label>{{ _T("Dimensions:", "objectslend") }}</label>
                 {% if object.getDimension() != '' %}
@@ -56,7 +56,7 @@
             </div>
     {% endif %}
 
-    {% if lendsprefs.VIEW_WEIGHT %}
+    {% if lendsprefs.view_weight %}
             <div class="inline field">
                 <label>{{ _T("Weight:", "objectslend") }}</label>
                 {% if object.getWeight() %}
@@ -128,7 +128,7 @@
                     } %}
                 </div>
 
-                {% if lendsprefs.AUTO_GENERATE_CONTRIBUTION %}
+                {% if lendsprefs.auto_generate_contribution %}
                 <div class="inline field">
                     {% include "components/forms/payment_types.html.twig" with {
                         show_inline: true,

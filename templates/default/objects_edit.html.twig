@@ -27,7 +27,7 @@
                     label: _T("Description:", "objectslend")
                 } %}
 
-                {% if lendsprefs.VIEW_CATEGORY %}
+                {% if lendsprefs.view_category %}
                     {% set category_list_values = {(0): _T("--- Select a category ---", "objectslend")} %}
                     {% for categ in categories %}
                         {% set category_list_values = category_list_values + {(categ.getId()): categ.getName()} %}

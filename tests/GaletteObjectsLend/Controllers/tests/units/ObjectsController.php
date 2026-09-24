@@ -15,7 +15,7 @@ use Galette\Tests\GaletteRoutingTestCase;
 use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Entity\LendRent;
 use GaletteObjectsLend\Entity\LendStatus;
-use GaletteObjectsLend\Entity\Preferences;
+use GaletteObjectsLend\LendPreferences;
 
 /**
  * Objects controller tests
@@ -40,8 +40,10 @@ class ObjectsController extends GaletteRoutingTestCase
     {
         parent::setUp();
 
-        $prefs = new Preferences($this->zdb);
-        $this->orig_prefs = $prefs->getPreferences();
+        $this->orig_prefs = [];
+        foreach (array_keys(LendPreferences::getSchema()) as $name) {
+            $this->orig_prefs[$name] = $this->preferences->getPluginValue($name);
+        }
 
         $status = new LendStatus($this->zdb);
         $status->setText('In stock');
@@ -70,8 +72,9 @@ class ObjectsController extends GaletteRoutingTestCase
     {
         $this->login->logout();
 
-        $prefs = new Preferences($this->zdb);
-        $prefs->store($this->orig_prefs);
+        foreach ($this->orig_prefs as $name => $value) {
+            $this->preferences->setValue($name, $value, $this->login);
+        }
 
         $update = $this->zdb->update(LEND_PREFIX . LendObject::TABLE);
         $update->set([LendRent::PK => null]);
@@ -102,13 +105,15 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     private function setPrefs(bool $member_rent, bool $auto_contrib = false): void
     {
-        $prefs = new Preferences($this->zdb);
-        $values = $this->orig_prefs;
-        $values[Preferences::PARAM_ENABLE_MEMBER_RENT_OBJECT] = (int)$member_rent;
-        $values[Preferences::PARAM_AUTO_GENERATE_CONTRIBUTION] = (int)$auto_contrib;
-        $values[Preferences::PARAM_GENERATED_CONTRIBUTION_TYPE_ID] = 5;
-        $values[Preferences::PARAM_GENERATED_CONTRIB_INFO_TEXT] = 'Rent of {NAME} ({SERIAL_NUMBER})';
-        $this->assertTrue($prefs->store($values));
+        $values = [
+            LendPreferences::ENABLE_MEMBER_RENT_OBJECT => (int)$member_rent,
+            LendPreferences::AUTO_GENERATE_CONTRIBUTION => (int)$auto_contrib,
+            LendPreferences::GENERATED_CONTRIBUTION_TYPE_ID => 5,
+            LendPreferences::GENERATED_CONTRIB_INFO_TEXT => 'Rent of {NAME} ({SERIAL_NUMBER})',
+        ];
+        foreach ($values as $name => $value) {
+            $this->assertTrue($this->preferences->setValue($name, $value, $this->login));
+        }
     }
 
     /**
@@ -465,7 +470,7 @@ class ObjectsController extends GaletteRoutingTestCase
         $filters = $this->session->plugin_objectslend_objects_filter;
         $this->assertSame(\GaletteObjectsLend\Repository\Objects::FILTER_SERIAL, $filters->field_filter);
 
-        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->preferences, $this->login, new Preferences($this->zdb), $filters);
+        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->preferences, $this->login, new LendPreferences($this->preferences), $filters);
         $list = $objects->getObjectsList(true);
         $this->assertCount(1, $list);
     }

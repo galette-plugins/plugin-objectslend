@@ -56,5 +56,5 @@ $this->register(
         'objectslend_object_dotake'     => 'member',
         'objectslend_object_doreturn'   => 'member'
     ],
-    dbver: 1.00
+    dbver: 1.1
 );

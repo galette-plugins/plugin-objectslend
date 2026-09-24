@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace GaletteObjectsLend\Entity;
 
 use Analog\Analog;
+use GaletteObjectsLend\LendPreferences;
 use Psr\Http\Message\UploadedFileInterface;
 use Slim\Psr7\Response;
 use Slim\Psr7\Stream;
@@ -82,10 +83,10 @@ class Picture extends \Galette\Core\Picture
     /**
      * Display a thumbnail image, create it if necessary
      *
-     * @param Response    $response Response
-     * @param Preferences $prefs    Preferences instance
+     * @param Response        $response Response
+     * @param LendPreferences $prefs    Plugin preferences
      */
-    public function displayThumb(Response $response, Preferences $prefs): Response
+    public function displayThumb(Response $response, LendPreferences $prefs): Response
     {
         $this->setThumbSizes($prefs);
         $response = $response->withHeader('Content-Type', $this->mime)
@@ -269,9 +270,9 @@ class Picture extends \Galette\Core\Picture
      *
      * Should override Picture::setSize(), but this one is private :/
      *
-     * @param Preferences $prefs Preferences instance
+     * @param LendPreferences $prefs Plugin preferences
      */
-    private function setThumbSizes(Preferences $prefs): void
+    private function setThumbSizes(LendPreferences $prefs): void
     {
         $thumb = $this->getThumbPath();
         $this->thumb_max_width = $prefs->getThumbWidth();
@@ -313,11 +314,11 @@ class Picture extends \Galette\Core\Picture
     /**
      * Returns current thumbnail optimal height
      *
-     * @param Preferences $prefs Preferences instance
+     * @param LendPreferences $prefs Plugin preferences
      *
      * @return int optimal height
      */
-    public function getOptimalThumbHeight(Preferences $prefs): int
+    public function getOptimalThumbHeight(LendPreferences $prefs): int
     {
         if (!isset($this->thumb_optimal_height)) {
             $this->setThumbSizes($prefs);
@@ -328,11 +329,11 @@ class Picture extends \Galette\Core\Picture
     /**
      * Returns current thumbnail optimal width
      *
-     * @param Preferences $prefs Preferences instance
+     * @param LendPreferences $prefs Plugin preferences
      *
      * @return int optimal width
      */
-    public function getOptimalThumbWidth(Preferences $prefs): int
+    public function getOptimalThumbWidth(LendPreferences $prefs): int
     {
         if (!isset($this->thumb_optimal_width)) {
             $this->setThumbSizes($prefs);

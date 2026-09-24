@@ -20,7 +20,6 @@ use Galette\Entity\ContributionsTypes;
 use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Entity\LendRent;
 use GaletteObjectsLend\Entity\LendStatus;
-use GaletteObjectsLend\Entity\Preferences;
 use GaletteObjectsLend\Repository\Objects;
 use GaletteObjectsLend\Repository\Rents;
 use GaletteObjectsLend\Repository\Status;
@@ -42,13 +41,13 @@ class LendService
      * @param Db              $zdb         Database instance
      * @param CorePreferences $preferences Preferences
      * @param Login           $login       Logged in instance
-     * @param Preferences     $lendsprefs  Plugin preferences
+     * @param LendPreferences $lendsprefs  Plugin preferences
      */
     public function __construct(
         private Db $zdb,
         private CorePreferences $preferences,
         private Login $login,
-        private Preferences $lendsprefs
+        private LendPreferences $lendsprefs
     ) {
     }
 
@@ -68,7 +67,7 @@ class LendService
     public function canTake(): bool
     {
         return $this->isManager()
-            || $this->lendsprefs->{Preferences::PARAM_ENABLE_MEMBER_RENT_OBJECT};
+            || $this->lendsprefs->isEnabled(LendPreferences::ENABLE_MEMBER_RENT_OBJECT);
     }
 
     /**
@@ -85,7 +84,7 @@ class LendService
             return true;
         }
 
-        return $this->lendsprefs->{Preferences::PARAM_ENABLE_MEMBER_RENT_OBJECT}
+        return $this->lendsprefs->isEnabled(LendPreferences::ENABLE_MEMBER_RENT_OBJECT)
             && $object->getIdAdh() !== null
             && $this->login->id == $object->getIdAdh();
     }
@@ -178,7 +177,7 @@ class LendService
         return $this->inTransaction(function () use ($object, $status_id, $member_id, $date_forecast, $rent_price, $payment_type) {
             $rent = $this->openRent($object, $status_id, $member_id, '', $date_forecast);
 
-            if ($this->lendsprefs->{Preferences::PARAM_AUTO_GENERATE_CONTRIBUTION} && $rent_price > 0) {
+            if ($this->lendsprefs->isEnabled(LendPreferences::AUTO_GENERATE_CONTRIBUTION) && $rent_price > 0) {
                 return $this->storeContribution($object, $rent, $rent_price, $payment_type);
             }
             return null;
@@ -330,12 +329,12 @@ class LendService
                 number_format($object->getWeight(), 3, ',', ' '),
                 $object->getDimension()
             ],
-            $this->lendsprefs->{Preferences::PARAM_GENERATED_CONTRIB_INFO_TEXT}
+            $this->lendsprefs->getContributionText()
         );
 
         $values = [
             'montant_cotis'         => $amount,
-            ContributionsTypes::PK  => $this->lendsprefs->{Preferences::PARAM_GENERATED_CONTRIBUTION_TYPE_ID},
+            ContributionsTypes::PK  => $this->lendsprefs->getContributionTypeId(),
             'date_enreg'            => date("Y-m-d"),
             'date_debut_cotis'      => date("Y-m-d"),
             'type_paiement_cotis'   => $payment_type,

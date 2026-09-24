@@ -20,6 +20,7 @@ use Galette\Tests\GaletteTestCase;
 class LendObject extends GaletteTestCase
 {
     protected int $seed = 20240522000325;
+    protected bool $load_plugins = true;
 
     private int $active_category_id;
     private int $inactive_category_id;
@@ -93,7 +94,7 @@ class LendObject extends GaletteTestCase
             $this->zdb,
             $this->preferences,
             $this->login,
-            new \GaletteObjectsLend\Entity\Preferences($this->zdb)
+            new \GaletteObjectsLend\LendPreferences($this->preferences)
         );
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
 

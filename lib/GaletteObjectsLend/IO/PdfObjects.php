@@ -17,7 +17,7 @@ use Galette\Core\Login;
 use GaletteObjectsLend\Entity\LendObject;
 use GaletteObjectsLend\Filters\ObjectsList;
 use GaletteObjectsLend\Entity\LendCategory;
-use GaletteObjectsLend\Entity\Preferences as LendPreferences;
+use GaletteObjectsLend\LendPreferences;
 
 /**
  * Object labels PDF
@@ -159,7 +159,7 @@ class PdfObjects extends Pdf
 
         foreach ($objects as $object) {
             if (
-                $this->lendsprefs->{LendPreferences::PARAM_VIEW_CATEGORY}
+                $this->lendsprefs->isEnabled(LendPreferences::VIEW_CATEGORY)
                 && $current_category !== $object->getCategoryId()
             ) {
                 $this->SetFont('', 'B');

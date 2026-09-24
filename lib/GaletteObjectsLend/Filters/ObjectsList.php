@@ -12,7 +12,7 @@ namespace GaletteObjectsLend\Filters;
 
 use Analog\Analog;
 use Galette\Core\Pagination;
-use GaletteObjectsLend\Entity\Preferences;
+use GaletteObjectsLend\LendPreferences;
 use GaletteObjectsLend\Repository\Objects;
 use Slim\Views\Twig;
 
@@ -163,21 +163,19 @@ class ObjectsList extends Pagination
     /**
      * Set commons filters for templates
      *
-     * @param \GaletteObjectsLend\Entity\Preferences $prefs Preferences instance
-     * @param Twig                                   $view  Template reference
+     * @param LendPreferences $prefs Plugin preferences
+     * @param Twig            $view  Template reference
      */
-    public function setViewCommonsFilters(Preferences $prefs, Twig $view): void
+    public function setViewCommonsFilters(LendPreferences $prefs, Twig $view): void
     {
-        $prefs = $prefs->getPreferences();
-
         $options = [
-            Objects::FILTER_NAME    => ($prefs['VIEW_DESCRIPTION']
+            Objects::FILTER_NAME    => ($prefs->isEnabled(LendPreferences::VIEW_DESCRIPTION)
                 ? _T("Name/description", "objectslend") : _T("Name", "objectslend")),
             Objects::FILTER_SERIAL  => _T("Serial number", "objectslend"),
             Objects::FILTER_ID      => _T("Id", "objectslend")
         ];
 
-        if ($prefs['VIEW_DIMENSION']) {
+        if ($prefs->isEnabled(LendPreferences::VIEW_DIMENSION)) {
             $options[Objects::FILTER_DIM] = _T("Dimensions", "objectslend");
         }
 

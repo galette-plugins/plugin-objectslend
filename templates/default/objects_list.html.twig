@@ -65,31 +65,31 @@
         {'label': _T("Name", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_NAME")},
     ]) %}
 
-    {% if lendsprefs.VIEW_SERIAL %}
+    {% if lendsprefs.view_serial %}
         {% set columns = columns|merge([
             {'label': _T("Serial", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_SERIAL")},
         ]) %}
     {% endif %}
 
-    {% if lendsprefs.VIEW_PRICE %}
+    {% if lendsprefs.view_price %}
         {% set columns = columns|merge([
             {'label': _T("Price", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_PRICE")},
         ]) %}
     {% endif %}
 
-    {% if lendsprefs.VIEW_LEND_PRICE %}
+    {% if lendsprefs.view_lend_price %}
         {% set columns = columns|merge([
             {'label': _T("Borrow price", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_RENTPRICE")},
         ]) %}
     {% endif %}
 
-    {% if lendsprefs.VIEW_DIMENSION %}
+    {% if lendsprefs.view_dimension %}
         {% set columns = columns|merge([
             {'label': _T("Dimensions", "objectslend")},
         ]) %}
     {% endif %}
 
-    {% if lendsprefs.VIEW_WEIGHT %}
+    {% if lendsprefs.view_weight %}
         {% set columns = columns|merge([
             {'label': _T("Weight", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_WEIGHT")},
         ]) %}
@@ -104,7 +104,7 @@
         {'label': _T("By", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_MEMBER")},
     ]) %}
 
-    {% if lendsprefs.VIEW_DATE_FORECAST %}
+    {% if lendsprefs.view_date_forecast %}
         {% set columns = columns|merge([
             {
                 'label': _T("Return", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_FDATE"),
@@ -128,7 +128,7 @@
 {% block search %}
     <form id="filtre" method="POST" action="{{ url_for("objectslend_filter_objects") }}" class="ui form filters">
         <div class="ui secondary yellow segment">
-            <div class="{% if lendsprefs.VIEW_CATEGORY and categories|length > 0 %}three{% else %}two{% endif %} fields">
+            <div class="{% if lendsprefs.view_category and categories|length > 0 %}three{% else %}two{% endif %} fields">
                 <div class="field">
                     <label for="filter_str">{{ _T('Search:') }}</label>
                     <input type="text" name="filter_str" id="filter_str" value="{{ filters.filter_str }}" type="search" placeholder="{{ _T('Enter a value') }}"/>
@@ -141,7 +141,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                {% if lendsprefs.VIEW_CATEGORY and categories|length > 0 %}
+                {% if lendsprefs.view_category and categories|length > 0 %}
                     <div class="field">
                         <label id="category_filter_label">{{ _T("Category:", "objectslend") }}</label>
                         <div class="ui selection dropdown" aria-labelledby="category_filter_label">
@@ -155,7 +155,7 @@
                                 </div>
                                 {% for categ in categories %}
                                     <div class="item" data-value="{{ categ.getId() }}">
-                                        {% if lendsprefs.VIEW_LIST_PRICE_SUM and lendsprefs.VIEW_PRICE and (login.isAdmin() or login.isStaff()) %}
+                                        {% if lendsprefs.view_list_price_sum and lendsprefs.view_price and (login.isAdmin() or login.isStaff()) %}
                                             <span class="description">{{ categ.getSum()|format_currency('EUR', {}, i18n.getWebID()) }}</span>
                                         {% endif %}
                                         <img class="ui avatar image" src="{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": categ.getId()}) }}" alt=""/>
@@ -227,21 +227,21 @@
             {% endif %}
             <td data-col-label="{{ _T("Name", "objectslend") }}">
                 <strong>{{ filters.highlight(object.getName()|e, 'name')|raw }}</strong>
-                {% if lendsprefs.VIEW_DESCRIPTION %}
+                {% if lendsprefs.view_description %}
                     <br/>{{ filters.highlight(object.getDescriptionHtml(), 'description')|raw }}
                 {% endif %}
             </td>
-            {% if lendsprefs.VIEW_SERIAL %}
+            {% if lendsprefs.view_serial %}
                 <td data-col-label="{{ _T("Serial", "objectslend") }}">
                     {{ filters.highlight(object.getSerialNumber()|e, 'serial_number')|raw }}
                 </td>
             {% endif %}
-            {% if lendsprefs.VIEW_PRICE %}
+            {% if lendsprefs.view_price %}
                 <td class="right" data-col-label="{{ _T("Price", "objectslend") }}">
                     {{ object.getPrice()|format_currency('EUR', {}, i18n.getWebID()) }}
                 </td>
             {% endif %}
-            {% if lendsprefs.VIEW_LEND_PRICE %}
+            {% if lendsprefs.view_lend_price %}
                 <td class="right" data-col-label="{{ _T("Borrow price", "objectslend") }}">
                     {{ object.getRentPrice()|format_currency('EUR', {}, i18n.getWebID()) }}<br/>
                     {% if object.isPricePerDay() %}
@@ -251,12 +251,12 @@
                     {% endif %}
                 </td>
             {% endif %}
-            {% if lendsprefs.VIEW_DIMENSION %}
+            {% if lendsprefs.view_dimension %}
                 <td data-col-label="{{ _T("Dimensions", "objectslend") }}">
                     {{ filters.highlight(object.getDimension()|e, 'dimension')|raw }}
                 </td>
             {% endif %}
-            {% if lendsprefs.VIEW_WEIGHT %}
+            {% if lendsprefs.view_weight %}
                 <td data-col-label="{{ _T("Weight", "objectslend") }}">
                     {{ object.getWeight()|format_number({fraction_digit: 3}, 'decimal', 'default', i18n.getWebID()) }}
                 </td>
@@ -274,7 +274,7 @@
                     <a href="{{ url_for("member", {"id": object.getIdAdh()}) }}">{{ memberName({'id': object.getIdAdh()}) }}</a>
                 {% else %}-{% endif %}
             </td>
-            {% if lendsprefs.VIEW_DATE_FORECAST %}
+            {% if lendsprefs.view_date_forecast %}
                 <td class="center collapsing" data-col-label="{{ _T("Return", "objectslend") }}">
                     {{ object.getDateForecast() }}
                 </td>
@@ -338,7 +338,7 @@
                 {% endif %}
 
                 {% if not object.getRentId() or object.inStock() %}
-                    {% if lendsprefs.ENABLE_MEMBER_RENT_OBJECT or login.isAdmin() or login.isStaff() %}
+                    {% if lendsprefs.enable_member_rent_object or login.isAdmin() or login.isStaff() %}
                         {% set actions = [
                             {
                                 'label': _T("Take away", "objectslend"),

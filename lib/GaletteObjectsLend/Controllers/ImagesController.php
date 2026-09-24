@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace GaletteObjectsLend\Controllers;
 
 use Galette\Controllers\ImagesController as GImagesController;
-use GaletteObjectsLend\Entity\Preferences;
+use GaletteObjectsLend\LendPreferences;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 
@@ -23,7 +23,7 @@ use Slim\Psr7\Response;
 
 class ImagesController extends GImagesController
 {
-    private Preferences $lendsprefs;
+    private LendPreferences $lendsprefs;
 
     /**
      * Objects lends category or object route
@@ -40,7 +40,7 @@ class ImagesController extends GImagesController
             . ($type == 'category' ? 'CategoryPicture' : 'ObjectPicture');
         $picture = new $class($id);
 
-        $this->lendsprefs = new Preferences($this->zdb);
+        $this->lendsprefs = new LendPreferences($this->preferences);
         $thumb = false;
         if (!$this->lendsprefs->showFullsize() || $mode == 'thumbnail') {
             //force thumbnail display from preferences

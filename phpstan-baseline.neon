@@ -13,36 +13,6 @@ parameters:
 			path: lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php
 
 		-
-			message: '#^Empty array passed to foreach\.$#'
-			identifier: foreach.emptyArray
-			count: 1
-			path: lib/GaletteObjectsLend/Controllers/MainController.php
-
-		-
-			message: '#^Cannot access property \$code on array\|ArrayObject\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/Preferences.php
-
-		-
-			message: '#^Cannot access property \$is_text on array\|ArrayObject\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/Preferences.php
-
-		-
-			message: '#^Cannot access property \$value_numeric on array\|ArrayObject\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/Preferences.php
-
-		-
-			message: '#^Cannot access property \$value_text on array\|ArrayObject\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: lib/GaletteObjectsLend/Entity/Preferences.php
-
-		-
 			message: '#^Parameter \#5 \$ln of method TCPDF\:\:Cell\(\) expects int, false given\.$#'
 			identifier: argument.type
 			count: 2

@@ -12,7 +12,7 @@ namespace GaletteObjectsLend\Controllers;
 
 use Galette\Controllers\PdfController as GPdfController;
 use GaletteObjectsLend\Controllers\Crud\ObjectsController;
-use GaletteObjectsLend\Entity\Preferences;
+use GaletteObjectsLend\LendPreferences;
 use GaletteObjectsLend\Filters\ObjectsList;
 use GaletteObjectsLend\Repository\Objects;
 use GaletteObjectsLend\IO\PdfObject;
@@ -37,7 +37,7 @@ class PdfController extends GPdfController
      */
     public function printObject(Request $request, Response $response, int $id): Response
     {
-        $lendsprefs = new Preferences($this->zdb);
+        $lendsprefs = new LendPreferences($this->preferences);
         $object = (new Objects($this->zdb, $this->preferences, $this->login, $lendsprefs))->getWithCurrentRent($id);
 
         $pdf = new PdfObject(
@@ -57,7 +57,7 @@ class PdfController extends GPdfController
      */
     public function printObjects(Request $request, Response $response): Response
     {
-        $lendsprefs = new Preferences($this->zdb);
+        $lendsprefs = new LendPreferences($this->preferences);
 
         $filters = clone ($this->session->{$this->getFilterName(ObjectsController::getDefaultFilterName())}
             ?? new ObjectsList());

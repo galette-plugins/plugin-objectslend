@@ -15,6 +15,7 @@ use Galette\Core\Db;
 use Galette\Core\Login;
 use Galette\Core\Plugins\InstallableInterface;
 use Galette\Core\Plugins\MenuProviderInterface;
+use Galette\Core\Plugins\PreferencesProviderInterface;
 use Galette\Core\GalettePlugin;
 use GaletteObjectsLend\Entity\CategoryPicture;
 use GaletteObjectsLend\Entity\LendObject;
@@ -22,7 +23,6 @@ use GaletteObjectsLend\Entity\LendCategory;
 use GaletteObjectsLend\Entity\LendRent;
 use GaletteObjectsLend\Entity\ObjectPicture;
 use GaletteObjectsLend\Entity\LendStatus;
-use GaletteObjectsLend\Entity\Preferences;
 
 /**
  * Plugin Galette Objects Lend
@@ -30,7 +30,7 @@ use GaletteObjectsLend\Entity\Preferences;
  * @author Johan Cwiklinski <johan@x-tnd.be>
  */
 
-class PluginGaletteObjectslend extends GalettePlugin implements InstallableInterface, MenuProviderInterface
+class PluginGaletteObjectslend extends GalettePlugin implements InstallableInterface, MenuProviderInterface, PreferencesProviderInterface
 {
     #[Inject]
     private readonly Db $zdb; //@phpstan-ignore property.uninitializedReadonly, property.onlyRead (injected from DI)
@@ -97,6 +97,16 @@ class PluginGaletteObjectslend extends GalettePlugin implements InstallableInter
     }
 
     /**
+     * Get the preferences the plugin declares
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function getPreferences(): array
+    {
+        return LendPreferences::getSchema();
+    }
+
+    /**
      * Extra public menus entries
      *
      * @return array<int, string|array<string,mixed>>
@@ -118,7 +128,6 @@ class PluginGaletteObjectslend extends GalettePlugin implements InstallableInter
                 && $this->zdb->tableExists(LEND_PREFIX . LendRent::TABLE)
                 && $this->zdb->tableExists(LEND_PREFIX . LendStatus::TABLE)
                 && $this->zdb->tableExists(LEND_PREFIX . ObjectPicture::TABLE)
-                && $this->zdb->tableExists(LEND_PREFIX . Preferences::TABLE)
         ;
     }
 }
