@@ -60,32 +60,34 @@
                     }
                 ], lendsprefs) }}
 
-                {# TODO: hide this one if auto_generate_contribution is off #}
-                <div class="field{% if lendsprefs.auto_generate_contribution %} required{% endif %}">
-                    <label for="contribution_type">{{ _T("Contribution type:") }}</label>
-                    <div id="contribution_type" class="ui dropdown selection">
-                        {% set selectedid = lendsprefs.generated_contribution_type_id %}
-                        <input id="id_type_cotis_input" type="hidden" name="pref_objectslend_generated_contribution_type_id" value="{{ selectedid }}"{% if lendsprefs.auto_generate_contribution %} required="required"{% endif %}>
-                        <i class="dropdown icon"></i>
-                        <div class="text">{% for key, values in type_cotis_options %}{% if key == selectedid %}{{ values.label }}{% endif %}{% endfor %}</div>
-                        <div class="menu">
-                            {% for key, values in type_cotis_options %}
-                                <div class="item{% if key == selectedid %} active selected{% endif %}" data-value="{{ key }}">{{ values.label }}</div>
-                            {% endfor %}
+                {# shown only when a contribution is generated, hence always marked required; the attribute follows the toggle #}
+                <div id="generated_contribution_fields"{% if not lendsprefs.auto_generate_contribution %} class="displaynone"{% endif %}>
+                    <div class="field required">
+                        <label for="contribution_type">{{ _T("Contribution type:") }}</label>
+                        <div id="contribution_type" class="ui dropdown selection">
+                            {% set selectedid = lendsprefs.generated_contribution_type_id %}
+                            <input id="id_type_cotis_input" type="hidden" name="pref_objectslend_generated_contribution_type_id" value="{{ selectedid }}"{% if lendsprefs.auto_generate_contribution %} required="required"{% endif %}>
+                            <i class="dropdown icon"></i>
+                            <div class="text">{% for key, values in type_cotis_options %}{% if key == selectedid %}{{ values.label }}{% endif %}{% endfor %}</div>
+                            <div class="menu">
+                                {% for key, values in type_cotis_options %}
+                                    <div class="item{% if key == selectedid %} active selected{% endif %}" data-value="{{ key }}">{{ values.label }}</div>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {% include "components/forms/text.html.twig" with {
-                    id: 'contrib_text',
-                    name: 'pref_objectslend_generated_contrib_info_text',
-                    value: lendsprefs.generated_contrib_info_text,
-                    label: _T("Contribution text:", "objectslend"),
-                    title: _T("Comment text to add on generated contribution", "objectslend"),
-                    tip_html: _T("Comment text to add on generated contribution. Automatically replaced values (put into curly brackets): <br/>- NAME: Name<br/>- DESCRIPTION: Description<br/>- SERIAL_NUMBER: Serial number<br/>- PRICE: Price<br/>- RENT_PRICE: Borrow price<br/>- WEIGHT: Weight<br/>- DIMENSION: Dimensions", "objectslend"),
-                    required: lendsprefs.auto_generate_contribution,
-                    component_class: 'field',
-                } %}
+                    {% include "components/forms/text.html.twig" with {
+                        id: 'contrib_text',
+                        name: 'pref_objectslend_generated_contrib_info_text',
+                        value: lendsprefs.generated_contrib_info_text,
+                        label: _T("Contribution text:", "objectslend"),
+                        title: _T("Comment text to add on generated contribution", "objectslend"),
+                        tip_html: _T("Comment text to add on generated contribution. Automatically replaced values (put into curly brackets): <br/>- NAME: Name<br/>- DESCRIPTION: Description<br/>- SERIAL_NUMBER: Serial number<br/>- PRICE: Price<br/>- RENT_PRICE: Borrow price<br/>- WEIGHT: Weight<br/>- DIMENSION: Dimensions", "objectslend"),
+                        required: lendsprefs.auto_generate_contribution,
+                        component_class: lendsprefs.auto_generate_contribution ? 'field' : 'required field',
+                    } %}
+                </div>
 
             </div>
         </div>
@@ -162,4 +164,18 @@
     </div>
 </form>
 {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript">
+    $(function() {
+        {# contribution fields only matter when a contribution is generated #}
+        $('#auto_generate_contribution').on('change', function() {
+            var generate = $(this).is(':checked');
+            $('#generated_contribution_fields').toggleClass('displaynone', !generate)
+                .find('input[name="pref_objectslend_generated_contribution_type_id"], #contrib_text')
+                .prop('required', generate);
+        });
+    });
+</script>
 {% endblock %}
