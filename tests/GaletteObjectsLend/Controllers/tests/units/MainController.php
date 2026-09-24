@@ -124,6 +124,37 @@ class MainController extends GaletteRoutingTestCase
     }
 
     /**
+     * Generated contributions cannot be membership fees
+     */
+    public function testStoreMembershipFeeContributionType(): void
+    {
+        $this->logSuperAdmin();
+        $this->assertTrue($this->preferences->setValue(LendPreferences::GENERATED_CONTRIBUTION_TYPE_ID, 5, $this->login));
+
+        //only donation types are offered
+        $test_response = $this->app->handle($this->createRequest(route_name: 'objectslend_preferences'));
+        $body = (string)$test_response->getBody();
+        $this->assertStringContainsString('data-value="5"', $body);
+        $this->assertStringNotContainsString('data-value="1"', $body);
+
+        $request = $this->createRequest(route_name: 'store_objectlend_preferences', method: 'POST')
+            ->withParsedBody([
+                LendPreferences::AUTO_GENERATE_CONTRIBUTION => '1',
+                LendPreferences::GENERATED_CONTRIBUTION_TYPE_ID => '1',
+                LendPreferences::THUMB_MAX_WIDTH => '210',
+            ]);
+        $test_response = $this->app->handle($request);
+        $this->assertSame(302, $test_response->getStatusCode());
+        $this->expectFlashData(['error_detected' => ['Generated contributions must be of a donation type.']]);
+
+        $this->preferences->load();
+        $lendsprefs = new LendPreferences($this->preferences);
+        $this->assertSame(5, $lendsprefs->getContributionTypeId());
+        //other values are stored
+        $this->assertSame(210, $lendsprefs->getThumbWidth());
+    }
+
+    /**
      * Preferences are for admins only
      */
     public function testStorePreferencesAsMember(): void

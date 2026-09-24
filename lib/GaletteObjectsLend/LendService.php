@@ -379,6 +379,20 @@ class LendService
         float $amount,
         ?int $payment_type
     ): Contribution {
+        //a membership fee would extend the membership, and needs an end date
+        $type_id = $this->lendsprefs->getContributionTypeId();
+        $ctype = new ContributionsTypes($this->zdb);
+        if (!$ctype->load($type_id) || $ctype->isExtension()) {
+            Analog::log(
+                'Unable to generate contribution for object #' . $object->getId()
+                . ': contribution type #' . $type_id . ' is not a donation one.',
+                Analog::ERROR
+            );
+            throw new LendException(
+                _T("Generated contributions must be of a donation type, check plugin preferences.", "objectslend")
+            );
+        }
+
         $info = str_replace(
             [
                 '{NAME}',
@@ -403,7 +417,7 @@ class LendService
 
         $values = [
             'montant_cotis'         => $amount,
-            ContributionsTypes::PK  => $this->lendsprefs->getContributionTypeId(),
+            ContributionsTypes::PK  => $type_id,
             'date_enreg'            => date("Y-m-d"),
             'date_debut_cotis'      => date("Y-m-d"),
             'type_paiement_cotis'   => $payment_type,

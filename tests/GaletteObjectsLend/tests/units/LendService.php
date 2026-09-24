@@ -184,6 +184,39 @@ class LendService extends GaletteTestCase
     }
 
     /**
+     * Test nothing is stored when generated contribution would be a membership fee
+     */
+    public function testTakeRefusesMembershipFeeContributionType(): void
+    {
+        $this->assertTrue($this->preferences->setValue(LendPreferences::GENERATED_CONTRIBUTION_TYPE_ID, 1, $this->login));
+        $member = $this->getMemberOne();
+        $this->logSuperAdmin();
+        $service = $this->getService();
+
+        try {
+            $service->take(
+                $service->getObject($this->object_id),
+                $this->lent_status,
+                member_id: $member->id
+            );
+            $this->fail('Take should have failed');
+        } catch (LendException $e) {
+            $this->assertSame(
+                'Generated contributions must be of a donation type, check plugin preferences.',
+                $e->getMessage()
+            );
+        }
+        $this->expectLogEntry(
+            Analog::ERROR,
+            'Unable to generate contribution for object #' . $this->object_id . ': contribution type #1 is not a donation one.'
+        );
+
+        $this->assertSame(0, $this->countContributions());
+        $this->assertCount(0, (new \GaletteObjectsLend\Repository\Rents($this->zdb))->getForObject($this->object_id));
+        $this->assertTrue($service->isAvailable($service->getObject($this->object_id)));
+    }
+
+    /**
      * Test status change refuses unknown and inactive statuses
      */
     public function testChangeStatusInvalid(): void

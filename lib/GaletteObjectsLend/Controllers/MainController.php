@@ -45,7 +45,8 @@ class MainController extends AbstractPluginController
 
         $params = [
             'page_title'    => _T('ObjectsLend preferences', 'objectslend'),
-            'type_cotis_options'        => $ctypes->getList(),
+            //a rent is not a membership fee
+            'type_cotis_options'        => $ctypes->getList(false),
             'lendsprefs'    => (new LendPreferences($this->preferences))->toArray(),
             'sample_data'   => !(new SampleData($this->zdb))->hasObjects()
         ];
@@ -75,6 +76,18 @@ class MainController extends AbstractPluginController
 
         $stored = true;
         $errors = [];
+
+        //a membership fee would extend the membership, and needs an end date
+        $type_id = $post[LendPreferences::GENERATED_CONTRIBUTION_TYPE_ID] ?? null;
+        if (
+            isset($post[LendPreferences::AUTO_GENERATE_CONTRIBUTION])
+            && !isset((new ContributionsTypes($this->zdb))->getList(false)[(int)$type_id])
+        ) {
+            $stored = false;
+            $errors[] = _T("Generated contributions must be of a donation type.", "objectslend");
+            unset($post[LendPreferences::GENERATED_CONTRIBUTION_TYPE_ID]);
+        }
+
         foreach (array_keys(LendPreferences::getSchema()) as $name) {
             if (isset($booleans[$name])) {
                 $value = (int)isset($post[$name]);
