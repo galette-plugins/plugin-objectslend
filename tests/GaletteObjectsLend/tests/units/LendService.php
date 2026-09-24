@@ -213,4 +213,73 @@ class LendService extends GaletteTestCase
         $this->assertNotNull($object->getRentId());
         $this->assertTrue($service->isAvailable($object));
     }
+
+    /**
+     * Test objects held by a removed member go back to their last in stock status
+     */
+    public function testMemberRemovalGivesBackObjects(): void
+    {
+        //first in stock status, but not the last one the object had
+        $status = new LendStatus($this->zdb);
+        $status->setText('A first stock');
+        $status->setInStock(true);
+        $status->setActive(true);
+        $status->store();
+
+        $repair = new LendObject($this->zdb);
+        $repair->setName('Under repair');
+        $repair->store();
+
+        $member = $this->getMemberOne();
+        $this->logSuperAdmin();
+        $service = $this->getService();
+        $service->changeStatus($service->getObject($this->object_id), $this->instock_status);
+        $service->take($service->getObject($this->object_id), $this->lent_status, member_id: $member->id);
+        //not in stock, without any borrower: must be left as is
+        $service->changeStatus($service->getObject((int)$repair->getId()), $this->lent_status);
+        $repair_rent = $service->getObject((int)$repair->getId())->getRentId();
+
+        $members = new \Galette\Repository\Members();
+        $this->assertTrue($members->removeMembers($member->id));
+
+        $object = $service->getObject($this->object_id);
+        $this->assertNull($object->getIdAdh());
+        $this->assertTrue($service->isAvailable($object));
+        $this->assertSame($this->instock_status, (new LendRent($this->zdb, (int)$object->getRentId()))->getStatusId());
+
+        $rents = (new \GaletteObjectsLend\Repository\Rents($this->zdb))->getForObject($this->object_id);
+        $this->assertCount(3, $rents);
+        $comments = [];
+        foreach ($rents as $rent) {
+            $this->assertNull($rent->getAdherentId());
+            $comments[] = $rent->getComments();
+        }
+        $this->assertContains('Returned on member removal', $comments);
+
+        $this->assertSame($repair_rent, $service->getObject((int)$repair->getId())->getRentId());
+    }
+
+    /**
+     * Test objects that never were in stock go back to the first in stock status
+     */
+    public function testMemberRemovalGivesBackToFirstStockStatus(): void
+    {
+        $status = new LendStatus($this->zdb);
+        $status->setText('A first stock');
+        $status->setInStock(true);
+        $status->setActive(true);
+        $status->store();
+
+        $member = $this->getMemberOne();
+        $this->logSuperAdmin();
+        $service = $this->getService();
+        $service->take($service->getObject($this->object_id), $this->lent_status, member_id: $member->id);
+
+        $members = new \Galette\Repository\Members();
+        $this->assertTrue($members->removeMembers($member->id));
+
+        $object = $service->getObject($this->object_id);
+        $this->assertTrue($service->isAvailable($object));
+        $this->assertSame($status->getId(), (new LendRent($this->zdb, (int)$object->getRentId()))->getStatusId());
+    }
 }

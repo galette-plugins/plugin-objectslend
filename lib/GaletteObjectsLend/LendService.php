@@ -257,6 +257,74 @@ class LendService
     }
 
     /**
+     * Give back objects held by a member who is being removed
+     *
+     * Each object goes back to the last in stock status it had, or to the
+     * first active one. Without any in stock status, the object stays as is,
+     * and loses its borrower with the member. Rights to remove the member
+     * have already been checked.
+     *
+     * @param int $member_id Member ID
+     */
+    public function giveBackMemberObjects(int $member_id): void
+    {
+        $select = $this->zdb->select(LEND_PREFIX . LendObject::TABLE, 'o')
+            ->columns([LendObject::PK])
+            ->join(
+                ['r' => PREFIX_DB . LEND_PREFIX . LendRent::TABLE],
+                'o.' . LendRent::PK . ' = r.' . LendRent::PK,
+                []
+            )
+            ->where(['r.adherent_id' => $member_id, 'r.date_end' => null]);
+
+        $object_ids = [];
+        foreach ($this->zdb->execute($select) as $row) {
+            $object_ids[] = (int)$row[LendObject::PK];
+        }
+        if ($object_ids === []) {
+            return;
+        }
+
+        $stock_statuses = $this->getStatuses()->getActiveStockStatuses();
+        $this->inTransaction(function () use ($object_ids, $stock_statuses): void {
+            foreach ($object_ids as $object_id) {
+                $status_id = $this->getLastStockStatus($object_id) ?? ($stock_statuses[0] ?? null)?->getId();
+                if ($status_id === null) {
+                    continue;
+                }
+                $this->openRent(
+                    $this->getObject($object_id),
+                    $status_id,
+                    null,
+                    _T("Returned on member removal", "objectslend")
+                );
+            }
+        });
+    }
+
+    /**
+     * Last active in stock status an object had
+     *
+     * @param int $object_id Object ID
+     */
+    private function getLastStockStatus(int $object_id): ?int
+    {
+        $select = $this->zdb->select(LEND_PREFIX . LendRent::TABLE, 'r')
+            ->columns([LendStatus::PK])
+            ->join(
+                ['s' => PREFIX_DB . LEND_PREFIX . LendStatus::TABLE],
+                'r.' . LendStatus::PK . ' = s.' . LendStatus::PK,
+                []
+            )
+            ->where(['r.' . LendObject::PK => $object_id, 's.in_stock' => 1, 's.is_active' => 1])
+            ->order(['r.date_begin DESC', 'r.' . LendRent::PK . ' DESC'])
+            ->limit(1);
+
+        $row = $this->zdb->execute($select)->current();
+        return $row ? (int)$row[LendStatus::PK] : null;
+    }
+
+    /**
      * Close current rents, open a new one and set it as the object current one
      *
      * @param LendObject $object        Object
