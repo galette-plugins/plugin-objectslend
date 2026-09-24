@@ -1,0 +1,36 @@
+{#
+ # This file is part of Galette Objects Lend plugin (https://galette.eu).
+ # SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ # SPDX-License-Identifier: GPL-3.0-or-later
+ #}
+
+{# Open object history in a modal from any `.object_hist` link #}
+    $(function(){
+        $('.object_hist').on('click', function(e) {
+            e.preventDefault();
+            var _this = $(this);
+
+            $.ajax({
+                url: _this.attr('href'),
+                type: 'GET',
+                datatype: 'html',
+                {% include "elements/js/loader.js.twig" with {
+                    loader: "action",
+                } %},
+                success: function(res){
+                    var _content = $($.parseHTML(res)).find('div.main-content').children();
+                    {% include "elements/js/modal.js.twig" with {
+                        modal_title_twig: _T("History of object", "objectslend")|e("js"),
+                        modal_content: "_content",
+                        modal_class: "fullscreen",
+                        modal_content_class: "scrolling",
+                        modal_deny_only: true,
+                        modal_cancel_text: _T("Close")|e("js")
+                    } %}
+                },
+                error: function(){
+                    alert("{{ _T("An error occurred loading history display :(", "objectslend")|e("js") }}")
+                }
+            });
+        });
+    });

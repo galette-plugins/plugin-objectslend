@@ -413,35 +413,7 @@
     {{ parent() }}
 <script type="text/javascript">
 {% if nb_objects > 0 %}
-    $(function(){
-        $('.object_hist').on('click', function(e) {
-            e.preventDefault();
-            var _this = $(this);
-
-            $.ajax({
-                url: _this.attr('href'),
-                type: 'GET',
-                datatype: 'html',
-                {% include "elements/js/loader.js.twig" with {
-                    loader: "action",
-                } %},
-                success: function(res){
-                    var _content = $($.parseHTML(res)).find('div.main-content').children();
-                    {% include "elements/js/modal.js.twig" with {
-                        modal_title_twig: _T("History of object", "objectslend")|e("js"),
-                        modal_content: "_content",
-                        modal_class: "fullscreen",
-                        modal_content_class: "scrolling",
-                        modal_deny_only: true,
-                        modal_cancel_text: _T("Close")|e("js")
-                    } %}
-                },
-                error: function(){
-                    alert("{{ _T("An error occurred loading history display :(", "objectslend")|e("js") }}")
-                }
-            });
-        });
-    });
+    {% include "@PluginGaletteObjectslend/history_modal.js.twig" %}
 {% endif %}
 </script>
 {% endblock %}
