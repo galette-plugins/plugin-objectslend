@@ -392,6 +392,7 @@ class ObjectsController extends AbstractPluginController
             }
 
             // picture upload
+            $object->getPicture()->setMaxLength((new LendPreferences($this->preferences))->getUploadSize());
             if (!$object->getPicture()->upload($request->getUploadedFiles(), 'picture')) {
                 $error_detected = $object->getPicture()->uploadErrors();
             }

@@ -12,6 +12,7 @@ namespace GaletteObjectsLend;
 
 use Galette\Core\Preferences;
 use Galette\Core\PreferencesSchema;
+use Galette\IO\UploadSize;
 
 /**
  * Plugin preferences
@@ -38,6 +39,8 @@ final class LendPreferences
     public const string THUMB_MAX_WIDTH = self::PREFIX . 'thumb_max_width';
     /** Maximum height of a thumbnail, in pixels */
     public const string THUMB_MAX_HEIGHT = self::PREFIX . 'thumb_max_height';
+    /** Maximum size of an uploaded picture, in Ko; 0 follows core images one */
+    public const string UPLOAD_SIZE_IMAGES = self::PREFIX . 'upload_size_images';
     /** Show images in objects and categories lists */
     public const string VIEW_THUMBNAIL = self::PREFIX . 'view_thumbnail';
     /** Show categories on the objects list */
@@ -99,6 +102,12 @@ final class LendPreferences
                 'type' => PreferencesSchema::TYPE_INT,
                 'default' => 128,
                 'min' => 1,
+                'error' => PreferencesSchema::ERR_POSITIVE_NUMBER,
+            ],
+            self::UPLOAD_SIZE_IMAGES => [
+                'type' => PreferencesSchema::TYPE_INT,
+                'default' => 0,
+                'min' => 0,
                 'error' => PreferencesSchema::ERR_POSITIVE_NUMBER,
             ],
         ];
@@ -179,6 +188,17 @@ final class LendPreferences
     public function getThumbHeight(): int
     {
         return (int)$this->preferences->getPluginValue(self::THUMB_MAX_HEIGHT);
+    }
+
+    /**
+     * Get maximum size of an uploaded picture, in Ko
+     *
+     * Unless set, it is the one core applies to its own pictures.
+     */
+    public function getUploadSize(): int
+    {
+        $size = (int)$this->preferences->getPluginValue(self::UPLOAD_SIZE_IMAGES);
+        return $size > 0 ? $size : UploadSize::Images->get($this->preferences);
     }
 
     /**

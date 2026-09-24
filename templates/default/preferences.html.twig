@@ -110,6 +110,14 @@
                     label: _T("Max thumb width (in px)", "objectslend"),
                 } %}
 
+                {% include "components/forms/number.html.twig" with {
+                    id: 'upload_size_images',
+                    name: 'pref_objectslend_upload_size_images',
+                    value: lendsprefs.upload_size_images,
+                    label: _T("Max picture size (in Ko)", "objectslend"),
+                    description: _T("0 to use the Galette setting for pictures, currently %1$s", "objectslend")|format(callstatic('\\Galette\\Util\\Filesize', 'fromKilobytes', preferences.pref_upload_size_images))|e,
+                } %}
+
                 {{ _self.toggles([
                     {
                         label: _T("Images in lists:", "objectslend"),

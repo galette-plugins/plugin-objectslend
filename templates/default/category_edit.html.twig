@@ -32,7 +32,7 @@
                 {% include "components/forms/max_size.html.twig" with {
                     label: _T("Picture:", "objectslend"),
                     for: "picture_file",
-                    max_size: preferences.pref_upload_size_images,
+                    max_size: olendsprefs.getUploadSize(),
                     input_id: "picture_file"
                 } %}
                 <img

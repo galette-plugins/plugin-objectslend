@@ -66,6 +66,17 @@ class Picture extends \Galette\Core\Picture
     }
 
     /**
+     * Set maximum size of an uploaded picture
+     *
+     * @param int $maxlength Maximum size, in Ko
+     */
+    public function setMaxLength(int $maxlength): self
+    {
+        $this->maxlength = $maxlength;
+        return $this;
+    }
+
+    /**
      * Gets the default picture to show, anyway
      *
      * @see Logo::getDefaultPicture()

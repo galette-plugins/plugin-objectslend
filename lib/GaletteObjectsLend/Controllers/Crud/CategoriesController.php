@@ -144,7 +144,8 @@ class CategoriesController extends AbstractListController
     protected function afterStore(LendCategory|LendStatus $entity, Request $request, array $post): array
     {
         $errors = [];
-        $picture = new CategoryPicture($entity->getId());
+        $picture = (new CategoryPicture($entity->getId()))
+            ->setMaxLength((new LendPreferences($this->preferences))->getUploadSize());
         if (!$picture->upload($request->getUploadedFiles(), 'picture')) {
             $errors = $picture->uploadErrors();
         }

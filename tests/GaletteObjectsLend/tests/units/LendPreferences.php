@@ -29,7 +29,7 @@ class LendPreferences extends GaletteTestCase
     public function testDefaults(): void
     {
         $schema = \GaletteObjectsLend\LendPreferences::getSchema();
-        $this->assertCount(16, $schema);
+        $this->assertCount(17, $schema);
         foreach (array_keys($schema) as $name) {
             $this->assertStringStartsWith(\GaletteObjectsLend\LendPreferences::PREFIX, $name);
             $this->assertSame('objectslend', PreferencesSchema::getOwner($name));
@@ -45,7 +45,7 @@ class LendPreferences extends GaletteTestCase
         $this->assertSame('Location de {NAME} {DESCRIPTION} {SERIAL_NUMBER}', $prefs->getContributionText());
 
         $values = $prefs->toArray();
-        $this->assertCount(16, $values);
+        $this->assertCount(17, $values);
         $this->assertSame(128, $values['thumb_max_width']);
         $this->assertFalse($values['view_serial']);
     }
@@ -71,5 +71,25 @@ class LendPreferences extends GaletteTestCase
         //an invalid value is not stored
         $this->preferences->load();
         $this->assertSame(128, $prefs->getThumbHeight());
+    }
+
+    /**
+     * Pictures follow core images size unless the plugin sets its own
+     */
+    public function testUploadSize(): void
+    {
+        $prefs = new \GaletteObjectsLend\LendPreferences($this->preferences);
+        $this->assertSame(\Galette\IO\File::MAX_FILE_SIZE, $prefs->getUploadSize());
+
+        $this->assertTrue($this->preferences->setValue('pref_upload_size_images', 4096, $this->login));
+        $this->assertSame(4096, $prefs->getUploadSize());
+
+        $this->assertTrue(
+            $this->preferences->setValue(\GaletteObjectsLend\LendPreferences::UPLOAD_SIZE_IMAGES, 512, $this->login)
+        );
+        $this->assertSame(512, $prefs->getUploadSize());
+
+        $picture = (new \GaletteObjectsLend\Entity\ObjectPicture())->setMaxLength($prefs->getUploadSize());
+        $this->assertSame(512, $picture->getMaxLength());
     }
 }
