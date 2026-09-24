@@ -65,15 +65,20 @@ CREATE TABLE galette_lend_status (
 DROP TABLE IF EXISTS galette_lend_rents CASCADE;
 CREATE TABLE galette_lend_rents (
     rent_id integer DEFAULT nextval('galette_lend_rents_id_seq'::text) NOT NULL,
-    object_id integer,
+    object_id integer NOT NULL,
     date_begin timestamp NOT NULL,
     date_forecast timestamp NULL DEFAULT NULL,
     date_end timestamp DEFAULT NULL,
-    status_id integer REFERENCES galette_lend_status (status_id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    adherent_id integer REFERENCES galette_adherents (id_adh) ON DELETE CASCADE ON UPDATE CASCADE,
+    status_id integer NOT NULL,
+    adherent_id integer,
     comments character varying(200) NOT NULL,
-    PRIMARY KEY (rent_id)
+    PRIMARY KEY (rent_id),
+    CONSTRAINT galette_lend_rents_status_id_fkey FOREIGN KEY (status_id)
+      REFERENCES galette_lend_status (status_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT galette_lend_rents_adherent_id_fkey FOREIGN KEY (adherent_id)
+      REFERENCES galette_adherents (id_adh) ON DELETE SET NULL ON UPDATE CASCADE
 );
+CREATE INDEX galette_lend_rents_date_begin_idx ON galette_lend_rents (date_begin);
 
 
 
@@ -83,36 +88,45 @@ CREATE TABLE galette_lend_objects (
     name character varying(100) NOT NULL,
     description character varying(500) NOT NULL,
     serial_number character varying(30) NOT NULL,
-    price real NOT NULL,
+    price numeric(15,3) NOT NULL,
     price_per_day boolean NOT NULL DEFAULT FALSE,
     dimension character varying(100) NOT NULL,
-    weight real NOT NULL,
+    weight numeric(15,3) NOT NULL,
     is_active boolean NOT NULL,
-    category_id integer REFERENCES galette_lend_category (category_id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    rent_price real NULL,
+    category_id integer,
+    rent_price numeric(15,3) NULL,
     nb_available integer NULL,
-    rent_id integer REFERENCES galette_lend_rents (rent_id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    PRIMARY KEY (object_id)
+    rent_id integer,
+    PRIMARY KEY (object_id),
+    CONSTRAINT galette_lend_objects_category_id_fkey FOREIGN KEY (category_id)
+      REFERENCES galette_lend_category (category_id) ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT galette_lend_objects_rent_id_fkey FOREIGN KEY (rent_id)
+      REFERENCES galette_lend_rents (rent_id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-ALTER TABLE galette_lend_rents ADD CONSTRAINT galette_lend_rents_object_fkey FOREIGN KEY (object_id) REFERENCES galette_lend_objects(object_id);
+ALTER TABLE galette_lend_rents ADD CONSTRAINT galette_lend_rents_object_id_fkey FOREIGN KEY (object_id)
+  REFERENCES galette_lend_objects (object_id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 DROP TABLE IF EXISTS galette_lend_pictures;
 CREATE TABLE galette_lend_pictures (
-  object_id integer DEFAULT '0' NOT NULL,
+  object_id integer NOT NULL,
   picture bytea NOT NULL,
   format character varying(10) DEFAULT '' NOT NULL,
-  PRIMARY KEY (object_id)
+  PRIMARY KEY (object_id),
+  CONSTRAINT galette_lend_pictures_object_id_fkey FOREIGN KEY (object_id)
+    REFERENCES galette_lend_objects (object_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
 
 DROP TABLE IF EXISTS galette_lend_categories_pictures;
 CREATE TABLE galette_lend_categories_pictures (
-    category_id integer DEFAULT '0' NOT NULL,
+    category_id integer NOT NULL,
     picture bytea NOT NULL,
     format character varying(10) DEFAULT '' NOT NULL,
-    PRIMARY KEY (category_id)
+    PRIMARY KEY (category_id),
+    CONSTRAINT galette_lend_categories_pictures_category_id_fkey FOREIGN KEY (category_id)
+      REFERENCES galette_lend_category (category_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
