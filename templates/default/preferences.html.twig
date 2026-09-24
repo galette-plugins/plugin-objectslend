@@ -173,17 +173,3 @@
 </form>
 {% endif %}
 {% endblock %}
-
-{% block javascripts %}
-<script type="text/javascript">
-    $(function() {
-        {# contribution fields only matter when a contribution is generated #}
-        $('#auto_generate_contribution').on('change', function() {
-            var generate = $(this).is(':checked');
-            $('#generated_contribution_fields').toggleClass('displaynone', !generate)
-                .find('input[name="pref_objectslend_generated_contribution_type_id"], #contrib_text')
-                .prop('required', generate);
-        });
-    });
-</script>
-{% endblock %}

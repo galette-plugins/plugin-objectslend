@@ -128,12 +128,7 @@
                         </span>
                     </div>
                     <div class="ui center aligned basic fitted segment">
-                        <img
-                            src="{% if object.getId() %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail", "id": object.getId()}) }}{% else %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail"}) }}{% endif %}"
-                            class="picture"
-                            width="{{ picture.getOptimalThumbWidth(olendsprefs) }}"
-                            height="{{ picture.getOptimalThumbHeight(olendsprefs) }}"
-                            alt="{{ _T("Object's photo", "objectslend") }}"/>
+                        {{ lend.thumbnail("object", object.getId(), picture, olendsprefs, _T("Object's photo", "objectslend")) }}
                     </div>
                     <div class="ui form">
                 {% if picture.hasPicture() %}

@@ -63,3 +63,15 @@
         label: label
     } %}
 {% endmacro %}
+
+{# Thumbnail, linked to the full size picture; no id for the default picture #}
+{% macro thumbnail(type, id, picture, prefs, alt, extra_class) %}
+    {% set args = id ? {"type": type, "id": id} : {"type": type} %}
+    <a href="{{ url_for("objectslend_photo", args|merge({"mode": "photo"})) }}" class="fullimage{% if extra_class %} {{ extra_class }}{% endif %}" title="{{ _T("Click to view fullsize image", "objectslend") }}">
+        <img src="{{ url_for("objectslend_photo", args|merge({"mode": "thumbnail"})) }}"
+            class="picture"
+            width="{{ picture.getOptimalThumbWidth(prefs) }}"
+            height="{{ picture.getOptimalThumbHeight(prefs) }}"
+            alt="{{ alt }}"/>
+    </a>
+{% endmacro %}

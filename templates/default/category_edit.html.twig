@@ -5,6 +5,7 @@
  #}
 
 {% extends "page.html.twig" %}
+{% import "@PluginGaletteObjectslend/macros.twig" as lend %}
 
 {% block content %}
 <form action="{% if category.getId() %}{{ url_for("objectslend_category_action_edit", {"id": category.getId()}) }}{% else %}{{ url_for("objectslend_category_action_add") }}{% endif %}" method="post" enctype="multipart/form-data" class="ui form">
@@ -35,12 +36,7 @@
                     max_size: olendsprefs.getUploadSize(),
                     input_id: "picture_file"
                 } %}
-                <img
-                    src="{% if category.getId() %}{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": category.getId()}) }}{% else %}{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail"}) }}{% endif %}"
-                    class="picture"
-                    width="{{ picture.getOptimalThumbWidth(olendsprefs) }}"
-                    height="{{ picture.getOptimalThumbHeight(olendsprefs) }}"
-                    alt="{{ _T("Category photo", "objectslend") }}"/>
+                {{ lend.thumbnail("category", category.getId(), picture, olendsprefs, _T("Category photo", "objectslend")) }}
                 <br/>
                 {% if picture.hasPicture() %}
                     {% include "components/forms/checkbox.html.twig" with {

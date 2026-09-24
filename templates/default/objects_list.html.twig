@@ -181,11 +181,7 @@
             {% endif %}
             {% if olendsprefs.imagesInLists() %}
                 <td class="center collapsing" data-col-label="{{ _T("Picture") }}">
-                    <img src="{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail", "id": object.getId()}) }}"
-                         class="picture"
-                         width="{{ object.getPicture().getOptimalThumbWidth(olendsprefs) }}"
-                         height="{{ object.getPicture().getOptimalThumbHeight(olendsprefs) }}"
-                         alt="{{ _T("Object photo", "objectslend") }}"/>
+                    {{ lend.thumbnail("object", object.getId(), object.getPicture(), olendsprefs, _T("Object photo", "objectslend")) }}
                 </td>
             {% endif %}
             <td data-col-label="{{ _T("Name", "objectslend") }}">

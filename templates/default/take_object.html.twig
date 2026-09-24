@@ -8,7 +8,7 @@
 {% import "@PluginGaletteObjectslend/macros.twig" as lend %}
 
 {% block content %}
-<form action="{% if takeorgive == 'take' %}{{ url_for("objectslend_object_dotake", {"id": object.getId()}) }}{% else %}{{ url_for("objectslend_object_doreturn", {"id": object.getId()}) }}{% endif %}" method="post" id="form_take_object" class="ui form info">
+<form action="{% if takeorgive == 'take' %}{{ url_for("objectslend_object_dotake", {"id": object.getId()}) }}{% else %}{{ url_for("objectslend_object_doreturn", {"id": object.getId()}) }}{% endif %}" method="post" id="form_take_object" class="ui form info" data-mode="{{ takeorgive }}">
     <div class="ui styled fluid accordion field">
         <div class="active title">
             <i class="icon dropdown"></i>
@@ -18,11 +18,7 @@
             <div class="inline field">
                 <label>{{ _T("Name:", "objectslend") }}</label>
                 {{ object.getName() }}
-                <img src="{% if object.getId() %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail", "id": object.getId()}) }}{% else %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail"}) }}{% endif %}"
-                class="picture fright"
-                width="{{ object.getPicture().getOptimalThumbWidth(olendsprefs) }}"
-                height="{{ object.getPicture().getOptimalThumbHeight(olendsprefs) }}"
-                alt="{{ _T("Object photo", "objectslend") }}"/>
+                {{ lend.thumbnail("object", object.getId(), object.getPicture(), olendsprefs, _T("Object photo", "objectslend"), "fright") }}
             </div>
 
     {% if lendsprefs.view_description %}
@@ -145,7 +141,8 @@
                     {% include "components/forms/textarea.html.twig" with {
                         id: 'comments',
                         value: '',
-                        label: _T("Comments:", "objectslend")
+                        label: _T("Comments:", "objectslend"),
+                        maxlength: 200
                     } %}
                     <span class="exemple"><span id="remaining">200</span> {{ _T("remaining characters", "objectslend") }}</span>
                 </div>
@@ -183,117 +180,5 @@
 {% block javascripts %}
 <script type="text/javascript">
     {% include "elements/js/choose_adh.js.twig" %}
-
-    {% if takeorgive == 'take' %}
-    var _init_takeobject_js = function() {
-        $('button[name="valid"]').addClass('disabled');
-
-        _init_fullimage();
-
-        $('#id_adh, #status, #payment_type').on('change',function() {
-            validStatus()
-        });
-
-        $('button[name="valid"]').on('click', function(e) {
-            if (!$('#agreement').is(':checked')) {
-                e.preventDefault();
-                alert('{{ _T("You must agree with terms and conditions in order to borrow.", "objectslend")|e('js') }}');
-            }
-        });
-
-        $('#terms_conditions').hide();
-        $('.show_agreement').on('click', function() {
-            $('#terms_conditions').toggle();
-        });
-
-        $('#show_terms_elt').addClass('displaynone');
-        $('#attach-checkbox').checkbox({
-            onChecked: function() {
-                $('#show_terms_elt').removeClass('displaynone');
-            },
-            onUnchecked: function() {
-                $('#show_terms_elt').addClass('displaynone');
-            }
-        });
-    }
-
-    {% if not ajax %}
-    $(function () {
-        _init_takeobject_js();
-    });
-    {% endif %}
-
-    function completeZero(n) {
-        return n < 10 ? '0' + n : n;
-    }
-
-    function validStatus() {
-        var _disabled = false;
-        if ($('#status').val() === '-1') {
-            _disabled = true;
-        }
-        if ($('#id_adh_input').val() === '') {
-            _disabled = true;
-        }
-
-        var _lyes = $('button[name="valid"]');
-        if (_disabled) {
-            _lyes.addClass('disabled');
-        } else {
-            _lyes.removeClass('disabled');
-        }
-
-        {#
-        var days = $('#status option:selected').data('days');
-        if (typeof days == "undefined" || days == 'null') {
-            return;
-        }
-
-        if (days.length === 0) {
-            var text = "{{ object.getRentPrice() }}";
-            $('#rent_price').val(text);
-            $('#rent_price_label').html(text);
-            return;
-        }
-
-        {%  if object.isPricePerDay() %}
-            var price_per_day = {{ object.getRentPrice() }} * parseInt(days);
-            var text = price_per_day.toFixed(2).replace(".", ",");
-            $('#rent_price').val(text);
-            $('#rent_price_label').html(text);
-        {% endif %#}
-    }
-{% else %}
-    var _init_giveobject_js = function() {
-        $('button[name="valid"]').addClass('disabled');
-
-        $('#comments').keyup(function() {
-            if ($('#comments').val().length > 200) {
-                $('#comments').val($('#comments').val().substr(0, 200));
-            }
-            $('#remaining').text(200 - $('#comments').val().length);
-        });
-
-        $('#status').on('change',function() {
-            validStatus()
-        });
-    }
-
-    {% if not ajax %}
-    $(function () {
-        _init_giveobject_js();
-    });
-    {% endif %}
-
-    function validStatus() {
-        var _lyes = $('button[name="valid"]');
-        if ($('#status').val() === '-1') {
-            _lyes.addClass('disabled');
-        } else {
-            _lyes.removeClass('disabled');
-        }
-    }
-
-{% endif %}
 </script>
 {% endblock %}
