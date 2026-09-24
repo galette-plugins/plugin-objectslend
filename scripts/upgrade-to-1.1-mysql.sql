@@ -59,7 +59,7 @@ FROM galette_lend_rents;
 CREATE TABLE galette_lend_objects_new (
   object_id int(10) unsigned NOT NULL AUTO_INCREMENT,
   name varchar(100) NOT NULL,
-  description varchar(500) NOT NULL,
+  description text NOT NULL,
   serial_number varchar(30) NOT NULL,
   price decimal(15,3) NOT NULL,
   price_per_day tinyint(1) NOT NULL DEFAULT FALSE,

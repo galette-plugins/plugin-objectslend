@@ -20,7 +20,7 @@
                         required: true
                     } %}
 
-                    {% include "components/forms/text.html.twig" with {
+                    {% include "components/forms/textarea.html.twig" with {
                         id: 'description',
                         value: object.getDescription(),
                         label: _T("Description:", "objectslend")
@@ -197,5 +197,9 @@
         <script type="text/javascript">
             {% include "elements/js/choose_adh.js.twig" with {js_chosen_id: '#new_adh'} %}
             {% include "@PluginGaletteObjectslend/history_modal.js.twig" %}
+
+            $(function() {
+                activateHtmlEditor($('#description'), true);
+            });
         </script>
 {% endblock %}

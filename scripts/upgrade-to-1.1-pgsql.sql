@@ -30,6 +30,9 @@ ALTER TABLE galette_lend_objects
   ALTER COLUMN weight TYPE numeric(15,3) USING ROUND(CAST(weight AS numeric), 3),
   ALTER COLUMN rent_price TYPE numeric(15,3) USING ROUND(CAST(rent_price AS numeric), 3);
 
+-- Description is edited with the HTML editor, its markup does not fit in 500 characters
+ALTER TABLE galette_lend_objects ALTER COLUMN description TYPE text;
+
 -- A rent always has an object and a status
 UPDATE galette_lend_objects SET rent_id = NULL WHERE rent_id IN (
   SELECT rent_id FROM galette_lend_rents WHERE object_id IS NULL OR status_id IS NULL

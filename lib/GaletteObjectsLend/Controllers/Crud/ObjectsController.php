@@ -325,7 +325,8 @@ class ObjectsController extends AbstractPluginController
             'olendsprefs'   => $lendsprefs,
             'categories'    => $categories_list,
             'statuses'      => $slist,
-            'picture'       => $object->getPicture()
+            'picture'       => $object->getPicture(),
+            'html_editor'   => true
         ];
 
         // members

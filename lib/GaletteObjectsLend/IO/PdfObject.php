@@ -24,6 +24,12 @@ use GaletteObjectsLend\Repository\Rents;
  */
 class PdfObject extends Pdf
 {
+    /** @var array<string> Tags kept in HTML values */
+    private const array HTML_TAGS = [
+        'a', 'b', 'blockquote', 'br', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i',
+        'li', 'ol', 'p', 's', 'span', 'strong', 'sub', 'sup', 'u', 'ul'
+    ];
+
     private Db $zdb;
     private LendPreferences $lprefs;
 
@@ -121,7 +127,7 @@ class PdfObject extends Pdf
 
         $this->addCell(_T("Name", "objectslend"), $object->getName(), $wpic);
         if ($this->lprefs->isEnabled(LendPreferences::VIEW_DESCRIPTION)) {
-            $this->addCell(_T("Description", "objectslend"), $object->getDescription(), $wpic);
+            $this->addHtmlCell(_T("Description", "objectslend"), $object->getDescriptionHtml(), $wpic);
         }
         if ($this->lprefs->isEnabled(LendPreferences::VIEW_CATEGORY)) {
             $this->addCell(_T("Category", "objectslend"), $object->getCategoryName() ?? '', $wpic);
@@ -217,5 +223,30 @@ class PdfObject extends Pdf
             }
             $this->MultiCell(0, 0, $w, 0, 'L');
         }
+    }
+
+    /**
+     * Add a cell whose value is sanitized HTML
+     *
+     * Only text formatting is kept: TCPDF would load an image source from the
+     * server, be it an internal URL or a local file.
+     *
+     * @param string $title Cell title
+     * @param string $html  Cell value
+     * @param int    $width Picture width
+     */
+    private function addHtmlCell(string $title, string $html, int $width): void
+    {
+        $html = strip_tags($html, self::HTML_TAGS);
+
+        if ($width > 0) {
+            $this->Cell($width, 0, '');
+        }
+        $this->SetFont(Pdf::FONT, 'B', 9);
+        $padding = 50;
+        $this->Cell($padding, 0, $this->cut($title, $padding));
+
+        $this->SetFont(Pdf::FONT, '', 9);
+        $this->MultiCell(0, 0, $html, 0, 'L', false, 1, null, null, true, 0, true);
     }
 }

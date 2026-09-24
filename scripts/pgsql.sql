@@ -86,7 +86,7 @@ DROP TABLE IF EXISTS galette_lend_objects CASCADE;
 CREATE TABLE galette_lend_objects (
     object_id integer DEFAULT nextval('galette_lend_objects_id_seq'::text) NOT NULL,
     name character varying(100) NOT NULL,
-    description character varying(500) NOT NULL,
+    description text NOT NULL,
     serial_number character varying(30) NOT NULL,
     price numeric(15,3) NOT NULL,
     price_per_day boolean NOT NULL DEFAULT FALSE,

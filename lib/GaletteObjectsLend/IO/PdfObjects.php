@@ -12,6 +12,7 @@ namespace GaletteObjectsLend\IO;
 
 use Galette\Core\Db;
 use Galette\IO\Pdf;
+use Galette\Util\Html;
 use Galette\Core\Preferences;
 use Galette\Core\Login;
 use GaletteObjectsLend\Entity\LendObject;
@@ -199,7 +200,7 @@ class PdfObjects extends Pdf
             $fill = !$object->inStock();
             $this->Cell($w_checkbox, 0, '□', 'B', 0, 'L', $fill);
             $this->Cell($w_name, 0, $this->cut($object->getName(), $w_name), 'B', 0, 'L', $fill);
-            $this->Cell($w_description, 0, $this->cut($object->getDescription(), $w_description), 'B', 0, 'L', $fill);
+            $this->Cell($w_description, 0, $this->cut($this->oneLine($object->getDescriptionHtml()), $w_description), 'B', 0, 'L', $fill);
             $this->Cell($w_serial, 0, $this->cut($object->getSerialNumber(), $w_serial), 'B', 0, 'L', $fill);
             $this->Cell($w_price, 0, $this->cut(number_format($object->getPrice(), 2, ',', ' '), $w_price), 'B', 0, 'R', $fill);
             $this->Cell($w_price, 0, $this->cut(number_format($object->getRentPrice(), 2, ',', ' '), $w_price) . '€', 'B', 0, 'R', $fill);
@@ -232,5 +233,17 @@ class PdfObjects extends Pdf
         $this->Cell(0, 0, _T("Borrowed", "objectslend"), 0, 1);
         $this->Cell($w_price, 0, '', true);
         $this->Cell(0, 0, _T("Available", "objectslend"), 0, 1);
+    }
+
+    /**
+     * HTML description as a single line of text
+     *
+     * @param string $html Description
+     */
+    private function oneLine(string $html): string
+    {
+        //blocks are only separated by their tags, which are about to go
+        $html = (string)preg_replace('#<(/?(?:p|br|li|ul|ol|div|h[1-6]|tr|td)\b)#i', ' <$1', $html);
+        return trim((string)preg_replace('/\s+/u', ' ', Html::strip($html)));
     }
 }

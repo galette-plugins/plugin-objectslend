@@ -32,7 +32,7 @@ class LendObject
     private array $fields = [
         'object_id' => 'integer',
         'name' => 'varchar(100)',
-        'description' => 'varchar(500)',
+        'description' => 'text',
         'serial_number' => 'varchar(30)',
         'price' => 'decimal',
         'rent_price' => 'decimal',

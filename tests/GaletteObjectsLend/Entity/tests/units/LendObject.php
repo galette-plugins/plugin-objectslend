@@ -253,4 +253,22 @@ class LendObject extends GaletteTestCase
         $this->assertSame($description, $object->getDescription());
         $this->assertSame('<p>Nice <strong>object</strong></p>', $object->getDescriptionHtml());
     }
+
+    /**
+     * Test a description written with the HTML editor is stored whole
+     */
+    public function testLongDescription(): void
+    {
+        $description = str_repeat('<p>A <strong>long</strong> description, with <em>markup</em>.</p>', 20);
+        $this->assertGreaterThan(500, mb_strlen($description));
+
+        $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
+        $object->setName('An object');
+        $object->setDescription($description);
+        $object->setActive(true);
+        $object->store();
+
+        $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb, $object->getId());
+        $this->assertSame($description, $object->getDescription());
+    }
 }
