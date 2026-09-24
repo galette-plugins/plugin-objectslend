@@ -6,16 +6,33 @@
 
 {% extends 'page.html.twig' %}
 
+{# labels in one column, toggles in the next: they line up whatever the label length #}
 {% macro toggles(boxes, values) %}
     {% for box in boxes %}
-        {% include "components/forms/checkbox.html.twig" with {
-            id: box.name,
-            name: 'pref_objectslend_' ~ box.name,
-            value: 1,
-            label: box.label,
-            checked: values[box.name],
-            tip_html: box.tip ?? '',
-        } %}
+        <div class="inline fields">
+            <div class="six wide field">
+                {% include "components/forms/tip.html.twig" with {
+                    label: box.label,
+                    for: box.name,
+                    tip: box.tip ?? '',
+                    id: box.name,
+                    html: true,
+                } only %}
+            </div>
+            <div class="ten wide field">
+                <div class="ui toggle checkbox">
+                    <input
+                        type="checkbox"
+                        name="pref_objectslend_{{ box.name }}"
+                        id="{{ box.name }}"
+                        value="1"
+                        {% if values[box.name] %} checked="checked"{% endif %}
+                        {% if box.tip is defined %} aria-describedby="{{ box.name }}-tip"{% endif %}
+                    />
+                    <label></label>
+                </div>
+            </div>
+        </div>
     {% endfor %}
 {% endmacro %}
 
@@ -135,4 +152,5 @@
         </button>
     </div>
 </form>
+
 {% endblock %}
