@@ -932,6 +932,7 @@ class ObjectsController extends AbstractPluginController
                 'Unable to remove objects #' . implode(', #', $ids) . ' | ' . $e->getMessage(),
                 Analog::ERROR
             );
+            $this->flash->addMessage('error_detected', _T('An error occurred trying to delete :('));
             return false;
         }
         unset($this->session->{$this->getFiltersKey()});

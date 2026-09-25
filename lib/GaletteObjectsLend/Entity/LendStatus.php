@@ -121,6 +121,20 @@ class LendStatus
     }
 
     /**
+     * Is status used by a rent, current or past?
+     *
+     * Rents keep their status for the history: such a status cannot be removed.
+     */
+    public function isUsed(): bool
+    {
+        $select = $this->zdb->select(LEND_PREFIX . LendRent::TABLE)
+            ->columns([LendRent::PK])
+            ->where([self::PK => $this->status_id])
+            ->limit(1);
+        return $this->zdb->execute($select)->count() > 0;
+    }
+
+    /**
      * Delete status
      */
     public function delete(): void

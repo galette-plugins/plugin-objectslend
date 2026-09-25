@@ -205,4 +205,38 @@ class StatusController extends GaletteRoutingTestCase
         $this->assertSame(301, $test_response->getStatusCode());
         $this->assertNull((new LendStatus($this->zdb, $status->getId()))->getId());
     }
+
+    /**
+     * A status used by rents is not removed, and the user is told why
+     */
+    public function testRemoveUsed(): void
+    {
+        $this->logSuperAdmin();
+        $status = $this->addStatus('Used status', true);
+
+        $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
+        $object->setName('Object with history');
+        $object->store();
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb);
+        $rent->setObjectId($object->getId())->setStatusId($status->getId());
+        $rent->store();
+
+        try {
+            $this->assertTrue($status->isUsed());
+            $request = $this->createRequest(
+                route_name: 'objectslend_doremove_status',
+                route_args: ['id' => (string)$status->getId()],
+                method: 'POST'
+            )->withParsedBody(['confirm' => '1', 'ajax' => 'true']);
+            $test_response = $this->app->handle($request);
+            $this->assertSame(['success' => false], json_decode((string)$test_response->getBody(), true));
+            $this->expectFlashData([
+                'error_detected' => ['This status is used by lends, it cannot be removed. Deactivate it instead.']
+            ]);
+            $this->assertSame($status->getId(), (new LendStatus($this->zdb, $status->getId()))->getId());
+        } finally {
+            $object->delete();
+        }
+        $this->assertFalse($status->isUsed());
+    }
 }

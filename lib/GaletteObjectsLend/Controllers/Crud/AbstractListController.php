@@ -368,13 +368,31 @@ abstract class AbstractListController extends AbstractPluginController
     protected function doDelete(array $args, array $post): bool
     {
         $entity = $this->loadEntity((int)$args['id']);
+
+        $refusal = $this->getRemovalRefusal($entity);
+        if ($refusal !== null) {
+            $this->flash->addMessage('error_detected', $refusal);
+            return false;
+        }
+
         try {
             $entity->delete();
             return true;
         } catch (Throwable $e) {
             $this->logError('remove', $entity, $e);
+            $this->flash->addMessage('error_detected', _T('An error occurred trying to delete :('));
             return false;
         }
+    }
+
+    /**
+     * Why an entity cannot be removed, null when it can
+     *
+     * @param TEntity $entity Entity
+     */
+    protected function getRemovalRefusal(LendCategory|LendStatus $entity): ?string
+    {
+        return null;
     }
 
     /**

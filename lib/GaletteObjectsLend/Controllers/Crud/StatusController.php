@@ -177,6 +177,19 @@ class StatusController extends AbstractListController
     }
 
     /**
+     * A status used by rents is kept for their history
+     *
+     * @param LendStatus $entity Status
+     */
+    protected function getRemovalRefusal(LendCategory|LendStatus $entity): ?string
+    {
+        if ($entity instanceof LendStatus && $entity->isUsed()) {
+            return _T("This status is used by lends, it cannot be removed. Deactivate it instead.", "objectslend");
+        }
+        return null;
+    }
+
+    /**
      * Get confirmation removal page title
      *
      * @param array<string,mixed> $args Route arguments
