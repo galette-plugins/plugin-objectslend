@@ -16,7 +16,6 @@ use Galette\Util\Html;
 use Galette\Core\Preferences;
 use Galette\Core\Login;
 use GaletteObjectsLend\Entity\LendObject;
-use GaletteObjectsLend\Filters\ObjectsList;
 use GaletteObjectsLend\Entity\LendCategory;
 use GaletteObjectsLend\LendPreferences;
 
@@ -31,7 +30,6 @@ class PdfObjects extends Pdf
 
     private Db $zdb;
     private LendPreferences $lendsprefs;
-    private ObjectsList $filters;
     private Login $login;
 
     /**
@@ -40,14 +38,12 @@ class PdfObjects extends Pdf
      * @param Db              $zdb        Database instance
      * @param Preferences     $prefs      Preferences
      * @param LendPreferences $lendsprefs Plugin preferences
-     * @param ObjectsList     $filters    Current filters
      * @param Login           $login      Login instance
      */
     public function __construct(
         Db $zdb,
         Preferences $prefs,
         LendPreferences $lendsprefs,
-        ObjectsList $filters,
         Login $login,
     ) {
         parent::__construct($prefs);
@@ -58,7 +54,6 @@ class PdfObjects extends Pdf
         $this->filename = _T('objects_cards', 'objectslend') . '.pdf';
         $this->zdb = $zdb;
         $this->lendsprefs = $lendsprefs;
-        $this->filters = $filters;
         $this->login = $login;
     }
 
@@ -91,7 +86,7 @@ class PdfObjects extends Pdf
         // @phpcs:enable
         $this->SetFont(Pdf::FONT, 'B');
         $x = $this->getX();
-        $this->Cell(0, 10, _T("Objects list", "objectslend"), 0, false, 'C', false, '', 0, false, 'M', 'M');
+        $this->Cell(0, 10, _T("Objects list", "objectslend"), 0, 0, 'C', false, '', 0, false, 'M', 'M');
         $this->SetFont(Pdf::FONT, '', self::LIST_FONT);
         $this->setX($x);
         $this->Cell(
@@ -103,7 +98,7 @@ class PdfObjects extends Pdf
                 _T("Printed on %date", "objectslend")
             ),
             0,
-            false,
+            0,
             'R',
             false,
             '',
@@ -137,18 +132,18 @@ class PdfObjects extends Pdf
         $w_date = 22;
         $w_adherent = 26;
 
-        $this->Cell($w_checkbox, 0, $this->stretchHead('', $w_checkbox), 1, 0, 'C', 1);
-        $this->Cell($w_name, 0, $this->stretchHead(_T("Name", "objectslend"), $w_name), 1, 0, 'C', 1);
-        $this->Cell($w_description, 0, $this->stretchHead(_T("Description", "objectslend"), $w_description), 1, 0, 'C', 1);
-        $this->Cell($w_serial, 0, $this->stretchHead(_T("Serial", "objectslend"), $w_serial), 1, 0, 'C', 1);
-        $this->Cell($w_price, 0, $this->stretchHead(_T("Price", "objectslend"), $w_price), 1, 0, 'C', 1);
-        $this->Cell($w_price, 0, $this->stretchHead(_T("Borrow price", "objectslend"), $w_price), 1, 0, 'C', 1);
-        $this->Cell($w_dimension, 0, $this->stretchHead(_T("Dimensions", "objectslend"), $w_dimension), 1, 0, 'C', 1);
-        $this->Cell($w_weight, 0, $this->stretchHead(_T("Weight", "objectslend"), $w_weight), 1, 0, 'C', 1);
-        $this->Cell($w_status, 0, $this->stretchHead(_T("Status", "objectslend"), $w_status), 1, 0, 'C', 1);
-        $this->Cell($w_date, 0, $this->stretchHead(_T("Since", "objectslend"), $w_date), 1, 0, 'C', 1);
-        $this->Cell($w_adherent, 0, $this->stretchHead(_T("Member", "objectslend"), $w_adherent), 1, 0, 'C', 1);
-        $this->Cell($w_date, 0, $this->stretchHead(_T("Return", "objectslend"), $w_date), 1, 1, 'C', 1);
+        $this->Cell($w_checkbox, 0, $this->stretchHead('', $w_checkbox), 1, 0, 'C', true);
+        $this->Cell($w_name, 0, $this->stretchHead(_T("Name", "objectslend"), $w_name), 1, 0, 'C', true);
+        $this->Cell($w_description, 0, $this->stretchHead(_T("Description", "objectslend"), $w_description), 1, 0, 'C', true);
+        $this->Cell($w_serial, 0, $this->stretchHead(_T("Serial", "objectslend"), $w_serial), 1, 0, 'C', true);
+        $this->Cell($w_price, 0, $this->stretchHead(_T("Price", "objectslend"), $w_price), 1, 0, 'C', true);
+        $this->Cell($w_price, 0, $this->stretchHead(_T("Borrow price", "objectslend"), $w_price), 1, 0, 'C', true);
+        $this->Cell($w_dimension, 0, $this->stretchHead(_T("Dimensions", "objectslend"), $w_dimension), 1, 0, 'C', true);
+        $this->Cell($w_weight, 0, $this->stretchHead(_T("Weight", "objectslend"), $w_weight), 1, 0, 'C', true);
+        $this->Cell($w_status, 0, $this->stretchHead(_T("Status", "objectslend"), $w_status), 1, 0, 'C', true);
+        $this->Cell($w_date, 0, $this->stretchHead(_T("Since", "objectslend"), $w_date), 1, 0, 'C', true);
+        $this->Cell($w_adherent, 0, $this->stretchHead(_T("Member", "objectslend"), $w_adherent), 1, 0, 'C', true);
+        $this->Cell($w_date, 0, $this->stretchHead(_T("Return", "objectslend"), $w_date), 1, 1, 'C', true);
 
         $this->SetFont('');
 

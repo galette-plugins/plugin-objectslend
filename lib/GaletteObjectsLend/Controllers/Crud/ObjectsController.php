@@ -509,7 +509,7 @@ class ObjectsController extends AbstractPluginController
             ->withStatus(301)
             ->withHeader(
                 'Location',
-                $this->routeparser->urlFor('objectslend_object_edit', ['id' => $object->getId()])
+                $this->routeparser->urlFor('objectslend_object_edit', ['id' => (string)$object->getId()])
             );
     }
 
@@ -579,7 +579,7 @@ class ObjectsController extends AbstractPluginController
                 'Location',
                 $this->routeparser->urlFor(
                     'objectslend_object_edit',
-                    ['id' => $object->getId()]
+                    ['id' => (string)$object->getId()]
                 )
             );
     }
@@ -902,7 +902,7 @@ class ObjectsController extends AbstractPluginController
             $filters = $this->getFilters();
             return str_replace(
                 '%count',
-                count($filters->selected),
+                (string)count($filters->selected),
                 _T('You are about to remove %count objects.', 'objectslend')
             );
         }

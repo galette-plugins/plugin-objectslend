@@ -72,7 +72,6 @@ class PdfController extends GPdfController
             $this->zdb,
             $this->preferences,
             $lendsprefs,
-            $filters,
             $this->login
         );
 
