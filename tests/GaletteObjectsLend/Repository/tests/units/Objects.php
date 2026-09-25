@@ -222,4 +222,43 @@ class Objects extends GaletteTestCase
         $objects->removeObjects([$first_object_id, $second_object_id, $third_object_id]);
         $this->assertCount(1, $objects->getObjectsList(true));
     }
+
+    /**
+     * Objects of homonymous categories are not mixed when ordered by category
+     */
+    public function testOrderByHomonymousCategories(): void
+    {
+        $category_ids = [];
+        foreach ([1, 2] as $i) {
+            $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
+            $category->setName('Same name');
+            $category->setActive(true);
+            $category->store();
+            $category_ids[] = $category->getId();
+        }
+
+        //stored alternately, so that an order on the name alone may mix them
+        foreach ([0, 1, 0, 1, 0, 1] as $i => $index) {
+            $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
+            $object->setName('Object ' . $i);
+            $object->setCategoryId($category_ids[$index]);
+            $object->setActive(true);
+            $object->store();
+        }
+
+        $filters = new \GaletteObjectsLend\Filters\ObjectsList();
+        $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_CATEGORY;
+        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->preferences, $this->login, $this->lend_prefs, $filters);
+        $list = $objects->getObjectsList(true, true, false);
+        $this->assertCount(6, $list);
+
+        $sequence = array_map(fn($object) => $object->getCategoryId(), $list);
+        $changes = 0;
+        for ($i = 1; $i < count($sequence); $i++) {
+            if ($sequence[$i] !== $sequence[$i - 1]) {
+                $changes++;
+            }
+        }
+        $this->assertSame(1, $changes, 'Categories order: ' . implode(', ', $sequence));
+    }
 }

@@ -233,7 +233,8 @@ class Objects extends AbstractRepository
             self::ORDERBY_BDATE => ['r.date_begin'],
             self::ORDERBY_FDATE => ['r.date_forecast'],
             self::ORDERBY_MEMBER => ['a.nom_adh', 'a.prenom_adh'],
-            self::ORDERBY_CATEGORY => ['c.name'],
+            //homonymous categories must not be mixed: the objects list PDF relies on it
+            self::ORDERBY_CATEGORY => ['c.name', 'o.category_id'],
             default => []
         };
 

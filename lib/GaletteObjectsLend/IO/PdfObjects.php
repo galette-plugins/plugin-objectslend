@@ -147,41 +147,40 @@ class PdfObjects extends Pdf
 
         $this->SetFont('');
 
-        $current_category = -1;
+        //objects come ordered by category: a heading, and the previous
+        //category subtotal, each time it changes
+        $current_category = null;
         $sum_price = 0;
         $grant_total = 0;
         $row = 0;
-        $existing_categories = [];
 
         foreach ($objects as $object) {
+            $category_id = (int)$object->getCategoryId();
             if (
                 $this->lendsprefs->isEnabled(LendPreferences::VIEW_CATEGORY)
-                && $current_category !== $object->getCategoryId()
+                && $current_category !== $category_id
             ) {
                 $this->SetFont('', 'B');
 
-                if (($this->login->isAdmin() || $this->login->isStaff()) && $sum_price > 0 && !in_array($object->getCategoryId(), $existing_categories)) {
+                if (($this->login->isAdmin() || $this->login->isStaff()) && $sum_price > 0) {
                     $width = $w_checkbox + $w_name + $w_description + $w_serial + $w_price;
                     $this->Cell($width, 0, number_format($sum_price, 2, ',', ''), '', 0, 'R');
                     $sum_price = 0;
                     $this->Ln();
                 }
 
-                if (!empty($object->getCategoryId()) && !in_array($object->getCategoryId(), $existing_categories)) {
-                    $category = new LendCategory($this->zdb, (int)$object->getCategoryId());
+                if ($category_id > 0) {
+                    $category = new LendCategory($this->zdb, $category_id);
                     $text = str_replace(
                         '%category',
                         $category->getName(false),
                         _T("Category: %category", "objectslend")
                     );
-                    $existing_categories[] = $object->getCategoryId();
-                    $this->Cell(0, 0, $text, 0, 1, 'C');
-                } elseif (!in_array(0, $existing_categories)) {
+                } else {
                     $text = _T("No category", "objectslend");
-                    $existing_categories[0] = 0;
-                    $this->Cell(0, 0, $text, 0, 1, 'C');
                 }
-
+                $this->Cell(0, 0, $text, 0, 1, 'C');
+                $current_category = $category_id;
 
                 $this->SetFont('');
             }
