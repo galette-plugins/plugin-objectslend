@@ -1,11 +1,12 @@
 # Johan Cwiklinski <trasher@x-tnd.be>, 2020, 2021, 2022, 2023, 2024.
+# Damien <mouette03@yahoo.fr>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: translations@galette.eu\n"
 "POT-Creation-Date: 2026-09-27 18:15+0200\n"
-"PO-Revision-Date: 2024-02-08 21:06+0000\n"
-"Last-Translator: Johan Cwiklinski <trasher@x-tnd.be>\n"
+"PO-Revision-Date: 2026-09-28 04:01+0000\n"
+"Last-Translator: Damien <mouette03@yahoo.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/galette/"
 "objectslend-plugin/fr/>\n"
 "Language: fr_FR\n"
@@ -13,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 2026.10.dev0\n"
 
 #. TRANS: this is a filename
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:52
@@ -252,15 +253,18 @@ msgstr "Préférences ObjectsLend"
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:87
 msgid "Generated contributions must be of a donation type."
-msgstr ""
+msgstr "Les contributions générées doivent être de type don."
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:109
 msgid "Preferences have been successfully stored!"
 msgstr "Les préférences ont été sauvegardées avec succès !"
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:138
+#, fuzzy
 msgid "Sample data can only be loaded into an empty catalog."
 msgstr ""
+"Les données d'échantillons ne peuvent être chargées que dans un catalogue "
+"vide."
 
 #. TRANS: %1$d is the number of objects, %2$d the number of rents
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:147
@@ -270,7 +274,7 @@ msgstr ""
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:156
 msgid "Sample data could not be loaded."
-msgstr ""
+msgstr "Les données d’exemple n’ont pas pu être chargées."
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:88
 msgid "Please add at last one status \"in stock\"!"
@@ -305,6 +309,8 @@ msgstr "Une erreur est survenue à l'enregistrement du statut."
 msgid ""
 "This status is used by lends, it cannot be removed. Deactivate it instead."
 msgstr ""
+"Ce statut est utilisé par des prêts et ne peut pas être supprimé. Désactivez-"
+"le plutôt."
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:200
 #, php-format
@@ -475,7 +481,7 @@ msgstr "Vous n'avez pas le droit de retourner des objets !"
 
 #: ../lib/GaletteObjectsLend/LendService.php:251
 msgid "This status cannot be set."
-msgstr ""
+msgstr "Ce statut ne peut pas être défini."
 
 #: ../lib/GaletteObjectsLend/LendService.php:300
 msgid "Returned on member removal"
@@ -485,6 +491,8 @@ msgstr ""
 msgid ""
 "Generated contributions must be of a donation type, check plugin preferences."
 msgstr ""
+"Les contributions générées doivent être de type don. Vérifiez les "
+"préférences du plugin."
 
 #: ../lib/GaletteObjectsLend/LendService.php:439
 #: ../lib/GaletteObjectsLend/LendService.php:451
@@ -558,6 +566,7 @@ msgid ""
 "A copy of \"%1$s\" will be created, without its picture nor its lends "
 "history."
 msgstr ""
+"Une copie de « %1$s » sera créée, sans sa photo ni son historique de prêts."
 
 #: ../templates/default/clone_object.html.twig:19
 #: ../templates/default/objects_edit.html.twig:105
@@ -661,12 +670,12 @@ msgstr "Taille max. minitaure (en px)"
 
 #: ../templates/default/preferences.html.twig:116
 msgid "Max picture size (in Ko)"
-msgstr ""
+msgstr "Taille maximale de l'image (en Ko)"
 
 #: ../templates/default/preferences.html.twig:116
 #, php-format
 msgid "0 to use the Galette setting for pictures, currently %1$s"
-msgstr ""
+msgstr "0 pour utiliser le paramètre Galette pour les photos, actuellement %1$s"
 
 #: ../templates/default/preferences.html.twig:121
 msgid "Images in lists:"
@@ -719,17 +728,20 @@ msgstr "Voir le poids"
 
 #: ../templates/default/preferences.html.twig:166
 msgid "Sample data"
-msgstr ""
+msgstr "Exemple de données"
 
 #: ../templates/default/preferences.html.twig:167
 msgid ""
 "The catalog is empty. You can fill it with sample categories, statuses and "
 "objects, along with a rents history given to existing members."
 msgstr ""
+"Le catalogue est vide. Vous pouvez le remplir avec des catégories, des "
+"statuts et des objets d’exemple, ainsi qu’un historique de locations "
+"attribué aux membres existants."
 
 #: ../templates/default/preferences.html.twig:169
 msgid "Load sample data"
-msgstr ""
+msgstr "Charger les données d’exemple"
 
 #: ../templates/default/objects_edit.html.twig:18
 #: ../templates/default/take_object.html.twig:22
@@ -932,8 +944,9 @@ msgid "Take away"
 msgstr "Emprunter"
 
 #: ../templates/default/objects_list.html.twig:318
+#, fuzzy
 msgid "Give back"
-msgstr "Retour"
+msgstr "Rendre"
 
 #: ../templates/default/objects_list.html.twig:340
 msgid "No object has been found"
