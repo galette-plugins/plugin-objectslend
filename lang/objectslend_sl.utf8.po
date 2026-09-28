@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: translations@galette.eu\n"
 "POT-Creation-Date: 2026-09-27 18:15+0200\n"
-"PO-Revision-Date: 2026-09-28 08:56+0000\n"
+"PO-Revision-Date: 2026-09-29 05:39+0000\n"
 "Last-Translator: Jože Felicijan <joze@felicijan.com>\n"
 "Language-Team: Slovenian <https://hosted.weblate.org/projects/galette/"
 "objectslend-plugin/sl/>\n"
@@ -659,7 +659,7 @@ msgstr "Največja višina palca (v slikovnih pikah)"
 
 #: ../templates/default/preferences.html.twig:116
 msgid "Max picture size (in Ko)"
-msgstr "Največja velikost slike (v KB)"
+msgstr "Največja velikost slike (v Kb)"
 
 #: ../templates/default/preferences.html.twig:116
 #, php-format
