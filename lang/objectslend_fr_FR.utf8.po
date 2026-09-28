@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: translations@galette.eu\n"
 "POT-Creation-Date: 2026-09-27 18:15+0200\n"
-"PO-Revision-Date: 2026-09-28 05:06+0000\n"
+"PO-Revision-Date: 2026-09-28 08:56+0000\n"
 "Last-Translator: Johan Cwiklinski <trasher@x-tnd.be>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/galette/"
 "objectslend-plugin/fr/>\n"
@@ -260,17 +260,16 @@ msgid "Preferences have been successfully stored!"
 msgstr "Les préférences ont été sauvegardées avec succès !"
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:138
-#, fuzzy
 msgid "Sample data can only be loaded into an empty catalog."
 msgstr ""
-"Les données d'échantillons ne peuvent être chargées que dans un catalogue "
+"Les données d'échantillon ne peuvent être chargées que dans un catalogue "
 "vide."
 
 #. TRANS: %1$d is the number of objects, %2$d the number of rents
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:147
 #, php-format
 msgid "Sample data loaded: %1$d objects, %2$d rents."
-msgstr ""
+msgstr "Données d'échantillon chargées : %1$d objets, %2$d locations."
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:156
 msgid "Sample data could not be loaded."
@@ -353,8 +352,6 @@ msgid "Rents list for %object"
 msgstr "Liste des locations pour %object"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:273
-#, fuzzy
-#| msgid "No object was selected, please check at least one name."
 msgid "No object was selected, please check at least one."
 msgstr "Aucun objet n'a été sélectionné, merci d'en cocher au moins un."
 
@@ -462,22 +459,16 @@ msgid "Id"
 msgstr "Id"
 
 #: ../lib/GaletteObjectsLend/LendService.php:165
-#, fuzzy
-#| msgid "Is object in stock or borrowed"
 msgid "This object cannot be borrowed."
-msgstr "L'objet est-il disponible ou sorti"
+msgstr "Cet objet ne peut pas être emprunté."
 
 #: ../lib/GaletteObjectsLend/LendService.php:213
-#, fuzzy
-#| msgid "%object has been returned :)"
 msgid "This object cannot be returned."
-msgstr "%object a été retourné :)"
+msgstr "Cet objet ne peut être retourné."
 
 #: ../lib/GaletteObjectsLend/LendService.php:242
-#, fuzzy
-#| msgid "You do not have rights to return objects!"
 msgid "You do not have rights to change objects status!"
-msgstr "Vous n'avez pas le droit de retourner des objets !"
+msgstr "Vous n'avez pas le droit de changer le statut des objets !"
 
 #: ../lib/GaletteObjectsLend/LendService.php:251
 msgid "This status cannot be set."
@@ -485,7 +476,7 @@ msgstr "Ce statut ne peut pas être défini."
 
 #: ../lib/GaletteObjectsLend/LendService.php:300
 msgid "Returned on member removal"
-msgstr ""
+msgstr "Retour à la suppression des ahdérents"
 
 #: ../lib/GaletteObjectsLend/LendService.php:392
 msgid ""
@@ -496,10 +487,8 @@ msgstr ""
 
 #: ../lib/GaletteObjectsLend/LendService.php:439
 #: ../lib/GaletteObjectsLend/LendService.php:451
-#, fuzzy
-#| msgid "An error occurred while storing the category."
 msgid "An error occurred while storing the contribution."
-msgstr "Une erreur est survenue à l'enregistrement de la catégorie."
+msgstr "Une erreur est survenue à l'enregistrement de la contribution."
 
 #: ../templates/default/status_edit.html.twig:20
 #: ../templates/default/take_object.html.twig:98
@@ -859,12 +848,11 @@ msgid "Stock"
 msgstr "Stock"
 
 #: ../templates/default/status_list.html.twig:41
-#, fuzzy, php-format
-#| msgid "status"
+#, php-format
 msgid "%1$s status"
 msgid_plural "%1$s statuses"
-msgstr[0] "statut"
-msgstr[1] "statut"
+msgstr[0] "%1$s statut"
+msgstr[1] "%1$s statuts"
 
 #: ../templates/default/status_list.html.twig:56
 msgid "Add a status"
@@ -944,7 +932,6 @@ msgid "Take away"
 msgstr "Emprunter"
 
 #: ../templates/default/objects_list.html.twig:318
-#, fuzzy
 msgid "Give back"
 msgstr "Rendre"
 
