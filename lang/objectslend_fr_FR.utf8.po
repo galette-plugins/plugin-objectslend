@@ -1,12 +1,12 @@
-# Johan Cwiklinski <trasher@x-tnd.be>, 2020, 2021, 2022, 2023, 2024.
+# Johan Cwiklinski <trasher@x-tnd.be>, 2020, 2021, 2022, 2023, 2024, 2026.
 # Damien <mouette03@yahoo.fr>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: translations@galette.eu\n"
 "POT-Creation-Date: 2026-09-27 18:15+0200\n"
-"PO-Revision-Date: 2026-09-28 04:01+0000\n"
-"Last-Translator: Damien <mouette03@yahoo.fr>\n"
+"PO-Revision-Date: 2026-09-28 05:06+0000\n"
+"Last-Translator: Johan Cwiklinski <trasher@x-tnd.be>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/galette/"
 "objectslend-plugin/fr/>\n"
 "Language: fr_FR\n"
@@ -257,7 +257,7 @@ msgstr "Les contributions générées doivent être de type don."
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:109
 msgid "Preferences have been successfully stored!"
-msgstr "Les préférences ont été sauvegardées avec succès !"
+msgstr "Les préférences ont été sauvegardées avec succès !"
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:138
 #, fuzzy
