@@ -5,9 +5,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: translations@galette.eu\n"
 "POT-Creation-Date: 2026-09-27 18:15+0200\n"
-"PO-Revision-Date: 2026-09-23 14:07+0000\n"
+"PO-Revision-Date: 2026-09-28 08:56+0000\n"
 "Last-Translator: Jože Felicijan <joze@felicijan.com>\n"
 "Language-Team: Slovenian <https://hosted.weblate.org/projects/galette/"
 "objectslend-plugin/sl/>\n"
@@ -256,7 +256,7 @@ msgstr "Nastavitve posojanja predmetov"
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:87
 msgid "Generated contributions must be of a donation type."
-msgstr ""
+msgstr "Ustvarjeni prispevki morajo biti v obliki donacije."
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:109
 msgid "Preferences have been successfully stored!"
@@ -264,17 +264,17 @@ msgstr "Nastavitve so bile uspešno shranjene!"
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:138
 msgid "Sample data can only be loaded into an empty catalog."
-msgstr ""
+msgstr "Vzorčne podatke je mogoče naložiti le v prazen katalog."
 
 #. TRANS: %1$d is the number of objects, %2$d the number of rents
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:147
 #, php-format
 msgid "Sample data loaded: %1$d objects, %2$d rents."
-msgstr ""
+msgstr "Vzorčni podatki naloženi: %1$d objektov, %2$d najemov."
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:156
 msgid "Sample data could not be loaded."
-msgstr ""
+msgstr "Vzorčnih podatkov ni bilo mogoče naložiti."
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:88
 msgid "Please add at last one status \"in stock\"!"
@@ -309,6 +309,8 @@ msgstr "Pri shranjevanju stanja je prišlo do napake."
 msgid ""
 "This status is used by lends, it cannot be removed. Deactivate it instead."
 msgstr ""
+"Ta status uporabljajo posoje in ga ni mogoče odstraniti. Namesto tega ga "
+"deaktivirajte."
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:200
 #, php-format
@@ -352,7 +354,7 @@ msgstr "Seznam najemnin za %objekt"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:273
 msgid "No object was selected, please check at least one."
-msgstr ""
+msgstr "Noben predmet ni bil izbran; prosimo, izberite vsaj enega."
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:307
 #: ../templates/default/objects_list.html.twig:255
@@ -457,42 +459,36 @@ msgid "Id"
 msgstr "Id"
 
 #: ../lib/GaletteObjectsLend/LendService.php:165
-#, fuzzy
-#| msgid "Is object in stock or borrowed"
 msgid "This object cannot be borrowed."
-msgstr "Je predmet na zalogi ali izposojen"
+msgstr "Tega predmeta si ni mogoče izposoditi."
 
 #: ../lib/GaletteObjectsLend/LendService.php:213
-#, fuzzy
-#| msgid "%object has been returned :)"
 msgid "This object cannot be returned."
-msgstr "%object je bil vrnjen :)"
+msgstr "Tega predmeta ni mogoče vrniti."
 
 #: ../lib/GaletteObjectsLend/LendService.php:242
-#, fuzzy
-#| msgid "You do not have rights to return objects!"
 msgid "You do not have rights to change objects status!"
-msgstr "Nimate pravice do vračila predmetov!"
+msgstr "Nimate pravic za spremembo stanja objektov!"
 
 #: ../lib/GaletteObjectsLend/LendService.php:251
 msgid "This status cannot be set."
-msgstr ""
+msgstr "Tega statusa ni mogoče nastaviti."
 
 #: ../lib/GaletteObjectsLend/LendService.php:300
 msgid "Returned on member removal"
-msgstr ""
+msgstr "Vrnjeno ob odstranitvi člana"
 
 #: ../lib/GaletteObjectsLend/LendService.php:392
 msgid ""
 "Generated contributions must be of a donation type, check plugin preferences."
 msgstr ""
+"Ustvarjeni prispevki morajo biti v obliki donacije; preverite nastavitve "
+"vtičnika."
 
 #: ../lib/GaletteObjectsLend/LendService.php:439
 #: ../lib/GaletteObjectsLend/LendService.php:451
-#, fuzzy
-#| msgid "An error occurred while storing the category."
 msgid "An error occurred while storing the contribution."
-msgstr "Pri shranjevanju kategorije je prišlo do napake."
+msgstr "Pri shranjevanju prispevka je prišlo do napake."
 
 #: ../templates/default/status_edit.html.twig:20
 #: ../templates/default/take_object.html.twig:98
@@ -559,6 +555,7 @@ msgid ""
 "A copy of \"%1$s\" will be created, without its picture nor its lends "
 "history."
 msgstr ""
+"Ustvarjena bo kopija datoteke »%1$s«, brez slike in brez zgodovine izposoje."
 
 #: ../templates/default/clone_object.html.twig:19
 #: ../templates/default/objects_edit.html.twig:105
@@ -662,12 +659,12 @@ msgstr "Največja višina palca (v slikovnih pikah)"
 
 #: ../templates/default/preferences.html.twig:116
 msgid "Max picture size (in Ko)"
-msgstr ""
+msgstr "Največja velikost slike (v KB)"
 
 #: ../templates/default/preferences.html.twig:116
 #, php-format
 msgid "0 to use the Galette setting for pictures, currently %1$s"
-msgstr ""
+msgstr "0 za uporabo nastavitve Galette za slike, trenutno %1$s"
 
 #: ../templates/default/preferences.html.twig:121
 msgid "Images in lists:"
@@ -719,17 +716,19 @@ msgstr "Ogled teže"
 
 #: ../templates/default/preferences.html.twig:166
 msgid "Sample data"
-msgstr ""
+msgstr "Vzorčni podatki"
 
 #: ../templates/default/preferences.html.twig:167
 msgid ""
 "The catalog is empty. You can fill it with sample categories, statuses and "
 "objects, along with a rents history given to existing members."
 msgstr ""
+"Katalog je prazen. Napolnite ga lahko s vzorčnimi kategorijami, statusi in "
+"predmeti ter zgodovino najemov za obstoječe člane."
 
 #: ../templates/default/preferences.html.twig:169
 msgid "Load sample data"
-msgstr ""
+msgstr "Naloži vzorčne podatke"
 
 #: ../templates/default/objects_edit.html.twig:18
 #: ../templates/default/take_object.html.twig:22
@@ -845,14 +844,13 @@ msgid "Stock"
 msgstr "Zaloga"
 
 #: ../templates/default/status_list.html.twig:41
-#, fuzzy, php-format
-#| msgid "New status"
+#, php-format
 msgid "%1$s status"
 msgid_plural "%1$s statuses"
-msgstr[0] "Novo stanje"
-msgstr[1] "Novo stanje"
-msgstr[2] "Novo stanje"
-msgstr[3] "Novo stanje"
+msgstr[0] "%1$s stanje"
+msgstr[1] "%1$s stanji"
+msgstr[2] "%1$s stanja"
+msgstr[3] "%1$s stanj"
 
 #: ../templates/default/status_list.html.twig:56
 msgid "Add a status"
