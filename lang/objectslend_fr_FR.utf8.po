@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: translations@galette.eu\n"
+"Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-27 18:15+0200\n"
 "PO-Revision-Date: 2026-09-28 08:56+0000\n"
 "Last-Translator: Johan Cwiklinski <trasher@x-tnd.be>\n"
@@ -664,7 +664,8 @@ msgstr "Taille maximale de l'image (en Ko)"
 #: ../templates/default/preferences.html.twig:116
 #, php-format
 msgid "0 to use the Galette setting for pictures, currently %1$s"
-msgstr "0 pour utiliser le paramètre Galette pour les photos, actuellement %1$s"
+msgstr ""
+"0 pour utiliser le paramètre Galette pour les photos, actuellement %1$s"
 
 #: ../templates/default/preferences.html.twig:121
 msgid "Images in lists:"
