@@ -16,7 +16,7 @@ $this->register(
     version: '2.3.0',                           //Version
     compver: '1.3.0',                           //Galette version compatibility
     route: 'objectslend',                       //routing name and translation domain
-    date: '2026-09-30',                         //Date
+    date: '2026-10-03',                         //Date
     acls: [
         'objectslend_preferences'       => 'admin',
         'store_objectlend_preferences'  => 'admin',
