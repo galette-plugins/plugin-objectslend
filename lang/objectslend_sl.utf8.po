@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: translations@galette.eu\n"
 "POT-Creation-Date: 2026-09-30 12:08+0200\n"
-"PO-Revision-Date: 2026-09-29 05:39+0000\n"
+"PO-Revision-Date: 2026-10-03 12:34+0000\n"
 "Last-Translator: Jože Felicijan <joze@felicijan.com>\n"
 "Language-Team: Slovenian <https://hosted.weblate.org/projects/galette/"
 "objectslend-plugin/sl/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3;\n"
-"X-Generator: Weblate 2026.10.dev0\n"
+"X-Generator: Weblate 2026.10.1.dev0\n"
 
 #. TRANS: this is a filename
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:52
@@ -447,7 +447,7 @@ msgstr "Kategorije predmetov"
 
 #: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:87
 msgid "Preferences"
-msgstr "Nastavitve"
+msgstr "Nastavitva"
 
 #: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:173
 msgid "Name/description"
