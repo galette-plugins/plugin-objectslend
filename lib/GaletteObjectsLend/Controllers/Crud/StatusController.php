@@ -1,370 +1,204 @@
 <?php
 
 /**
- * Copyright © 2003-2025 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
 namespace GaletteObjectsLend\Controllers\Crud;
 
-use DI\Attribute\Inject;
+use Galette\Core\Pagination;
+use GaletteObjectsLend\Entity\LendCategory;
+use GaletteObjectsLend\Entity\LendStatus;
 use GaletteObjectsLend\Filters\StatusList;
 use GaletteObjectsLend\Repository\Status;
-use GaletteObjectsLend\Entity\LendStatus;
-use GaletteObjectsLend\Entity\Preferences;
-use Galette\Controllers\Crud\AbstractPluginController;
-use Slim\Psr7\Request;
-use Slim\Psr7\Response;
 
 /**
  * Status controller
  *
  * @author Johan Cwiklinski <johan@x-tnd.be>
+ *
+ * @extends AbstractListController<LendStatus, StatusList>
  */
-
-class StatusController extends AbstractPluginController
+class StatusController extends AbstractListController
 {
     /**
-     * @var array<string, mixed>
+     * Default filter name, used to store filters in session
      */
-    #[Inject("Plugin Galette Objects Lend")]
-    protected array $module_info;
-
-    // CRUD - Create
-
-    /**
-     * Add page
-     *
-     * @param Request  $request  PSR Request
-     * @param Response $response PSR Response
-     *
-     * @return Response
-     */
-    public function add(Request $request, Response $response): Response
+    public static function getDefaultFilterName(): string
     {
-        return $this->edit($request, $response, null, 'add');
+        return 'statuses';
     }
 
     /**
-     * Add action
-     *
-     * @param Request  $request  PSR Request
-     * @param Response $response PSR Response
-     *
-     * @return Response
+     * Routes name part
      */
-    public function doAdd(Request $request, Response $response): Response
+    protected function getEntityRouteName(): string
     {
-        return $this->doEdit($request, $response, null, 'add');
+        return 'status';
     }
 
-    // /CRUD - Create
-    // CRUD - Read
+    /**
+     * Name of the list route
+     */
+    protected function getListRouteName(): string
+    {
+        return 'objectslend_statuses';
+    }
 
     /**
-     * List page
-     *
-     * @param Request         $request  PSR Request
-     * @param Response        $response PSR Response
-     * @param string|null     $option   One of 'page' or 'order'
-     * @param int|string|null $value    Value of the option
-     *
-     * @return Response
+     * Create empty filters
      */
-    public function list(Request $request, Response $response, ?string $option = null, int|string|null $value = null): Response
+    protected function createFilters(): StatusList
     {
-        if (isset($this->session->objectslend_filter_statuses)) {
-            $filters = $this->session->objectslend_filter_statuses;
-        } else {
-            $filters = new StatusList();
-        }
+        return new StatusList();
+    }
 
-        if ($option !== null) {
-            switch ($option) {
-                case 'page':
-                    $filters->current_page = (int)$value;
-                    break;
-                case 'order':
-                    $filters->orderby = $value;
-                    break;
-            }
+    /**
+     * Apply posted filters specific to the list
+     *
+     * @param StatusList          $filters Filters
+     * @param array<string,mixed> $post    Posted values
+     */
+    protected function applyOwnFilters(Pagination $filters, array $post): void
+    {
+        if (isset($post['stock_filter']) && is_numeric($post['stock_filter'])) {
+            $filters->stock_filter = $post['stock_filter'];
         }
+    }
 
-        $statuses = new Status($this->zdb, $this->login, $filters);
+    /**
+     * Get list template name and parameters
+     *
+     * @param StatusList $filters Filters
+     *
+     * @return array{0: string, 1: array<string,mixed>}
+     */
+    protected function getListView(Pagination $filters): array
+    {
+        $statuses = new Status($this->zdb, $this->preferences, $this->login, $filters);
         $list = $statuses->getStatusList(true);
 
-        if (count(LendStatus::getActiveStockStatuses($this->zdb)) == 0) {
+        if (count($statuses->getActiveStockStatuses()) == 0) {
             $this->flash->addMessage(
                 'error_detected',
                 _T("Please add at last one status \"in stock\"!", "objectslend")
             );
         }
-        if (count(LendStatus::getActiveTakeAwayStatuses($this->zdb)) == 0) {
+        if (count($statuses->getActiveTakeAwayStatuses()) == 0) {
             $this->flash->addMessage(
                 'error_detected',
                 _T("Please add at least one status \"object borrowed\"!", "objectslend")
             );
         }
 
-        $this->session->objectslend_filter_statuses = $filters;
-
-        //assign pagination variables to the template and add pagination links
-        $filters->setViewPagination($this->routeparser, $this->view, false);
-
-        $lendsprefs = new Preferences($this->zdb);
-        // display page
-        $this->view->render(
-            $response,
-            $this->getTemplate('status_list'),
+        return [
+            'status_list',
             [
-                'page_title'            => _T("Status list", "objectslend"),
-                'require_dialog'        => true,
-                'statuses'              => $list,
-                'nb_status'             => count($list),
-                'olendsprefs'           => $lendsprefs,
-                'filters'               => $filters,
-                'time'                  => time()
+                'page_title'    => _T("Status list", "objectslend"),
+                'statuses'      => $list,
+                'nb_status'     => count($list)
             ]
-        );
-        return $response;
+        ];
     }
 
     /**
-     * Filtering
+     * Load an entity
      *
-     * @param Request  $request  PSR Request
-     * @param Response $response PSR Response
-     *
-     * @return Response
+     * @param ?int $id Entity ID, null for a new one
      */
-    public function filter(Request $request, Response $response): Response
+    protected function loadEntity(?int $id): LendStatus
     {
-        $post = $request->getParsedBody();
-        if (isset($this->session->objectslend_filter_statuses)) {
-            $filters = $this->session->objectslend_filter_statuses;
-        } else {
-            $filters = new StatusList();
-        }
-
-        //reintialize filters
-        if (isset($post['clear_filter'])) {
-            $filters->reinit();
-        } else {
-            //string to filter
-            if (isset($post['filter_str'])) { //filter search string
-                $filters->filter_str = stripslashes(
-                    htmlspecialchars($post['filter_str'], ENT_QUOTES)
-                );
-            }
-            //activity to filter
-            if (isset($post['active_filter'])) {
-                if (is_numeric($post['active_filter'])) {
-                    $filters->active_filter = $post['active_filter'];
-                }
-            }
-            //stock to filter
-            if (isset($post['stock_filter'])) {
-                if (is_numeric($post['stock_filter'])) {
-                    $filters->stock_filter = $post['stock_filter'];
-                }
-            }
-
-            //number of rows to show
-            if (isset($post['nbshow'])) {
-                $filters->show = $post['nbshow'];
-            }
-        }
-
-        $this->session->objectslend_filter_statuses = $filters;
-
-        return $response
-            ->withStatus(301)
-            ->withHeader('Location', $this->routeparser->urlFor('objectslend_statuses'));
+        return new LendStatus($this->zdb, $id);
     }
 
-    // /CRUD - Read
-    // CRUD - Update
+    /**
+     * Fill status from posted values
+     *
+     * @param LendStatus          $entity Status
+     * @param array<string,mixed> $post   Posted values
+     */
+    protected function fillEntity(LendCategory|LendStatus $entity, array $post): void
+    {
+        $days = trim($post['rent_day_number']);
+        $entity
+            ->setText($post['text'])
+            ->setInStock(isset($post['in_stock']))
+            ->setActive(isset($post['is_active']))
+            ->setRentDayNumber(strlen($days) > 0 ? (int)$days : null);
+    }
 
     /**
-     * Edit page
+     * Get edit template name and parameters
      *
-     * @param Request  $request  PSR Request
-     * @param Response $response PSR Response
-     * @param int|null $id       Model id
-     * @param string   $action   Action
+     * @param LendStatus $entity Status
+     * @param string     $action Either add or edit
      *
-     * @return Response
+     * @return array{0: string, 1: array<string,mixed>}
      */
-    public function edit(Request $request, Response $response, ?int $id = null, string $action = 'edit'): Response
+    protected function getEditView(LendCategory|LendStatus $entity, string $action): array
     {
-        if ($this->session->objectslend_status !== null) {
-            $status = $this->session->objectslend_status;
-            $this->session->objectslend_status = null;
-        } else {
-            $status = new LendStatus($this->zdb, $id);
-        }
-
-        if ($status->status_id !== null) {
+        if ($entity->getId() !== null) {
             $title = str_replace(
                 '%status',
-                $status->status_text,
+                $entity->getText(),
                 _T("Edit status %status", "objectslend")
             );
         } else {
             $title = _T("New status", "objectslend");
         }
 
-        $params = [
-            'page_title'    => $title,
-            'status'        => $status,
-            'action'        => $action
+        return [
+            'status_edit',
+            [
+                'page_title'    => $title,
+                'status'        => $entity
+            ]
         ];
-
-        // display page
-        $this->view->render(
-            $response,
-            $this->getTemplate('status_edit'),
-            $params
-        );
-        return $response;
     }
 
     /**
-     * Edit action
-     *
-     * @param Request  $request  PSR Request
-     * @param Response $response PSR Response
-     * @param null|int $id       Model id for edit
-     * @param string   $action   Either add or edit
-     *
-     * @return Response
+     * Message displayed once the entity has been stored
      */
-    public function doEdit(Request $request, Response $response, ?int $id = null, string $action = 'edit'): Response
+    protected function getStoredMessage(): string
     {
-        $post = $request->getParsedBody();
-        $status = new LendStatus($this->zdb, $id);
-        $error_detected = [];
+        return _T("Status has been saved", "objectslend");
+    }
 
-        $status->status_text = $post['text'];
-        $status->in_stock = isset($post['in_stock']);
-        $status->is_active = isset($post['is_active']);
-        $days = trim($post['rent_day_number']);
-        $status->rent_day_number = strlen($days) > 0 ? (int)$days : null;
-        if (!$status->store()) {
-            $error_detected[] = _T("An error occurred while storing the status.", "objectslend");
+    /**
+     * Message displayed when the entity cannot be stored
+     */
+    protected function getStoreErrorMessage(): string
+    {
+        return _T("An error occurred while storing the status.", "objectslend");
+    }
+
+    /**
+     * A status used by rents is kept for their history
+     *
+     * @param LendStatus $entity Status
+     */
+    protected function getRemovalRefusal(LendCategory|LendStatus $entity): ?string
+    {
+        if ($entity instanceof LendStatus && $entity->isUsed()) {
+            return _T("This status is used by lends, it cannot be removed. Deactivate it instead.", "objectslend");
         }
-
-        if (count($error_detected)) {
-            $this->session->objectslend_status = $status;
-            foreach ($error_detected as $error) {
-                $this->flash->addMessage(
-                    'error_detected',
-                    $error
-                );
-            }
-
-            $args = ($action == 'edit' ? ['id' => $status->status_id] : []);
-            return $response
-                ->withStatus(301)
-                ->withHeader(
-                    'Location',
-                    $this->routeparser->urlFor(
-                        'objectslend_status_' . $action,
-                        $args
-                    )
-                );
-        } else {
-            //redirect to status list
-            $this->flash->addMessage(
-                'success_detected',
-                _T("Status has been saved", "objectslend")
-            );
-
-            return $response
-                ->withStatus(301)
-                ->withHeader(
-                    'Location',
-                    $this->routeparser->urlFor('objectslend_statuses')
-                );
-        }
-    }
-
-    // /CRUD - Update
-    // CRUD - Delete
-
-    /**
-     * Get redirection URI
-     *
-     * @param array<string,mixed> $args Route arguments
-     *
-     * @return string
-     */
-    public function redirectUri(array $args): string
-    {
-        return $this->routeparser->urlFor('objectslend_statuses');
-    }
-
-    /**
-     * Get form URI
-     *
-     * @param array<string,mixed> $args Route arguments
-     *
-     * @return string
-     */
-    public function formUri(array $args): string
-    {
-        return $this->routeparser->urlFor(
-            'objectslend_doremove_status',
-            $args
-        );
+        return null;
     }
 
     /**
      * Get confirmation removal page title
      *
      * @param array<string,mixed> $args Route arguments
-     *
-     * @return string
      */
     public function confirmRemoveTitle(array $args): string
     {
-        $status = new LendStatus($this->zdb, (int)$args['id']);
         return sprintf(
             _T('Remove status %1$s', 'objectslend'),
-            $status->status_text
+            $this->loadEntity((int)$args['id'])->getText()
         );
     }
-
-    /**
-     * Remove object
-     *
-     * @param array<string,mixed> $args Route arguments
-     * @param array<string,mixed> $post POST values
-     *
-     * @return bool
-     */
-    protected function doDelete(array $args, array $post): bool
-    {
-        $status = new LendStatus($this->zdb, (int)$args['id']);
-        return $status->delete();
-    }
-
-    // /CRUD - Delete
-    // /CRUD
 }

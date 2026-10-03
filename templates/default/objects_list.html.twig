@@ -1,27 +1,95 @@
 {#
-/**
- * Copyright © 2003-2024 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
- */
-#}
+ # This file is part of Galette Objects Lend plugin (https://galette.eu).
+ # SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ # SPDX-License-Identifier: GPL-3.0-or-later
+ #}
+
 {% extends 'elements/list.html.twig' %}
 {% import "macros.twig" as macros %}
+{% import "@PluginGaletteObjectslend/macros.twig" as lend %}
 
 {% set nb = nb_objects %}
+
+{% set columns = [] %}
+
+{% if login.isAdmin() or login.isStaff() %}
+    {% set columns = columns|merge([
+        {
+            'label': '#',
+            'collapse': true
+        },
+    ]) %}
+{% endif %}
+
+{% if olendsprefs.imagesInLists() %}
+    {% set columns = columns|merge([
+        {
+            'label': _T("Picture"),
+            'collapse': true
+        },
+    ]) %}
+{% endif %}
+
+{% set columns = columns|merge([
+    {'label': _T("Name", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_NAME")},
+]) %}
+
+{% if lendsprefs.view_serial %}
+    {% set columns = columns|merge([
+        {'label': _T("Serial", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_SERIAL")},
+    ]) %}
+{% endif %}
+
+{% if lendsprefs.view_price %}
+    {% set columns = columns|merge([
+        {'label': _T("Price", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_PRICE")},
+    ]) %}
+{% endif %}
+
+{% if lendsprefs.view_lend_price %}
+    {% set columns = columns|merge([
+        {'label': _T("Borrow price", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_RENTPRICE")},
+    ]) %}
+{% endif %}
+
+{% if lendsprefs.view_dimension %}
+    {% set columns = columns|merge([
+        {'label': _T("Dimensions", "objectslend")},
+    ]) %}
+{% endif %}
+
+{% if lendsprefs.view_weight %}
+    {% set columns = columns|merge([
+        {'label': _T("Weight", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_WEIGHT")},
+    ]) %}
+{% endif %}
+
+{% set columns = columns|merge([
+    {'label': _T("Status", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_STATUS")},
+    {
+        'label': _T("Since", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_BDATE"),
+        'collapse': true
+    },
+    {'label': _T("By", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_MEMBER")},
+]) %}
+
+{% if lendsprefs.view_date_forecast %}
+    {% set columns = columns|merge([
+        {
+            'label': _T("Return", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_FDATE"),
+            'collapse': true
+        },
+    ]) %}
+{% endif %}
+
+{% if login.isAdmin() or login.isStaff() %}
+    {% set columns = columns|merge([
+        {
+            'label': _T("Active", "objectslend"),
+            'collapse': true
+        },
+    ]) %}
+{% endif %}
 
 {% set form = {
     'order': {
@@ -34,7 +102,7 @@
 
 {% block infoline %}
     {% set infoline = {
-        'label': _Tn("%count entry", "%count entries", nb)|replace({"%count": nb}),
+        'label': _Tn("%1$s entry", "%1$s entries", nb)|format(nb),
         'route': {
             'name': 'objectslend_filter_objects'
         }
@@ -54,99 +122,11 @@
     {% endif %}
 {% endblock %}
 
-{% block header %}
-    {% set columns = [] %}
-
-    {% if login.isAdmin() or login.isStaff() %}
-        {% set columns = columns|merge([
-            {
-                'label': '#',
-                'collapse': true
-            },
-        ]) %}
-    {% endif %}
-
-    {% if olendsprefs.imagesInLists() %}
-        {% set columns = columns|merge([
-            {
-                'label': _T("Picture"),
-                'collapse': true
-            },
-        ]) %}
-    {% endif %}
-
-    {% set columns = columns|merge([
-        {'label': _T("Name", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_NAME")},
-    ]) %}
-
-    {% if lendsprefs.VIEW_SERIAL %}
-        {% set columns = columns|merge([
-            {'label': _T("Serial", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_SERIAL")},
-        ]) %}
-    {% endif %}
-
-    {% if lendsprefs.VIEW_PRICE %}
-        {% set columns = columns|merge([
-            {'label': _T("Price", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_PRICE")},
-        ]) %}
-    {% endif %}
-
-    {% if lendsprefs.VIEW_LEND_PRICE %}
-        {% set columns = columns|merge([
-            {'label': _T("Borrow price", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_RENTPRICE")},
-        ]) %}
-    {% endif %}
-
-    {% if lendsprefs.VIEW_DIMENSION %}
-        {% set columns = columns|merge([
-            {'label': _T("Dimensions", "objectslend")},
-        ]) %}
-    {% endif %}
-
-    {% if lendsprefs.VIEW_WEIGHT %}
-        {% set columns = columns|merge([
-            {'label': _T("Weight", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_WEIGHT")},
-        ]) %}
-    {% endif %}
-
-    {% set columns = columns|merge([
-        {'label': _T("Status", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_STATUS")},
-        {
-            'label': _T("Since", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_BDATE"),
-            'collapse': true
-        },
-        {'label': _T("By", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_MEMBER")},
-    ]) %}
-
-    {% if lendsprefs.VIEW_DATE_FORECAST %}
-        {% set columns = columns|merge([
-            {
-                'label': _T("Return", "objectslend"), 'order': constant("GaletteObjectsLend\\Repository\\Objects::ORDERBY_FDATE"),
-                'collapse': true
-            },
-        ]) %}
-    {% endif %}
-
-    {% if login.isAdmin() or login.isStaff() %}
-        {% set columns = columns|merge([
-            {
-                'label': _T("Active", "objectslend"),
-                'collapse': true
-            },
-        ]) %}
-    {% endif %}
-
-    {{ parent() }}
-{% endblock %}
-
 {% block search %}
     <form id="filtre" method="POST" action="{{ url_for("objectslend_filter_objects") }}" class="ui form filters">
         <div class="ui secondary yellow segment">
-            <div class="three fields">
-                <div class="field">
-                    <label for="filter_str">{{ _T('Search:') }}</label>
-                    <input type="text" name="filter_str" id="filter_str" value="{{ filters.filter_str }}" type="search" placeholder="{{ _T('Enter a value') }}"/>
-                </div>
+            <div class="{% if lendsprefs.view_category and categories|length > 0 %}three{% else %}two{% endif %} fields">
+                {{ lend.searchField(filters.filter_str) }}
                 <div class="field">
                     <label for="field_filter">{{ _T('in:') }}</label>
                     <select name="field_filter" id="field_filter" class="ui search dropdown nochosen">
@@ -155,81 +135,38 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="field">
-                    <label for="email_filter">{{ _T("Active:", "objectslend") }}</label>
-                    <div class="inline fields">
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_dc_active" value="{{ constant('GaletteObjectsLend\\Repository\\Objects::ALL_OBJECTS') }}"{% if filters.active_filter == constant('Galette\\Repository\\Members::FILTER_DC_EMAIL') %} checked="checked"{% endif %}>
-                                <label for="filter_dc_active">{{ _T("Don't care") }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_yes_active" value="{{ constant('GaletteObjectsLend\\Repository\\Objects::ACTIVE_OBJECTS') }}"{% if filters.active_filter == constant('Galette\\Repository\\Members::FILTER_W_EMAIL') %} checked="checked"{% endif %}>
-                                <label for="filter_yes_active">{{ _T('Yes') }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_no_active" value="{{ constant('GaletteObjectsLend\\Repository\\Objects::INACTIVE_OBJECTS') }}"{% if filters.active_filter == constant('Galette\\Repository\\Members::FILTER_WO_EMAIL') %} checked="checked"{% endif %}>
-                                <label for="filter_no_active">{{ _T('No') }}</label>
+                {% if lendsprefs.view_category and categories|length > 0 %}
+                    <div class="field">
+                        <label id="category_filter_label">{{ _T("Category:", "objectslend") }}</label>
+                        <div class="ui selection dropdown" aria-labelledby="category_filter_label">
+                            <input type="hidden" name="category_filter" value="{{ filters.category_filter }}"/>
+                            <i class="dropdown icon" aria-hidden="true"></i>
+                            <div class="default text">{{ _T("All") }}</div>
+                            <div class="menu">
+                                <div class="item" data-value="">
+                                    <img class="ui avatar image" src="{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": 0}) }}" alt=""/>
+                                    {{ _T("All") }}
+                                </div>
+                                {% for categ in categories %}
+                                    <div class="item" data-value="{{ categ.getId() }}">
+                                        {% if lendsprefs.view_list_price_sum and lendsprefs.view_price and (login.isAdmin() or login.isStaff()) %}
+                                            <span class="description">{{ categ.getSum()|format_currency('EUR', {}, i18n.getWebID()) }}</span>
+                                        {% endif %}
+                                        <img class="ui avatar image" src="{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": categ.getId()}) }}" alt=""/>
+                                        {{ categ.getName() }}
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="ui right aligned basic fitted segment field flexend">
-                    <button type="submit"  class="ui labeled icon primary button" title="{{ _T("Apply filters") }}" name="filter">
-                        <i class="search icon"></i>
-                        {{ _T("Filter") }}
-                    </button>
-                    <button type="submit" name="clear_filter" class="ui labeled icon button tooltip" title="{{ _T("Reset all filters to defaults") }}">
-                        <i class="trash alt red icon" aria-hidden="true"></i>
-                        {{ _T("Clear filter") }}
-                    </button>
-                </div>
+                {% endif %}
+            </div>
+            <div class="two fields last-child">
+                {{ lend.triStateFilter('active_filter', 'active', _T("Active:", "objectslend"), filters.active_filter, {dc: constant('GaletteObjectsLend\\Repository\\Objects::ALL_OBJECTS'), yes: constant('GaletteObjectsLend\\Repository\\Objects::ACTIVE_OBJECTS'), no: constant('GaletteObjectsLend\\Repository\\Objects::INACTIVE_OBJECTS')}) }}
+                {{ lend.filterButtons() }}
             </div>
         </div>
-        {% include "components/forms/csrf.html.twig" %}
     </form>
-
-    {% if lendsprefs.VIEW_CATEGORY and categories|length > 0 %}
-        <div class="galetteform ui styled fluid accordion field">
-            <div class="ui title">
-                <i class="jsonly displaynone dropdown icon" aria-hidden="true"></i>
-                {{ _T("Categories", "objectslend") }}
-            </div>
-            <div class="content">
-                <div class="ui huge labels">
-                    <a class="ui{% if filters.category_filter == null %} primary{% endif %} image label" href="{{ url_for("objectslend_objects", {"option": "category", "value": 0}) }}">
-                        <img
-                                src="{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": 0}) }}"
-                                alt=""
-                        />
-                        {{ _T("All") }}
-                    </a>
-
-                    {% for categ in categories %}
-                        {% if categ.isActive() or categ.getId() == -1 %}
-                            <a class="ui{% if filters.category_filter == categ.getId() %} primary{% endif %} image label" href="{{ url_for("objectslend_objects", {"option": "category", "value": categ.getId()}) }}">
-                                <img
-                                    src="{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": categ.getId()}) }}"
-                                    width="{{ categ.getPicture().getOptimalThumbWidth(olendsprefs) }}"
-                                    height="{{ categ.getPicture().getOptimalThumbHeight(olendsprefs) }}"
-                                    alt=""
-                                />
-                                {{ categ.getName() }}
-                            {% if lendsprefs.VIEW_LIST_PRICE_SUM and lendsprefs.VIEW_PRICE and (login.isAdmin() or login.isStaff()) %}
-                                <div class="detail">{{ categ.getSum() }} &euro;</div>
-                            {% endif %}
-                            </a>
-                        {% endif %}
-                    {% endfor %}
-
-                </div>
-            </div>
-        </div>
-    {% endif %}
 {% endblock %}
 
 {% block body %}
@@ -238,38 +175,35 @@
             {% if login.isAdmin() or login.isStaff() %}
                 <td class="center collapsing" data-scope="row">
                     <span class="ui checkbox">
-                        <input type="checkbox" name="entries_sel[]" value="{{ object.getId() }}">
+                        <input type="checkbox" name="entries_sel[]" id="object_checkbox_{{ object.getId() }}" value="{{ object.getId() }}">
+                        <label for="object_checkbox_{{ object.getId() }}"><span class="visually-hidden">{{ object.getName() }}</span></label>
                     </span>
                 </td>
             {% endif %}
             {% if olendsprefs.imagesInLists() %}
                 <td class="center collapsing" data-col-label="{{ _T("Picture") }}">
-                    <img src="{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail", "id": object.getId()}) }}"
-                         class="picture"
-                         width="{{ object.getPicture().getOptimalThumbWidth(olendsprefs) }}"
-                         height="{{ object.getPicture().getOptimalThumbHeight(olendsprefs) }}"
-                         alt="{{ _T("Object photo", "objectslend") }}"/>
+                    {{ lend.thumbnail("object", object.getId(), object.getPicture(), olendsprefs, _T("Object photo", "objectslend")) }}
                 </td>
             {% endif %}
             <td data-col-label="{{ _T("Name", "objectslend") }}">
-                <strong>{{ object.displayName(filters)|raw }}</strong>
-                {% if lendsprefs.VIEW_DESCRIPTION %}
-                    <br/>{{ object.displayDescription(filters)|raw }}
+                <strong>{{ filters.highlight(object.getName()|e, 'name')|raw }}</strong>
+                {% if lendsprefs.view_description %}
+                    <br/>{{ filters.highlight(object.getDescriptionHtml(), 'description')|raw }}
                 {% endif %}
             </td>
-            {% if lendsprefs.VIEW_SERIAL %}
+            {% if lendsprefs.view_serial %}
                 <td data-col-label="{{ _T("Serial", "objectslend") }}">
-                    {{ object.displaySerial(filters)|raw }}
+                    {{ filters.highlight(object.getSerialNumber()|e, 'serial_number')|raw }}
                 </td>
             {% endif %}
-            {% if lendsprefs.VIEW_PRICE %}
+            {% if lendsprefs.view_price %}
                 <td class="right" data-col-label="{{ _T("Price", "objectslend") }}">
-                    {{ object.getPrice() }}&euro;
+                    {{ object.getPrice()|format_currency('EUR', {}, i18n.getWebID()) }}
                 </td>
             {% endif %}
-            {% if lendsprefs.VIEW_LEND_PRICE %}
+            {% if lendsprefs.view_lend_price %}
                 <td class="right" data-col-label="{{ _T("Borrow price", "objectslend") }}">
-                    {{ object.getRentPrice() }}&euro;<br/>
+                    {{ object.getRentPrice()|format_currency('EUR', {}, i18n.getWebID()) }}<br/>
                     {% if object.isPricePerDay() %}
                         {{ _T("(per day)", "objectslend") }}
                     {% else %}
@@ -277,14 +211,14 @@
                     {% endif %}
                 </td>
             {% endif %}
-            {% if lendsprefs.VIEW_DIMENSION %}
+            {% if lendsprefs.view_dimension %}
                 <td data-col-label="{{ _T("Dimensions", "objectslend") }}">
-                    {{ object.displayDimension(filters)|raw }}
+                    {{ filters.highlight(object.getDimension()|e, 'dimension')|raw }}
                 </td>
             {% endif %}
-            {% if lendsprefs.VIEW_WEIGHT %}
+            {% if lendsprefs.view_weight %}
                 <td data-col-label="{{ _T("Weight", "objectslend") }}">
-                    {{ object.weight }}
+                    {{ object.getWeight()|format_number({fraction_digit: 3}, 'decimal', 'default', i18n.getWebID()) }}
                 </td>
             {% endif %}
             <td data-col-label="{{ _T("Status", "objectslend") }}">
@@ -300,7 +234,7 @@
                     <a href="{{ url_for("member", {"id": object.getIdAdh()}) }}">{{ memberName({'id': object.getIdAdh()}) }}</a>
                 {% else %}-{% endif %}
             </td>
-            {% if lendsprefs.VIEW_DATE_FORECAST %}
+            {% if lendsprefs.view_date_forecast %}
                 <td class="center collapsing" data-col-label="{{ _T("Return", "objectslend") }}">
                     {{ object.getDateForecast() }}
                 </td>
@@ -308,8 +242,9 @@
             {% if login.isAdmin() or login.isStaff() %}
                 <td class="center collapsing" data-col-label="{{ _T("Active", "objectslend") }}">
                     <i
-                        class="thumbs {% if object.isActive() %}up green{% else %}down red{% endif %} icon tooltip"
-                        title="{% if object.isActive() %}{{ _T("Object is active", "objectslend") }}{% else %}{{ _T("Object is inactive", "objectslend") }}{% endif %}">
+                        class="{% if object.isActive() %}check circle green{% else %}times circle red{% endif %} icon tooltip"
+                        title="{% if object.isActive() %}{{ _T("Object is active", "objectslend") }}{% else %}{{ _T("Object is inactive", "objectslend") }}{% endif %}"
+                        aria-hidden="true">
                     </i>
                     <span class="visually-hidden">{% if object.isActive() %}{{ _T("Active", "objectslend") }}{% else %}{{ _T("Inactive", "objectslend") }}{% endif %}</span>
                 </td>
@@ -364,7 +299,7 @@
                 {% endif %}
 
                 {% if not object.getRentId() or object.inStock() %}
-                    {% if lendsprefs.ENABLE_MEMBER_RENT_OBJECT or login.isAdmin() or login.isStaff() %}
+                    {% if lendsprefs.enable_member_rent_object or login.isAdmin() or login.isStaff() %}
                         {% set actions = [
                             {
                                 'label': _T("Take away", "objectslend"),
@@ -401,9 +336,8 @@
             </td>
         </tr>
     {% else %}
-        {# FIXME: calculate colspan #}
         <tr>
-            <td colspan="14" class="emptylist">{{ _T("No object has been found", "objectslend") }}</td>
+            <td colspan="{{ columns_count }}" class="emptylist">{{ _T("No object has been found", "objectslend") }}</td>
         </tr>
     {% endfor %}
 {% endblock %}
@@ -439,135 +373,7 @@
     {{ parent() }}
 <script type="text/javascript">
 {% if nb_objects > 0 %}
-    $(function(){
-        $('.object_hist').on('click', function(e) {
-            e.preventDefault();
-            var _this = $(this);
-
-            $.ajax({
-                url: _this.attr('href'),
-                type: 'GET',
-                datatype: 'html',
-                {% include "elements/js/loader.js.twig" with {
-                    loader: "action",
-                } %},
-                success: function(res){
-                    var _content = $($.parseHTML(res)).find('div.main-content').children();
-                    {% include "elements/js/modal.js.twig" with {
-                        modal_title_twig: _T("History of object", "objectslend")|e("js"),
-                        modal_content: "_content",
-                        modal_class: "fullscreen",
-                        modal_content_class: "scrolling",
-                        modal_deny_only: true,
-                        modal_cancel_text: _T("Close")|e("js")
-                    } %}
-                },
-                error: function(){
-                    alert("{{ _T("An error occurred loading history display :(", "objectslend")|e("js") }}")
-                }
-            });
-        });
-    });
-
-    /*{% if login.isAdmin() or login.isStaff() %}
-        $('.batch-takeaway').click(function (e) {
-            e.preventDefault();
-            var _this = $(this);
-
-            _statusObjects();
-
-            $.ajax({
-                url: '{{ url_for("objectslend_object_take", {"action": "take", "id": ""}) }}',
-                type: 'GET',
-                data: {
-                    object_ids: get_checked_objets_ids()
-                },
-                datatype: 'html',
-                {% include "elements/js/loader.js.twig" with {
-                    loader: "action",
-                } %},
-                success: function(res){
-                    var _content = $($.parseHTML(res)).find('div.main-content').children();
-                    {% include "elements/js/modal.js.twig" with {
-                        modal_title_twig: _T("Take objects", "objectslend")|e("js"),
-                        modal_content: "_content",
-                        modal_class: "fullscreen",
-                        modal_content_class: "scrolling",
-                        modal_deny_only: true,
-                        modal_cancel_text: _T("Close")|e("js")
-                    } %}
-
-                    $('#lend_window input:submit, #lend_window .button, #lend_window input:reset' ).button({
-                      create: function(event, ui) {
-                          if ( $(event.target).hasClass('disabled') ) {
-                              $(event.target).button('disable');
-                          }
-                      }
-                    });
-
-                    _init_takeobject_js();
-
-                },
-                error: function(){
-                    alert("{{ _T("An error occurred loading 'Take away' display :(", "objectslend")|e("js") }}")
-                }
-            });
-        });
-
-        $('.batch-giveback').click(function (e) {
-            e.preventDefault();
-            var _this = $(this);
-
-            _statusObjects();
-
-            $.ajax({
-                url: '{{ url_for("objectslend_object_take", {"action": "return", "id": ""}) }}',
-                type: 'GET',
-                data: {
-                    object_ids: get_checked_objets_ids()
-                },
-                datatype: 'html',
-                {% include "elements/js/loader.js.twig" %},
-                success: function(res){
-                    var _content = $($.parseHTML(res)).find('div.main-content').children();
-                    {% include "elements/js/modal.js.twig" with {
-                        modal_title_twig: _T("Give back objects", "objectslend")|e("js"),
-                        modal_content: "_content",
-                        modal_class: "fullscreen",
-                        modal_content_class: "scrolling",
-                        modal_deny_only: true,
-                        modal_cancel_text: _T("Close")|e("js")
-                    } %}
-
-                    $('#lend_window input:submit, #lend_window .button, #lend_window input:reset' ).button({
-                        create: function(event, ui) {
-                            if ( $(event.target).hasClass('disabled') ) {
-                                $(event.target).button('disable');
-                            }
-                        }
-                    });
-
-                    _init_giveobject_js();
-
-                },
-                error: function(){
-                    alert("{{ _T("An error occurred loading 'Give back' display :(", "objectslend")|e("js") }}")
-                }
-            });
-        });
-
-        function _statusObjects(isAway) {
-            if (!$('.listing :checkbox:checked').length) {
-                return false;
-            }
-            var objectsIds = '';
-            $('.listing :checkbox:checked').each(function () {
-                objectsIds += $(this).val() + ',';
-            });
-            window.location = (isAway ? 'take_more_objects_away' : 'give_more_objects_back') + '.php?object_ids=' + objectsIds;
-            return false;
-        }*/
-    {% endif %}
+    {% include "@PluginGaletteObjectslend/history_modal.js.twig" %}
 {% endif %}
 </script>
 {% endblock %}

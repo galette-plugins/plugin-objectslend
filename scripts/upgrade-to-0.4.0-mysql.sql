@@ -1,3 +1,9 @@
+--
+-- This file is part of Galette Objects Lend plugin (https://galette.eu).
+-- SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+-- SPDX-License-Identifier: GPL-3.0-or-later
+--
+
 ALTER TABLE `galette_lend_status` CHANGE `is_galette_location` `is_home_location` TINYINT(1) NOT NULL;
 ALTER TABLE `galette_lend_status` ADD `rent_day_number` INT NULL DEFAULT NULL ;
 ALTER TABLE `galette_lend_rents` ADD `date_forecast` DATETIME NULL DEFAULT NULL AFTER `date_begin`;

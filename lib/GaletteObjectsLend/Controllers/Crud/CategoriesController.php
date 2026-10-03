@@ -1,22 +1,9 @@
 <?php
 
 /**
- * Copyright © 2003-2025 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 declare(strict_types=1);
@@ -24,340 +11,181 @@ declare(strict_types=1);
 namespace GaletteObjectsLend\Controllers\Crud;
 
 use Analog\Analog;
-use DI\Attribute\Inject;
+use Galette\Core\Pagination;
 use GaletteObjectsLend\Entity\CategoryPicture;
+use GaletteObjectsLend\Entity\LendCategory;
+use GaletteObjectsLend\Entity\LendStatus;
+use GaletteObjectsLend\LendPreferences;
 use GaletteObjectsLend\Filters\CategoriesList;
 use GaletteObjectsLend\Repository\Categories;
-use GaletteObjectsLend\Entity\LendCategory;
-use GaletteObjectsLend\Entity\Preferences;
-use Galette\Controllers\Crud\AbstractPluginController;
 use Slim\Psr7\Request;
-use Slim\Psr7\Response;
 
 /**
  * Categories controller
  *
  * @author Johan Cwiklinski <johan@x-tnd.be>
+ *
+ * @extends AbstractListController<LendCategory, CategoriesList>
  */
-
-class CategoriesController extends AbstractPluginController
+class CategoriesController extends AbstractListController
 {
     /**
-     * @var array<string, mixed>
+     * Default filter name, used to store filters in session
      */
-    #[Inject("Plugin Galette Objects Lend")]
-    protected array $module_info;
-
-    // CRUD - Create
-
-    /**
-     * Add page
-     *
-     * @param Request  $request  PSR Request
-     * @param Response $response PSR Response
-     *
-     * @return Response
-     */
-    public function add(Request $request, Response $response): Response
+    public static function getDefaultFilterName(): string
     {
-        return $this->edit($request, $response, null, 'add');
+        return 'categories';
     }
 
     /**
-     * Add action
-     *
-     * @param Request  $request  PSR Request
-     * @param Response $response PSR Response
-     *
-     * @return Response
+     * Routes name part
      */
-    public function doAdd(Request $request, Response $response): Response
+    protected function getEntityRouteName(): string
     {
-        return $this->doEdit($request, $response, null, 'add');
+        return 'category';
     }
 
-    // /CRUD - Create
-    // CRUD - Read
+    /**
+     * Name of the list route
+     */
+    protected function getListRouteName(): string
+    {
+        return 'objectslend_categories';
+    }
 
     /**
-     * List page
-     *
-     * @param Request         $request  PSR Request
-     * @param Response        $response PSR Response
-     * @param string|null     $option   One of 'page' or 'order'
-     * @param int|string|null $value    Value of the option
-     *
-     * @return Response
+     * Create empty filters
      */
-    public function list(Request $request, Response $response, ?string $option = null, int|string|null $value = null): Response
+    protected function createFilters(): CategoriesList
     {
-        if (isset($this->session->objectslend_filter_categories)) {
-            $filters = $this->session->objectslend_filter_categories;
-        } else {
-            $filters = new CategoriesList();
-        }
+        return new CategoriesList();
+    }
 
-        if ($option !== null) {
-            switch ($option) {
-                case 'page':
-                    $filters->current_page = (int)$value;
-                    break;
-                case 'order':
-                    $filters->orderby = $value;
-                    break;
-            }
-        }
-
-        $categories = new Categories($this->zdb, $this->login, $filters);
+    /**
+     * Get list template name and parameters
+     *
+     * @param CategoriesList $filters Filters
+     *
+     * @return array{0: string, 1: array<string,mixed>}
+     */
+    protected function getListView(Pagination $filters): array
+    {
+        $categories = new Categories($this->zdb, $this->preferences, $this->login, $filters);
         $list = $categories->getCategoriesList(true);
 
-        $this->session->objectslend_filter_categories = $filters;
-
-        //assign pagination variables to the template and add pagination links
-        $filters->setViewPagination($this->routeparser, $this->view, false);
-
-        $lendsprefs = new Preferences($this->zdb);
-        // display page
-        $this->view->render(
-            $response,
-            $this->getTemplate('categories_list'),
+        return [
+            'categories_list',
             [
-                'page_title'            => _T("Categories list", "objectslend"),
-                'require_dialog'        => true,
-                'categories'            => $list,
-                'nb_categories'         => count($list),
-                'filters'               => $filters,
-                'olendsprefs'           => $lendsprefs,
-                'time'                  => time()
+                'page_title'    => _T("Categories list", "objectslend"),
+                'categories'    => $list,
+                'nb_categories' => count($list),
+                'olendsprefs'   => new LendPreferences($this->preferences),
+                'time'          => time()
             ]
-        );
-        return $response;
-    }
-
-    /**
-     * Filtering
-     *
-     * @param Request  $request  PSR Request
-     * @param Response $response PSR Response
-     *
-     * @return Response
-     */
-    public function filter(Request $request, Response $response): Response
-    {
-        $post = $request->getParsedBody();
-        if (isset($this->session->objectslend_filter_categories)) {
-            $filters = $this->session->objectslend_filter_categories;
-        } else {
-            $filters = new CategoriesList();
-        }
-
-        //reintialize filters
-        if (isset($post['clear_filter'])) {
-            $filters->reinit();
-        } else {
-            //string to filter
-            if (isset($post['filter_str'])) { //filter search string
-                $filters->filter_str = stripslashes(
-                    htmlspecialchars($post['filter_str'], ENT_QUOTES)
-                );
-            }
-            //activity to filter
-            if (isset($post['active_filter'])) {
-                if (is_numeric($post['active_filter'])) {
-                    $filters->active_filter = $post['active_filter'];
-                }
-            }
-            //number of rows to show
-            if (isset($post['nbshow'])) {
-                $filters->show = $post['nbshow'];
-            }
-        }
-
-        $this->session->objectslend_filter_categories = $filters;
-
-        return $response
-            ->withStatus(301)
-            ->withHeader('Location', $this->routeparser->urlFor('objectslend_categories'));
-    }
-
-    // /CRUD - Read
-    // CRUD - Update
-
-    /**
-     * Edit page
-     *
-     * @param Request  $request  PSR Request
-     * @param Response $response PSR Response
-     * @param int|null $id       Model id
-     * @param string   $action   Action
-     *
-     * @return Response
-     */
-    public function edit(Request $request, Response $response, ?int $id = null, string $action = 'edit'): Response
-    {
-        if ($this->session->objectslend_category !== null) {
-            $category = $this->session->objectslend_category;
-            $this->session->objectslend_category = null;
-        } else {
-            $category = new LendCategory($this->zdb, $id);
-        }
-
-        if ($category->category_id !== null) {
-            $title = _T("Edit category", "objectslend");
-        } else {
-            $title = _T("New category", "objectslend");
-        }
-
-        $lendsprefs = new Preferences($this->zdb);
-        $picture = new CategoryPicture($category->category_id);
-        $params = [
-            'page_title'    => $title,
-            'category'      => $category,
-            'time'          => time(),
-            'action'        => $action,
-            'olendsprefs'   => $lendsprefs,
-            'picture'       => $picture
         ];
-
-        // display page
-        $this->view->render(
-            $response,
-            $this->getTemplate('category_edit'),
-            $params
-        );
-        return $response;
     }
 
     /**
-     * Edit action
+     * Load an entity
      *
-     * @param Request  $request  PSR Request
-     * @param Response $response PSR Response
-     * @param null|int $id       Model id for edit
-     * @param string   $action   Either add or edit
-     *
-     * @return Response
+     * @param ?int $id Entity ID, null for a new one
      */
-    public function doEdit(Request $request, Response $response, ?int $id = null, string $action = 'edit'): Response
+    protected function loadEntity(?int $id): LendCategory
     {
-        $post = $request->getParsedBody();
-        $category = new LendCategory($this->zdb, $id);
-        $error_detected = [];
+        return new LendCategory($this->zdb, $id);
+    }
 
-        $category->name = $post['name'];
-        $category->is_active = ($post['is_active'] ?? false) == true;
-        if ($category->store()) {
-            // picture upload
-            $picture = new CategoryPicture($category->category_id);
-            if (!$picture->upload($request->getUploadedFiles(), 'picture')) {
-                $error_detected = $picture->uploadErrors();
-            }
+    /**
+     * Fill category from posted values
+     *
+     * @param LendCategory        $entity Category
+     * @param array<string,mixed> $post   Posted values
+     */
+    protected function fillEntity(LendCategory|LendStatus $entity, array $post): void
+    {
+        $entity
+            ->setName($post['name'])
+            ->setActive(($post['is_active'] ?? false) == true);
+    }
 
-            if (isset($post['del_photo'])) {
-                if (!$picture->delete()) {
-                    $error_detected[] = _T("Delete failed", "objectslend");
-                    Analog::log(
-                        'Unable to delete picture for category ' . $category->name,
-                        Analog::ERROR
-                    );
-                }
-            }
-        } else {
-            $error_detected[] = _T("An error occurred while storing the category.", "objectslend");
+    /**
+     * Get edit template name and parameters
+     *
+     * @param LendCategory $entity Category
+     * @param string       $action Either add or edit
+     *
+     * @return array{0: string, 1: array<string,mixed>}
+     */
+    protected function getEditView(LendCategory|LendStatus $entity, string $action): array
+    {
+        return [
+            'category_edit',
+            [
+                'page_title'    => $entity->getId() !== null
+                    ? _T("Edit category", "objectslend")
+                    : _T("New category", "objectslend"),
+                'category'      => $entity,
+                'time'          => time(),
+                'olendsprefs'   => new LendPreferences($this->preferences),
+                'picture'       => new CategoryPicture($entity->getId())
+            ]
+        ];
+    }
+
+    /**
+     * Upload or remove picture once the category has been stored
+     *
+     * @param LendCategory        $entity  Category
+     * @param Request             $request PSR Request
+     * @param array<string,mixed> $post    Posted values
+     *
+     * @return array<string> Errors
+     */
+    protected function afterStore(LendCategory|LendStatus $entity, Request $request, array $post): array
+    {
+        $errors = [];
+        $picture = (new CategoryPicture($entity->getId()))
+            ->setMaxLength((new LendPreferences($this->preferences))->getUploadSize());
+        if (!$picture->upload($request->getUploadedFiles(), 'picture')) {
+            $errors = $picture->uploadErrors();
         }
 
-        $args = ($id === null ? [] : ['id' => $id]);
-        if (count($error_detected)) {
-            $this->session->objectslend_category = $category;
-            foreach ($error_detected as $error) {
-                $this->flash->addMessage(
-                    'error_detected',
-                    $error
-                );
-            }
-
-            return $response
-                ->withStatus(301)
-                ->withHeader(
-                    'Location',
-                    $this->routeparser->urlFor('objectslend_category_' . $action, $args)
-                );
-        } else {
-            //redirect to categories list
-            $this->flash->addMessage(
-                'success_detected',
-                _T("Category has been saved", "objectslend")
+        if (isset($post['del_photo']) && !$picture->delete()) {
+            $errors[] = _T("Delete failed", "objectslend");
+            Analog::log(
+                'Unable to delete picture for category #' . $entity->getId(),
+                Analog::ERROR
             );
-
-            return $response
-                ->withStatus(301)
-                ->withHeader(
-                    'Location',
-                    $this->routeparser->urlFor('objectslend_categories', $args)
-                );
         }
-    }
-
-    // /CRUD - Update
-    // CRUD - Delete
-
-    /**
-     * Get redirection URI
-     *
-     * @param array<string,mixed> $args Route arguments
-     *
-     * @return string
-     */
-    public function redirectUri(array $args): string
-    {
-        return $this->routeparser->urlFor('objectslend_categories');
+        return $errors;
     }
 
     /**
-     * Get form URI
-     *
-     * @param array<string,mixed> $args Route arguments
-     *
-     * @return string
+     * Message displayed once the entity has been stored
      */
-    public function formUri(array $args): string
+    protected function getStoredMessage(): string
     {
-        return $this->routeparser->urlFor(
-            'objectslend_doremove_category',
-            $args
-        );
+        return _T("Category has been saved", "objectslend");
+    }
+
+    /**
+     * Message displayed when the entity cannot be stored
+     */
+    protected function getStoreErrorMessage(): string
+    {
+        return _T("An error occurred while storing the category.", "objectslend");
     }
 
     /**
      * Get confirmation removal page title
      *
      * @param array<string,mixed> $args Route arguments
-     *
-     * @return string
      */
     public function confirmRemoveTitle(array $args): string
     {
-        $category = new LendCategory($this->zdb, (int)$args['id']);
         return sprintf(
             _T('Remove category %1$s', 'objectslend'),
-            $category->name
+            $this->loadEntity((int)$args['id'])->getName(false)
         );
     }
-
-    /**
-     * Remove object
-     *
-     * @param array<string,mixed> $args Route arguments
-     * @param array<string,mixed> $post POST values
-     *
-     * @return bool
-     */
-    protected function doDelete(array $args, array $post): bool
-    {
-        $category = new LendCategory($this->zdb, (int)$args['id']);
-        return $category->delete();
-    }
-
-    // /CRUD - Delete
-    // /CRUD
 }

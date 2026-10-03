@@ -1,5 +1,7 @@
 --
--- Structure de la table 'galette_lend_categories_pictures'
+-- This file is part of Galette Objects Lend plugin (https://galette.eu).
+-- SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+-- SPDX-License-Identifier: GPL-3.0-or-later
 --
 
 CREATE TABLE IF NOT EXISTS galette_lend_categories_pictures (

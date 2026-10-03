@@ -1,146 +1,101 @@
 {#
-/**
- * Copyright © 2003-2024 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
- */
-#}
+ # This file is part of Galette Objects Lend plugin (https://galette.eu).
+ # SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ # SPDX-License-Identifier: GPL-3.0-or-later
+ #}
+
 {% extends 'page.html.twig' %}
+{% import "@PluginGaletteObjectslend/macros.twig" as lend %}
 
 {% block content %}
-<form action="{% if takeorgive == 'take' %}{{ url_for("objectslend_object_dotake", {"id": object.object_id}) }}{% else %}{{ url_for("objectslend_object_doreturn", {"id": object.object_id}) }}{% endif %}" method="post" id="form_take_object" class="ui form info">
+<form action="{% if takeorgive == 'take' %}{{ url_for("objectslend_object_dotake", {"id": object.getId()}) }}{% else %}{{ url_for("objectslend_object_doreturn", {"id": object.getId()}) }}{% endif %}" method="post" id="form_take_object" class="ui form info" data-mode="{{ takeorgive }}">
     <div class="ui styled fluid accordion field">
-        <div class="active title">
-            <i class="icon dropdown"></i>
+        <div class="active title" role="heading" aria-level="2">
+            <i class="icon dropdown" aria-hidden="true"></i>
             {{ _T("Object", "objectslend") }}
         </div>
-        <div class="active content">
-            <div class="inline field">
-                <label>{{ _T("Name:", "objectslend") }}</label>
-                {{ object.name }}
-                <img src="{% if object.object_id %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail", "id": object.object_id}) }}{% else %}{{ url_for("objectslend_photo", {"type": "object", "mode": "thumbnail"}) }}{% endif %}"
-                class="picture fright"
-                width="{{ object.picture.getOptimalThumbWidth(olendsprefs) }}"
-                height="{{ object.picture.getOptimalThumbHeight(olendsprefs) }}"
-                alt="{{ _T("Object photo", "objectslend") }}"/>
+        <div class="active content field">
+            <div class="ui stackable grid">
+                <div class="twelve wide column">
+                    <table class="ui very basic definition compact collapsing stackable table">
+                        <tr>
+                            <th scope="row">{{ _T("Name:", "objectslend") }}</th>
+                            <td>{{ object.getName() }}</td>
+                        </tr>
+            {% if lendsprefs.view_description %}
+                        <tr>
+                            <th scope="row">{{ _T("Description:", "objectslend") }}</th>
+                            <td>{{ object.getDescriptionHtml()|raw }}</td>
+                        </tr>
+            {% endif %}
+            {% if lendsprefs.view_serial %}
+                        <tr>
+                            <th scope="row">{{ _T("Serial number:", "objectslend") }}</th>
+                            <td>{{ object.getSerialNumber() }}</td>
+                        </tr>
+            {% endif %}
+            {% if lendsprefs.view_price %}
+                        <tr>
+                            <th scope="row">{{ _T("Price:", "objectslend") }}</th>
+                            <td>{{ object.getPrice()|format_currency('EUR', {}, i18n.getWebID()) }}</td>
+                        </tr>
+            {% endif %}
+            {% if lendsprefs.view_dimension %}
+                        <tr>
+                            <th scope="row">{{ _T("Dimensions:", "objectslend") }}</th>
+                            <td>{% if object.getDimension() != '' %}{{ object.getDimension() }} {{ _T("Cm", "objectslend") }}{% else %}-{% endif %}</td>
+                        </tr>
+            {% endif %}
+            {% if lendsprefs.view_weight %}
+                        <tr>
+                            <th scope="row">{{ _T("Weight:", "objectslend") }}</th>
+                            <td>{% if object.getWeight() %}{{ object.getWeight()|format_number({fraction_digit: 3}, 'decimal', 'default', i18n.getWebID()) }} {{ _T("Kg", "objectslend") }}{% else %}-{% endif %}</td>
+                        </tr>
+            {% endif %}
+                        <tr>
+            {% if takeorgive == 'take' and (login.isAdmin() or login.isStaff()) %}
+                            <th scope="row"><label for="rent_price">{{ _T("Borrow price:", "objectslend") }}</label></th>
+                            <td>
+                                <div class="ui right labeled input">
+                                    <input type="text" name="rent_price" id="rent_price" value="{{ object.getRentPrice()|number_format(2, '.', '') }}" size="10">
+                                    <div class="ui basic label">€</div>
+                                </div>
+            {% else %}
+                            <th scope="row">{{ _T("Borrow price:", "objectslend") }}</th>
+                            <td>
+                                <input type="hidden" name="rent_price" id="rent_price" value="{{ object.getRentPrice()|number_format(2, '.', '') }}">
+                                {{ object.getRentPrice()|format_currency('EUR', {}, i18n.getWebID()) }}
+            {% endif %}
+                                {% if object.isPricePerDay() %}{{ _T("(per day)", "objectslend") }}{% else %}{{ _T("(at once)", "objectslend") }}{% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="four wide right aligned column">
+                    {{ lend.thumbnail("object", object.getId(), object.getPicture(), olendsprefs, _T("Object photo", "objectslend")) }}
+                </div>
             </div>
-
-    {% if lendsprefs.VIEW_DESCRIPTION %}
-            <div class="inline field">
-                <label>{{ _T("Description:", "objectslend") }}</label>
-                {{ object.description }}
-            </div>
-    {% endif %}
-
-    {% if lendsprefs.VIEW_SERIAL %}
-            <div class="inline field">
-                <label>{{ _T("Serial number:", "objectslend") }}</label>
-                {{ object.serial_number }}
-            </div>
-    {% endif %}
-
-    {% if lendsprefs.VIEW_PRICE %}
-            <div class="inline field">
-                <label>{{ _T("Price:", "objectslend") }}</label>
-                {{ object.price }} {{ object.currency }}
-            </div>
-    {% endif %}
-
-    {% if lendsprefs.VIEW_DIMENSION %}
-            <div class="inline field">
-                <label>{{ _T("Dimensions:", "objectslend") }}</label>
-                {% if object.dimension != '' %}
-                    {{ object.dimension }} {{ _T("Cm", "objectslend") }}
-                {% else %}
-                -
-                {% endif %}
-            </div>
-    {% endif %}
-
-    {% if lendsprefs.VIEW_WEIGHT %}
-            <div class="inline field">
-                <label>{{ _T("Weight:", "objectslend") }}</label>
-                {% if object.weight != '' %}
-                    {{ object.weight }} {{ _T("Kg", "objectslend") }}
-                {% else %}
-                    -
-                {% endif %}
-            </div>
-    {% endif %}
-
-            <div class="inline field">
-                <label>{{ _T("Borrow price:", "objectslend") }}</label>
-                {% if takeorgive == 'take' and (login.isAdmin() or login.isStaff()) %}
-                    <input type="text" name="rent_price" id="rent_price" value="{{ object.rent_price }}" size="10"> {{ object.currency }}
-                {% else %}
-                    <input type="hidden" name="rent_price" id="rent_price" value="{{ object.rent_price }}">
-                    <span id="rent_price_label">{{ object.rent_price }}</span> {{ object.currency }}
-                {% endif %}
-
-                {% if object.isPricePerDay() %}
-                    {{ _T("(per day)", "objectslend") }}
-                {% else %}
-                    {{ _T("(at once)", "objectslend") }}
-                {% endif %}
-            </div>
-
         </div>
     </div>
 
     {% if takeorgive == 'take' %}
         <div class="ui styled fluid accordion field">
-            <div class="active title">
-                <i class="icon dropdown"></i>
+            <div class="active title" role="heading" aria-level="2">
+                <i class="icon dropdown" aria-hidden="true"></i>
                 {{ _T("Borrow information", "objectslend") }}
             </div>
             <div class="active content">
                 {% if login.isAdmin() or login.isStaff() %}
-                <div class="inline field">
-                    <label for="id_adh">{{ _T("Member:", "objectslend") }}</label>
-                    <div id="id_adh" class="jsonly search-dropdown ui input nochosen paginated">
-                        <input id="id_adh_input" type="text" name="id_adh" value="{% if not login.isSuperAdmin() %}{{ login.id }}{% endif %}" placeholder="{{ _T("Member ID") }}">
-                        <i class="jsonly displaynone dropdown icon"></i>
-                        <span class="ui mini compact icon disabled button prev-results"><i class="jsonly displaynone chevron circle left icon disabled button tooltip" title="{{ _T("Load previous members...") }}"></i></span>
-                        <span class="ui mini compact icon disabled button next-results"><i class="jsonly displaynone chevron circle right icon disabled button tooltip" title="{{ _T("Load following members...") }}"></i></span>
-                        <div class="jsonly displaynone default text">{% if adh_selected == 0 %}{{ _T("Search for name or ID and pick member") }}{% endif %}</div>
-                        <div class="jsonly displaynone menu">
-                            {% for k, v in members.list %}
-                                <div class="item" data-value="{{ k }}">{{ v }}</div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
+                    {% include 'components/forms/member_dropdown.html.twig' with {
+                        'id': 'id_adh',
+                        'label': _T("Member:", "objectslend"),
+                        'value': login.isSuperAdmin() ? null : login.id,
+                        'component_class': 'inline field'
+                    } %}
                 {% endif %}
 
                 <div class="inline field">
-                    {% set state_list_values = {(-1): _T("--- Select a status ---", "objectslend")} %}
-                    {% for sta in statuses %}
-                        {% set text = sta.status_text %}
-                        {% if sta.rent_day_number != '' %}
-                            {% set text = text ~ ' (' ~ _T("%days days", "objectslend")|replace({'%days': sta.rent_day_number}) ~ ')' %}
-                        {% endif %}
-                        {% set state_list_values = state_list_values + {(sta.status_id): text} %}
-                    {% endfor %}
-
-                    {% include "components/forms/select.html.twig" with {
-                        id: 'status',
-                        value: '',
-                        values: state_list_values,
-                        label: _T("Status:", "objectslend")
-                    } %}
+                    {{ lend.statusSelect('status', _T("Status:", "objectslend"), statuses, -1, 'days') }}
                 </div>
 
                 <div class="inline field">
@@ -151,7 +106,7 @@
                     } %}
                 </div>
 
-                {% if lendsprefs.AUTO_GENERATE_CONTRIBUTION %}
+                {% if lendsprefs.auto_generate_contribution %}
                 <div class="inline field">
                     {% include "components/forms/payment_types.html.twig" with {
                         show_inline: true,
@@ -164,34 +119,25 @@
         </div>
     {% else %}
         <div class="ui styled fluid accordion field">
-            <div class="active title">
-                <i class="icon dropdown"></i>
+            <div class="active title" role="heading" aria-level="2">
+                <i class="icon dropdown" aria-hidden="true"></i>
                 {{ _T("Return information", "objectslend") }}
             </div>
             <div class="active content">
                 <div class="inline field">
-                    {% set state_list_values = {(-1): _T("--- Select a status ---", "objectslend")} %}
-                    {% for sta in statuses %}
-                        {% set state_list_values = state_list_values + {(sta.status_id): sta.status_text} %}
-                    {% endfor %}
-
-                    {% include "components/forms/select.html.twig" with {
-                        id: 'status',
-                        value: '',
-                        values: state_list_values,
-                        label: _T("Status:", "objectslend")
-                    } %}
+                    {{ lend.statusSelect('status', _T("Status:", "objectslend"), statuses, -1) }}
                 </div>
 
-                <div class="inline field">
-                    <label>{{ _T("Time:", "objectslend") }}</label>
-                    {{ _T("From %begindate to %enddate", "objectslend")|replace({"%begindate": last_rent.date_begin, "%enddate": "now"|date(_T("Y-m-d"))}) }}
-                </div>
+                <p>
+                    <strong>{{ _T("Time:", "objectslend") }}</strong>
+                    {{ _T("From %begindate to %enddate", "objectslend")|replace({"%begindate": last_rent.getDateBegin(), "%enddate": "now"|date(_T("Y-m-d"))}) }}
+                </p>
                 <div>
                     {% include "components/forms/textarea.html.twig" with {
                         id: 'comments',
                         value: '',
-                        label: _T("Comments:", "objectslend")
+                        label: _T("Comments:", "objectslend"),
+                        maxlength: 200
                     } %}
                     <span class="exemple"><span id="remaining">200</span> {{ _T("remaining characters", "objectslend") }}</span>
                 </div>
@@ -219,10 +165,9 @@
 
     <div class="ui basic center aligned fitted segment">
         <button type="submit" name="valid" class="action ui labeled icon primary button">
-            <i class="save icon"></i> {% if takeorgive == 'take' %}{{ _T("Borrow object", "objectslend") }}{% else %}{{ _T("Return object", "objectslend") }}{% endif %}
+            <i class="save icon" aria-hidden="true"></i> {% if takeorgive == 'take' %}{{ _T("Borrow object", "objectslend") }}{% else %}{{ _T("Return object", "objectslend") }}{% endif %}
         </button>
         <input type="hidden" name="mode" value="{% if ajax %}ajax{% endif %}"/>
-        {% include "components/forms/csrf.html.twig" %}
     </div>
 </form>
 {% endblock %}
@@ -230,122 +175,5 @@
 {% block javascripts %}
 <script type="text/javascript">
     {% include "elements/js/choose_adh.js.twig" %}
-
-    {% if takeorgive == 'take' %}
-    var _init_takeobject_js = function() {
-        $('button[name="valid"]').addClass('disabled');
-
-    {% if olendsprefs.showFullsize() %}
-        _init_fullimage();
-    {% endif %}
-
-        $('#id_adh, #status, #payment_type').on('change',function() {
-            validStatus()
-        });
-
-        $('button[name="valid"]').on('click', function(e) {
-            if (!$('#agreement').is(':checked')) {
-                e.preventDefault();
-                alert('{{ _T("You must agree with terms and conditions in order to borrow.", "objectslend")|e('js') }}');
-            }
-        });
-
-        $('#terms_conditions').hide();
-        $('.show_agreement').on('click', function() {
-            $('#terms_conditions').toggle();
-        });
-
-        $('#show_terms_elt').addClass('displaynone');
-        $('#attach-checkbox').checkbox({
-            onChecked: function() {
-                $('#show_terms_elt').removeClass('displaynone');
-            },
-            onUnchecked: function() {
-                $('#show_terms_elt').addClass('displaynone');
-            }
-        });
-    }
-
-    {% if not ajax %}
-    $(function () {
-        _init_takeobject_js();
-    });
-    {% endif %}
-
-    function completeZero(n) {
-        return n < 10 ? '0' + n : n;
-    }
-
-    function validStatus() {
-        var _disabled = false;
-        if ($('#status').val() === 'null') {
-            _disabled = true;
-        }
-        if ($('#id_adh').val() === 'null') {
-            _disabled = true;
-        }
-        if ($('#payment_type').val() === 'null') {
-            _disabled = true;
-        }
-
-        var _lyes = $('button[name="valid"]');
-        if (_disabled) {
-            _lyes.addClass('disabled');
-        } else {
-            _lyes.removeClass('disabled');
-        }
-
-        {#
-        var days = $('#status option:selected').data('days');
-        if (typeof days == "undefined" || days == 'null') {
-            return;
-        }
-
-        if (days.length === 0) {
-            var text = "{{ object.rent_price }}";
-            $('#rent_price').val(text);
-            $('#rent_price_label').html(text);
-            return;
-        }
-
-        {%  if object.isPricePerDay() %}
-            var price_per_day = {{ object.rent_price }} * parseInt(days);
-            var text = price_per_day.toFixed(2).replace(".", ",");
-            $('#rent_price').val(text);
-            $('#rent_price_label').html(text);
-        {% endif %#}
-    }
-{% else %}
-    var _init_giveobject_js = function() {
-        $('button[name="valid"]').addClass('disabled');
-
-        $('#comments').keyup(function() {
-            if ($('#comments').val().length > 200) {
-                $('#comments').val($('#comments').val().substr(0, 200));
-            }
-            $('#remaining').text(200 - $('#comments').val().length);
-        });
-
-        $('#status').on('change',function() {
-            validStatus()
-        });
-    }
-
-    {if not $ajax}
-    $(function () {
-        _init_giveobject_js();
-    });
-    {/if}
-
-    function validStatus() {
-        var _lyes = $('button[name="valid"]');
-        if ($('#status').val() === 'null') {
-            _lyes.addClass('disabled');
-        } else {
-            _lyes.removeClass('disabled');
-        }
-    }
-
-{% endif %}
 </script>
 {% endblock %}

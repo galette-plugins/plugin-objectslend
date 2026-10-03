@@ -1,27 +1,16 @@
 <?php
 
 /**
- * Copyright © 2003-2025 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace GaletteObjectsLends\Entity\tests\units;
+declare(strict_types=1);
 
-use Galette\GaletteTestCase;
+namespace GaletteObjectsLend\Entity\tests\units;
+
+use Galette\Tests\GaletteTestCase;
 
 /**
  * Status tests
@@ -34,12 +23,9 @@ class LendRent extends GaletteTestCase
 
     private int $active_instock_status;
     private int $active_notinstock_status;
-    private int $inactive_instock_status;
 
     /**
      * Set up tests
-     *
-     * @return void
      */
     public function setUp(): void
     {
@@ -49,8 +35,6 @@ class LendRent extends GaletteTestCase
 
     /**
      * Cleanup after each test method
-     *
-     * @return void
      */
     public function tearDown(): void
     {
@@ -72,176 +56,162 @@ class LendRent extends GaletteTestCase
 
     /**
      * Test empty
-     *
-     * @return void
      */
     public function testEmpty(): void
     {
-        $rent = new \GaletteObjectsLend\Entity\LendRent();
-        $this->assertNull($rent->rent_id);
-        $this->assertNull($rent->object_id);
-        $this->assertNull($rent->status_id);
-        $this->assertNull($rent->adherent_id);
-        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}/', $rent->date_begin);
-        $this->assertSame('', $rent->date_forecast);
-        $this->assertSame('', $rent->date_end);
-        $this->assertSame('', $rent->comments);
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb);
+        $this->assertNull($rent->getId());
+        $this->assertNull($rent->getObjectId());
+        $this->assertNull($rent->getStatusId());
+        $this->assertNull($rent->getAdherentId());
+        $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}/', $rent->getDateBegin());
+        $this->assertSame('', $rent->getDateForecast());
+        $this->assertSame('', $rent->getDateEnd());
+        $this->assertSame('', $rent->getComments());
     }
 
     /**
      * Test add and update
-     *
-     * @return void
      */
     public function testCrud(): void
     {
-        $rent = new \GaletteObjectsLend\Entity\LendRent();
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb);
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
-        $object->name = 'Test object';
-        $this->assertTrue($object->store());
-        $oid = $object->object_id;
+        $object->setName('Test object');
+        $object->store();
+        $oid = $object->getId();
 
         $bdate = new \DateTime('2024-05-22 19:46:21');
-        $rent->date_begin = $bdate->format('Y-m-d H:i:s');
-        $rent->object_id = $oid;
-        $rent->status_id = $this->active_instock_status;
-        $rent->comments = 'Test comment';
-        $this->assertTrue($rent->store());
-        $rent_id = $rent->rent_id;
+        $rent->setDateBegin($bdate->format('Y-m-d H:i:s'));
+        $rent->setObjectId($oid);
+        $rent->setStatusId($this->active_instock_status);
+        $rent->setComments('Test comment');
+        $rent->store();
+        $rent_id = $rent->getId();
 
-        $rent = new \GaletteObjectsLend\Entity\LendRent($rent_id);
-        $this->assertSame($this->active_instock_status, $rent->status_id);
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb, $rent_id);
+        $this->assertSame($this->active_instock_status, $rent->getStatusId());
 
         //update rent
         $member = $this->getMemberOne();
-        $rent = new \GaletteObjectsLend\Entity\LendRent($rent_id);
-        $rent->status_id = $this->active_notinstock_status;
-        $rent->adherent_id = $member->id;
-        $this->assertTrue($rent->store());
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb, $rent_id);
+        $rent->setStatusId($this->active_notinstock_status);
+        $rent->setAdherentId($member->id);
+        $rent->store();
 
-        $rent = new \GaletteObjectsLend\Entity\LendRent($rent_id);
-        $this->assertSame($this->active_notinstock_status, $rent->status_id);
-        $this->assertSame($member->id, $rent->adherent_id);
-
-        //active members
-        $this->assertCount(1, $rent::getAllActivesAdherents());
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb, $rent_id);
+        $this->assertSame($this->active_notinstock_status, $rent->getStatusId());
+        $this->assertSame($member->id, $rent->getAdherentId());
 
         //another (older) rent
-        $rent = new \GaletteObjectsLend\Entity\LendRent();
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb);
         $bdate = new \DateTime('2024-05-22 19:46:21');
         $bdate->sub(new \DateInterval('P2Y'));
-        $rent->date_begin = $bdate->format('Y-m-d H:i:s');
+        $rent->setDateBegin($bdate->format('Y-m-d H:i:s'));
         $rent2_edate = clone $bdate;
         $rent2_edate->add(new \DateInterval('P1Y'));
-        $rent->date_end = $rent2_edate->format('Y-m-d H:i:s');
-        $rent->date_forecast = $rent2_edate->format('Y-m-d');
-        $rent->object_id = $oid;
-        $rent->status_id = $this->active_instock_status;
-        $rent->comments = 'Test 2 comment';
-        $this->assertTrue($rent->store());
-        $rent2_id = $rent->rent_id;
+        $rent->setDateEnd($rent2_edate->format('Y-m-d H:i:s'));
+        $rent->setDateForecast($rent2_edate->format('Y-m-d'));
+        $rent->setObjectId($oid);
+        $rent->setStatusId($this->active_instock_status);
+        $rent->setComments('Test 2 comment');
+        $rent->store();
+        $rent2_id = $rent->getId();
         $this->assertNotEquals($rent_id, $rent2_id);
-        $this->assertSame($rent2_edate->format('Y-m-d'), $rent->date_forecast);
+        $this->assertSame($rent2_edate->format('Y-m-d'), $rent->getDateForecast());
 
-        $object_rents = $rent::getRentsForObjectId($oid);
+        $object_rents = (new \GaletteObjectsLend\Repository\Rents($this->zdb))->getForObject($oid);
         $this->assertCount(2, $object_rents);
 
         //only last
-        $object_rents = $rent::getRentsForObjectId($oid, true);
+        $object_rents = (new \GaletteObjectsLend\Repository\Rents($this->zdb))->getForObject($oid, true);
         $this->assertCount(1, $object_rents);
 
         //close all rents
-        $this->assertTrue($rent::closeAllRentsForObject($oid, 'Now closed.'));
+        (new \GaletteObjectsLend\Repository\Rents($this->zdb))->closeAllForObject($oid, 'Now closed.');
 
-        $rent = new \GaletteObjectsLend\Entity\LendRent($rent_id);
-        $this->assertSame('Now closed.', $rent->comments);
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb, $rent_id);
+        $this->assertSame('Now closed.', $rent->getComments());
 
         //had an end_date, should not be modified
-        $rent = new \GaletteObjectsLend\Entity\LendRent($rent2_id);
-        $this->assertEquals($rent2_edate->format('Y-m-d H:i'), $rent->date_end);
-        $this->assertSame('Test 2 comment', $rent->comments);
+        $rent = new \GaletteObjectsLend\Entity\LendRent($this->zdb, $rent2_id);
+        $this->assertEquals($rent2_edate->format('Y-m-d H:i'), $rent->getDateEnd());
+        $this->assertSame('Test 2 comment', $rent->getComments());
 
         //cleanup to avoid constraint errors
-        $this->assertTrue($object->delete());
+        $object->delete();
 
         /*$status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One active status';
-        $status->in_stock = true;
-        $status->is_active = true;
+        $status->setText('One active status');
+        $status->setInStock(true);
+        $status->setActive(true);
         $this->assertTrue($status->store());
-        $status_one = $status->status_id;
+        $status_one = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'Another active status';
-        $status->in_stock = false;
-        $status->is_active = true;
+        $status->setText('Another active status');
+        $status->setInStock(false);
+        $status->setActive(true);
         $this->assertTrue($status->store());
-        $status_two = $status->status_id;
+        $status_two = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One inactive status';
-        $status->in_stock = true;
-        $status->is_active = false;
+        $status->setText('One inactive status');
+        $status->setInStock(true);
+        $status->setActive(false);
         $this->assertTrue($status->store());
-        $status_three = $status->status_id;
+        $status_three = $status->getId();
 
-        $list = $status::getActiveTakeAwayStatuses($this->zdb);
+        $list = (new \GaletteObjectsLend\Repository\Status($this->zdb, $this->preferences, $this->login))->getActiveTakeAwayStatuses();
         $this->assertCount(1, $list);
 
         $active_one = $list[0];
-        $this->assertSame($status_two, $active_one->status_id);
-        $this->assertSame('Another active status', $active_one->status_text);
+        $this->assertSame($status_two, $active_one->getId());
+        $this->assertSame('Another active status', $active_one->getText());
 
-        $list = $status::getActiveStockStatuses($this->zdb);
+        $list = (new \GaletteObjectsLend\Repository\Status($this->zdb, $this->preferences, $this->login))->getActiveStockStatuses();
         $this->assertCount(1, $list);
 
         $active_one = $list[0];
-        $this->assertSame($status_one, $active_one->status_id);
-        $this->assertSame('One active status', $active_one->status_text);
-
-        $list = $status::getActiveStatuses($this->zdb);
-        $this->assertCount(2, $list);
+        $this->assertSame($status_one, $active_one->getId());
+        $this->assertSame('One active status', $active_one->getText());
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb, $status_one);
-        $status->status_text = 'One active status (edited)';
+        $status->setText('One active status (edited)');
         $this->assertTrue($status->store());
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb, $status_one);
-        $this->assertSame('One active status (edited)', $status->status_text);
+        $this->assertSame('One active status (edited)', $status->getText());
 
         $this->assertTrue($status->delete());
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb, $status_one);
-        $this->assertNull($status->status_id);*/
+        $this->assertNull($status->getId());*/
     }
 
     /**
      * Create few status
-     *
-     * @return void
      */
     private function createStatus(): void
     {
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One active status';
-        $status->in_stock = true;
-        $status->is_active = true;
-        $this->assertTrue($status->store());
-        $this->active_instock_status = $status->status_id;
+        $status->setText('One active status');
+        $status->setInStock(true);
+        $status->setActive(true);
+        $status->store();
+        $this->active_instock_status = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'Another active status';
-        $status->in_stock = false;
-        $status->is_active = true;
-        $this->assertTrue($status->store());
-        $this->active_notinstock_status = $status->status_id;
+        $status->setText('Another active status');
+        $status->setInStock(false);
+        $status->setActive(true);
+        $status->store();
+        $this->active_notinstock_status = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One inactive status';
-        $status->in_stock = true;
-        $status->is_active = false;
-        $this->assertTrue($status->store());
-        $this->inactive_instock_status = $status->status_id;
+        $status->setText('One inactive status');
+        $status->setInStock(true);
+        $status->setActive(false);
+        $status->store();
     }
-
 }

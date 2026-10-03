@@ -1,3 +1,9 @@
+--
+-- This file is part of Galette Objects Lend plugin (https://galette.eu).
+-- SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+-- SPDX-License-Identifier: GPL-3.0-or-later
+--
+
 insert into galette_lend_parameters
 (code, is_date, is_text, is_numeric, value_text, date_creation, date_modification)
 values

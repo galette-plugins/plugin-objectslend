@@ -1,27 +1,16 @@
 <?php
 
 /**
- * Copyright © 2003-2025 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace GaletteObjectsLends\Repository\tests\units;
+declare(strict_types=1);
 
-use Galette\GaletteTestCase;
+namespace GaletteObjectsLend\Repository\tests\units;
+
+use Galette\Tests\GaletteTestCase;
 
 /**
  * Categories tests
@@ -33,9 +22,18 @@ class Status extends GaletteTestCase
     protected int $seed = 20240526084251;
 
     /**
+     * Set up tests
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        //remove default statuses inserted by install SQL
+        $delete = $this->zdb->delete(LEND_PREFIX . \GaletteObjectsLend\Entity\LendStatus::TABLE);
+        $this->zdb->execute($delete);
+    }
+
+    /**
      * Cleanup after each test method
-     *
-     * @return void
      */
     public function tearDown(): void
     {
@@ -47,12 +45,10 @@ class Status extends GaletteTestCase
 
     /**
      * Test getList
-     *
-     * @return void
      */
     public function testGetList(): void
     {
-        $status = new \GaletteObjectsLend\Repository\Status($this->zdb, $this->login);
+        $status = new \GaletteObjectsLend\Repository\Status($this->zdb, $this->preferences, $this->login);
 
         $rs_list = $status->getList();
         $this->assertInstanceOf(\Laminas\Db\ResultSet\ResultSet::class, $rs_list);
@@ -64,37 +60,37 @@ class Status extends GaletteTestCase
         $this->assertSame(0, $status->getCount());
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One active in stock status';
-        $status->in_stock = true;
-        $status->is_active = true;
-        $this->assertTrue($status->store());
+        $status->setText('One active in stock status');
+        $status->setInStock(true);
+        $status->setActive(true);
+        $status->store();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One active in stock status';
-        $status->in_stock = true;
-        $status->is_active = true;
-        $this->assertTrue($status->store());
+        $status->setText('One active in stock status');
+        $status->setInStock(true);
+        $status->setActive(true);
+        $status->store();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One active not in stock status';
-        $status->in_stock = false;
-        $status->is_active = true;
-        $this->assertTrue($status->store());
+        $status->setText('One active not in stock status');
+        $status->setInStock(false);
+        $status->setActive(true);
+        $status->store();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One inactive in stock status';
-        $status->in_stock = true;
-        $status->is_active = false;
-        $this->assertTrue($status->store());
+        $status->setText('One inactive in stock status');
+        $status->setInStock(true);
+        $status->setActive(false);
+        $status->store();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
-        $status->status_text = 'One inactive not in stock status';
-        $status->in_stock = false;
-        $status->is_active = false;
-        $this->assertTrue($status->store());
+        $status->setText('One inactive not in stock status');
+        $status->setInStock(false);
+        $status->setActive(false);
+        $status->store();
 
         $filters = new \GaletteObjectsLend\Filters\StatusList();
-        $status = new \GaletteObjectsLend\Repository\Status($this->zdb, $this->login, $filters);
+        $status = new \GaletteObjectsLend\Repository\Status($this->zdb, $this->preferences, $this->login, $filters);
 
         $this->assertCount(5, $status->getStatusList(true));
         $this->assertSame(5, $status->getCount());

@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the PACKAGE package.
 # Languages add-on <noreply-addon-languages@weblate.org>, 2024.
 # தமிழ்நேரம் <anishprabu.t@gmail.com>, 2024, 2025.
-# Johan Cwiklinski <trasher@x-tnd.be>, 2024, 2025.
+# Johan Cwiklinski <trasher@x-tnd.be>, 2024, 2025, 2026.
+# தமிழ்நேரம் <tamilneram247@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: translations@galette.eu\n"
-"POT-Creation-Date: 2024-02-08 22:16+0100\n"
-"PO-Revision-Date: 2025-07-02 02:01+0000\n"
-"Last-Translator: தமிழ்நேரம் <anishprabu.t@gmail.com>\n"
+"POT-Creation-Date: 2026-09-30 12:08+0200\n"
+"PO-Revision-Date: 2026-10-01 05:42+0000\n"
+"Last-Translator: Johan Cwiklinski <trasher@x-tnd.be>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/galette/"
 "objectslend-plugin/ta/>\n"
 "Language: ta\n"
@@ -18,534 +19,628 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 2026.10.dev0\n"
 
 #. TRANS: this is a filename
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:58
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:52
 msgid "object_card"
 msgstr "பொருள்_அட்டை"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:70
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:61
 msgid "Object card"
 msgstr "பொருள் அட்டை"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:72
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:63
 msgid "Labels"
 msgstr "சிட்டைகள்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:136
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:159
-#: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:257
-#: ../tempcache/categories_list.html.twig:98
-#: ../tempcache/categories_list.html.twig:255
-#: ../tempcache/category_edit.html.twig:69
-#: ../tempcache/list_lent_object.html.twig:66
-#: ../tempcache/objects_list.html.twig:140
-#: ../tempcache/objects_list.html.twig:539
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:128
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:136
+#: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:173
+#: ../templates/default/categories_list.html.twig:13
+#: ../templates/default/categories_list.html.twig:66
+#: ../templates/default/category_edit.html.twig:20
+#: ../templates/default/list_lent_object.html.twig:13
+#: ../templates/default/objects_list.html.twig:33
+#: ../templates/default/objects_list.html.twig:188
 msgid "Name"
-msgstr ""
+msgstr "பெயர்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:138
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:160
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:130
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:137
 msgid "Description"
 msgstr "விவரம்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:141
-#: ../tempcache/category_edit.html.twig:62
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:133
+#: ../templates/default/category_edit.html.twig:15
 msgid "Category"
-msgstr "வகை"
+msgstr "பிரிவு"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:144
-#: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:258
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:136
+#: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:174
 msgid "Serial number"
 msgstr "வரிசை எண்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:147
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:162
-#: ../tempcache/objects_list.html.twig:159
-#: ../tempcache/objects_list.html.twig:575
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:139
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:139
+#: ../templates/default/objects_list.html.twig:44
+#: ../templates/default/objects_list.html.twig:200
 msgid "Price"
 msgstr "விலை"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:156
-msgid "Price per rental day"
-msgstr "வாடகை நாளுக்கு விலை"
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:143
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:140
+#: ../templates/default/objects_list.html.twig:50
+#: ../templates/default/objects_list.html.twig:205
+msgid "Borrow price"
+msgstr "கடன் விலை"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:162
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:164
-#: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:263
-#: ../tempcache/objects_list.html.twig:181
-#: ../tempcache/objects_list.html.twig:619
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:145
+#: ../templates/default/objects_list.html.twig:208
+#: ../templates/default/take_object.html.twig:69
+msgid "(per day)"
+msgstr "(ஒரு நாளைக்கு)"
+
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:150
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:141
+#: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:179
+#: ../templates/default/objects_list.html.twig:56
+#: ../templates/default/objects_list.html.twig:215
 msgid "Dimensions"
 msgstr "பரிமாணங்கள்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:162
-#: ../tempcache/objects_edit.html.twig:141
-#: ../tempcache/take_object.html.twig:171
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:150
+#: ../templates/default/objects_edit.html.twig:74
+#: ../templates/default/take_object.html.twig:46
 msgid "Cm"
 msgstr "முதல்வர்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:165
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:165
-#: ../tempcache/objects_list.html.twig:192
-#: ../tempcache/objects_list.html.twig:633
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:153
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:142
+#: ../templates/default/objects_list.html.twig:62
+#: ../templates/default/objects_list.html.twig:220
 msgid "Weight"
 msgstr "எடை"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:165
-#: ../tempcache/objects_edit.html.twig:147
-#: ../tempcache/take_object.html.twig:201
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:153
+#: ../templates/default/objects_edit.html.twig:81
+#: ../templates/default/take_object.html.twig:52
 msgid "Kg"
 msgstr "கிலோ"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:167
-#: ../tempcache/categories_list.html.twig:98
-#: ../tempcache/categories_list.html.twig:283
-#: ../tempcache/categories_list.html.twig:294
-#: ../tempcache/categories_list.html.twig:302
-#: ../tempcache/status_list.html.twig:98 ../tempcache/status_list.html.twig:322
-#: ../tempcache/status_list.html.twig:329
-#: ../tempcache/status_list.html.twig:333
-#: ../tempcache/objects_list.html.twig:219
-#: ../tempcache/objects_list.html.twig:709
-#: ../tempcache/objects_list.html.twig:732
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:155
+#: ../templates/default/categories_list.html.twig:13
+#: ../templates/default/categories_list.html.twig:76
+#: ../templates/default/categories_list.html.twig:77
+#: ../templates/default/categories_list.html.twig:78
+#: ../templates/default/status_list.html.twig:11
+#: ../templates/default/status_list.html.twig:84
+#: ../templates/default/status_list.html.twig:86
+#: ../templates/default/status_list.html.twig:87
+#: ../templates/default/objects_list.html.twig:86
+#: ../templates/default/objects_list.html.twig:243
+#: ../templates/default/objects_list.html.twig:249
 msgid "Active"
 msgstr "செயலில்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:168
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:156
 msgid "Location"
 msgstr "இடம்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:169
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:167
-#: ../tempcache/objects_list.html.twig:200
-#: ../tempcache/objects_list.html.twig:666
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:157
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:144
+#: ../templates/default/objects_list.html.twig:67
+#: ../templates/default/objects_list.html.twig:229
 msgid "Since"
 msgstr "முதல்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:170
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:196
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:168
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:158
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:184
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:145
+#: ../templates/default/objects_edit.html.twig:177
 msgid "Member"
 msgstr "உறுப்பினர்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:172
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:169
-#: ../tempcache/list_lent_object.html.twig:66
-#: ../tempcache/objects_list.html.twig:208
-#: ../tempcache/objects_list.html.twig:698
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:160
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:146
+#: ../templates/default/list_lent_object.html.twig:13
+#: ../templates/default/objects_list.html.twig:77
+#: ../templates/default/objects_list.html.twig:238
 msgid "Return"
 msgstr "திரும்ப"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:190
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:178
 msgid "History of object loans"
 msgstr "பொருள் கடன்களின் வரலாறு"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:192
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:180
 msgid "Begin"
 msgstr "தொடங்கு"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:193
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:181
 msgid "End"
 msgstr "முடிவு"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:194
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:166
-#: ../tempcache/status_edit.html.twig:62
-#: ../tempcache/objects_edit.html.twig:360
-#: ../tempcache/list_lent_object.html.twig:66
-#: ../tempcache/status_list.html.twig:98 ../tempcache/status_list.html.twig:313
-#: ../tempcache/objects_list.html.twig:200
-#: ../tempcache/objects_list.html.twig:644
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:182
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:143
+#: ../templates/default/status_edit.html.twig:14
+#: ../templates/default/objects_edit.html.twig:167
+#: ../templates/default/list_lent_object.html.twig:13
+#: ../templates/default/status_list.html.twig:11
+#: ../templates/default/status_list.html.twig:81
+#: ../templates/default/objects_list.html.twig:67
+#: ../templates/default/objects_list.html.twig:224
 msgid "Status"
 msgstr "நிலை"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:195
-#: ../tempcache/objects_edit.html.twig:342
-#: ../tempcache/list_lent_object.html.twig:119
-#: ../tempcache/status_list.html.twig:358
-#: ../tempcache/status_list.html.twig:362
-#: ../tempcache/objects_list.html.twig:654
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:183
+#: ../templates/default/macros.twig:55
+#: ../templates/default/list_lent_object.html.twig:43
+#: ../templates/default/status_list.html.twig:95
+#: ../templates/default/status_list.html.twig:96
+#: ../templates/default/objects_list.html.twig:226
 msgid "In stock"
 msgstr "கையிருப்பில்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObject.php:197
-#: ../tempcache/objects_edit.html.twig:365
-#: ../tempcache/list_lent_object.html.twig:66
+#: ../lib/GaletteObjectsLend/IO/PdfObject.php:185
+#: ../templates/default/objects_edit.html.twig:169
+#: ../templates/default/list_lent_object.html.twig:13
 msgid "Comments"
 msgstr "கருத்துகள்"
 
 #. TRANS: this is a filename
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:70
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:54
 msgid "objects_cards"
 msgstr "பொருள்_ கார்டுகள்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:87
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:66
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:68
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:89
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:107
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:145
-#: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:52
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:154
+#: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:54
 msgid "Objects list"
 msgstr "பொருள்கள் பட்டியல்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:116
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:98
 #, php-format
 msgid "Printed on %date"
 msgstr "%date அச்சிடப்பட்டது"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:161
-#: ../tempcache/objects_list.html.twig:148
-#: ../tempcache/objects_list.html.twig:561
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:138
+#: ../templates/default/objects_list.html.twig:38
+#: ../templates/default/objects_list.html.twig:195
 msgid "Serial"
 msgstr "தொடர்"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:163
-#: ../tempcache/objects_list.html.twig:170
-#: ../tempcache/objects_list.html.twig:589
-msgid "Borrow price"
-msgstr "கடன் விலை"
-
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:197
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:177
 #, php-format
 msgid "Category: %category"
 msgstr "வகை: %category"
 
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:239
-msgid "Total:"
-msgstr "மொத்தம்:"
-
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:246
-msgid "Borrowed"
-msgstr "கடன் வாங்கினார்"
-
-#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:248
-msgid "Available"
-msgstr "கிடைக்கிறது"
-
-#: ../lib/GaletteObjectsLend/Entity/LendStatus.php:144
-msgid "Status has not been added :("
-msgstr "நிலை சேர்க்கப்படவில்லை :("
-
-#: ../lib/GaletteObjectsLend/Entity/LendObject.php:349
-msgid "Object has not been added :("
-msgstr "பொருள் சேர்க்கப்படவில்லை :("
-
-#: ../lib/GaletteObjectsLend/Entity/LendCategory.php:238
-#: ../tempcache/categories_list.html.twig:369
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:180
+#: ../lib/GaletteObjectsLend/Entity/LendCategory.php:194
+#: ../templates/default/categories_list.html.twig:115
 msgid "No category"
 msgstr "வகை இல்லை"
 
-#: ../lib/GaletteObjectsLend/Entity/Preferences.php:264
-msgid "Unable to store preferences :("
-msgstr "விருப்பங்களை சேமிக்க முடியவில்லை :("
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:220
+msgid "Total:"
+msgstr "மொத்தம்:"
 
-#: ../lib/GaletteObjectsLend/Entity/LendRent.php:177
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:227
+msgid "Borrowed"
+msgstr "கடன் வாங்கினார்"
+
+#: ../lib/GaletteObjectsLend/IO/PdfObjects.php:229
+msgid "Available"
+msgstr "கிடைக்கிறது"
+
+#: ../lib/GaletteObjectsLend/Entity/LendStatus.php:113
+msgid "Status has not been added :("
+msgstr "நிலை சேர்க்கப்படவில்லை :("
+
+#: ../lib/GaletteObjectsLend/Entity/LendObject.php:183
+msgid "Object has not been added :("
+msgstr "பொருள் சேர்க்கப்படவில்லை :("
+
+#: ../lib/GaletteObjectsLend/Entity/LendRent.php:141
 msgid "Rent has not been added"
 msgstr "வாடகை சேர்க்கப்படவில்லை"
 
-#: ../lib/GaletteObjectsLend/Entity/LendRent.php:342
+#: ../lib/GaletteObjectsLend/Entity/LendRent.php:249
+#: ../lib/GaletteObjectsLend/Entity/LendRent.php:287
 msgid "Y-m-d H:i"
 msgstr "Y-M-D H: i"
 
-#: ../lib/GaletteObjectsLend/Controllers/MainController.php:65
+#: ../lib/GaletteObjectsLend/Controllers/MainController.php:47
 msgid "ObjectsLend preferences"
 msgstr "பொருள்களின் விருப்பத்தேர்வுகள்"
 
-#: ../lib/GaletteObjectsLend/Controllers/MainController.php:97
+#: ../lib/GaletteObjectsLend/Controllers/MainController.php:87
+msgid "Generated contributions must be of a donation type."
+msgstr ""
+
+#: ../lib/GaletteObjectsLend/Controllers/MainController.php:109
 msgid "Preferences have been successfully stored!"
 msgstr "விருப்பத்தேர்வுகள் வெற்றிகரமாக சேமிக்கப்பட்டுள்ளன!"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:113
+#: ../lib/GaletteObjectsLend/Controllers/MainController.php:138
+msgid "Sample data can only be loaded into an empty catalog."
+msgstr ""
+
+#. TRANS: %1$d is the number of objects, %2$d the number of rents
+#: ../lib/GaletteObjectsLend/Controllers/MainController.php:147
+#, php-format
+msgid "Sample data loaded: %1$d objects, %2$d rents."
+msgstr ""
+
+#: ../lib/GaletteObjectsLend/Controllers/MainController.php:156
+msgid "Sample data could not be loaded."
+msgstr ""
+
+#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:88
 msgid "Please add at last one status \"in stock\"!"
 msgstr "தயவுசெய்து \"கையிருப்பில்\" கடைசியாக ஒரு நிலையில் சேர்க்கவும்!"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:119
+#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:94
 msgid "Please add at least one status \"object borrowed\"!"
 msgstr "தயவுசெய்து குறைந்தது ஒரு நிலையைச் சேர்க்கவும் \"கடன் வாங்கிய பொருள்\"!"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:134
+#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:101
 msgid "Status list"
 msgstr "நிலை பட்டியல்"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:225
+#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:148
 #, php-format
 msgid "Edit status %status"
 msgstr "நிலை %status திருத்தவும்"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:228
+#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:151
 msgid "New status"
 msgstr "புதிய நிலை"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:268
-msgid "An error occurred while storing the status."
-msgstr "நிலையை சேமிக்கும் போது பிழை ஏற்பட்டது."
-
-#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:294
+#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:168
 msgid "Status has been saved"
 msgstr "நிலை சேமிக்கப்பட்டுள்ளது"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:347
+#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:176
+msgid "An error occurred while storing the status."
+msgstr "நிலையை சேமிக்கும் போது பிழை ஏற்பட்டது."
+
+#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:187
+msgid ""
+"This status is used by lends, it cannot be removed. Deactivate it instead."
+msgstr ""
+
+#: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:200
 #, php-format
 msgid "Remove status %1$s"
 msgstr "நிலை %1$s ஐ அகற்று"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:122
+#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:79
 msgid "Categories list"
 msgstr "வகைகள் பட்டியல்"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:203
+#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:125
 msgid "Edit category"
 msgstr "வகைத் திருத்து"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:205
+#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:126
 msgid "New category"
 msgstr "புதிய வகை"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:269
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:440
+#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:154
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:403
 msgid "Delete failed"
 msgstr "நீக்கு தோல்வியுற்றது"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:277
-msgid "An error occurred while storing the category."
-msgstr "வகையை சேமிக்கும் போது பிழை ஏற்பட்டது."
-
-#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:300
+#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:168
 msgid "Category has been saved"
 msgstr "வகை சேமிக்கப்பட்டுள்ளது"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:353
+#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:176
+msgid "An error occurred while storing the category."
+msgstr "வகையை சேமிக்கும் போது பிழை ஏற்பட்டது."
+
+#: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:187
 #, php-format
 msgid "Remove category %1$s"
 msgstr "வகை %1$s ஐ அகற்று"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:232
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:225
 #, php-format
 msgid "Rents list for %object"
 msgstr "%object வாடகை பட்டியல்"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:322
-#: ../tempcache/objects_list.html.twig:747
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:273
+msgid "No object was selected, please check at least one."
+msgstr ""
+
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:307
+#: ../templates/default/objects_list.html.twig:255
 msgid "Edit object"
 msgstr "பொருளைத் திருத்தவும்"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:324
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:309
 msgid "New object"
 msgstr "புதிய பொருள்"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:448
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:411
 msgid "Something went wrong saving object :("
 msgstr "ஏதோ தவறு சேமிக்கும் பொருள் :("
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:474
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:436
 msgid "Object has been saved"
 msgstr "பொருள் சேமிக்கப்பட்டுள்ளது"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:515
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:502
 msgid "Status has been updated"
 msgstr "நிலை புதுப்பிக்கப்பட்டுள்ளது"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:545
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:531
+#: ../templates/default/objects_list.html.twig:260
+msgid "Duplicate object"
+msgstr "நகல் பொருள்"
+
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:566
 msgid "Successfully cloned from #%id.<br/>You can now edit it."
 msgstr ""
-"#%ஐடியிலிருந்து வெற்றிகரமாக நகலி செய்யப்பட்டது. <br/> நீங்கள் இப்போது அதைத் திருத்தலாம்."
+"#%id இருந்து வெற்றிகரமாக நகலி செய்யப்பட்டது.<br/> நீங்கள் இப்போது அதைத் திருத்தலாம்."
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:551
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:572
 msgid "An error occurred cloning object :("
 msgstr "பிழை குளோனிங் பொருள் ஏற்பட்டது :("
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:582
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:602
 msgid "Borrow an object"
 msgstr "ஒரு பொருளைக் கடன் வாங்கவும்"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:583
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:603
 msgid "Return a borrowed object"
 msgstr "கடன் வாங்கிய பொருளைத் தரவும்"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:628
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:744
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:634
+#: ../lib/GaletteObjectsLend/LendService.php:154
 msgid "You do not have rights to borrow objects!"
 msgstr "பொருட்களை கடன் வாங்க உங்களுக்கு உரிமை இல்லை!"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:665
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:670
 #, php-format
 msgid "%object is currently not available"
 msgstr "%object தற்போது கிடைக்கவில்லை"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:694
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:914
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:696
+#: ../lib/GaletteObjectsLend/LendService.php:202
 msgid "You do not have rights to return objects!"
 msgstr "பொருட்களை திருப்பித் தர உங்களுக்கு உரிமை இல்லை!"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:849
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:761
 #, php-format
 msgid "You have just borrowed %object :)"
 msgstr "நீங்கள் இப்போது %object கடன் வாங்கியுள்ளீர்கள் :)"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:939
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:795
 #, php-format
 msgid "%object has been returned :)"
 msgstr "%object திருப்பி அனுப்பப்பட்டது :)"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:1026
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:897
 #, php-format
 msgid "Remove object %1$s"
 msgstr "பொருள் %1$s ஐ அகற்று"
 
-#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:1035
+#: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:906
 #, php-format
 msgid "You are about to remove %count objects."
 msgstr "நீங்கள் %count பொருள்களை அகற்ற உள்ளீர்கள்."
 
-#: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:48
+#: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:50
 msgid "Objects lend"
 msgstr "பொருள்கள் கடன்வழங்கப்பட்டது"
 
-#: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:71
+#: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:73
 msgid "Borrow status"
 msgstr "கடன் வாங்க"
 
-#: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:78
+#: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:80
 msgid "Object categories"
 msgstr "பொருள் வகைகள்"
 
-#: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:85
+#: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:87
 msgid "Preferences"
 msgstr "விருப்பத்தேர்வுகள்"
 
-#: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:257
+#: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:173
 msgid "Name/description"
 msgstr "பெயர்/விளக்கம்"
 
-#: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:259
-#: ../tempcache/list_lent_object.html.twig:66
+#: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:175
+#: ../templates/default/list_lent_object.html.twig:13
 msgid "Id"
 msgstr "ஐடி"
 
-#: ../tempcache/status_edit.html.twig:69 ../tempcache/take_object.html.twig:372
-#: ../tempcache/take_object.html.twig:435
+#: ../lib/GaletteObjectsLend/LendService.php:165
+#, fuzzy
+#| msgid "Is object in stock or borrowed"
+msgid "This object cannot be borrowed."
+msgstr "பங்குகளில் உள்ள பொருள் அல்லது கடன் வாங்கப்பட்டது"
+
+#: ../lib/GaletteObjectsLend/LendService.php:213
+#, fuzzy
+#| msgid "%object has been returned :)"
+msgid "This object cannot be returned."
+msgstr "%object திருப்பி அனுப்பப்பட்டது :)"
+
+#: ../lib/GaletteObjectsLend/LendService.php:242
+#, fuzzy
+#| msgid "You do not have rights to return objects!"
+msgid "You do not have rights to change objects status!"
+msgstr "பொருட்களை திருப்பித் தர உங்களுக்கு உரிமை இல்லை!"
+
+#: ../lib/GaletteObjectsLend/LendService.php:251
+msgid "This status cannot be set."
+msgstr ""
+
+#: ../lib/GaletteObjectsLend/LendService.php:300
+msgid "Returned on member removal"
+msgstr ""
+
+#: ../lib/GaletteObjectsLend/LendService.php:392
+msgid ""
+"Generated contributions must be of a donation type, check plugin preferences."
+msgstr ""
+
+#: ../lib/GaletteObjectsLend/LendService.php:439
+#: ../lib/GaletteObjectsLend/LendService.php:451
+#, fuzzy
+#| msgid "An error occurred while storing the category."
+msgid "An error occurred while storing the contribution."
+msgstr "வகையை சேமிக்கும் போது பிழை ஏற்பட்டது."
+
+#: ../templates/default/status_edit.html.twig:20
+#: ../templates/default/take_object.html.twig:98
+#: ../templates/default/take_object.html.twig:128
 msgid "Status:"
 msgstr "நிலை:"
 
-#: ../tempcache/status_edit.html.twig:74 ../tempcache/status_list.html.twig:189
+#: ../templates/default/status_edit.html.twig:25
+#: ../templates/default/status_list.html.twig:66
 msgid "In stock:"
 msgstr "பங்கு:"
 
-#: ../tempcache/status_edit.html.twig:74
+#: ../templates/default/status_edit.html.twig:25
 msgid "Is object in stock or borrowed"
 msgstr "பங்குகளில் உள்ள பொருள் அல்லது கடன் வாங்கப்பட்டது"
 
-#: ../tempcache/status_edit.html.twig:75
+#: ../templates/default/status_edit.html.twig:30
 msgid ""
 "Check if the object is available to be borrowed;<br/>uncheck if object is "
 "already borrowed and should be given back"
 msgstr ""
-"கடன் வாங்குவதற்கு பொருள் கிடைக்கிறதா என்று சரிபார்க்கவும்; <br/> பொருள் ஏற்கனவே கடன் "
-"வாங்கப்பட்டதா என்பதைத் தேர்வுசெய்க, திருப்பி கொடுக்கப்பட வேண்டும்"
+"கடன் வாங்குவதற்கு பொருள் கிடைக்கிறதா என்று சரிபார்க்கவும்;<br/> பொருள் ஏற்கனவே கடன் "
+"வாங்கப்பட்டதா என்பதைத் தேர்வுசெய்க, திருப்பிக் கொடுக்கப்பட வேண்டும்"
 
-#: ../tempcache/status_edit.html.twig:80
-#: ../tempcache/categories_list.html.twig:131
-#: ../tempcache/objects_edit.html.twig:152
-#: ../tempcache/status_list.html.twig:133
-#: ../tempcache/objects_list.html.twig:286
+#: ../templates/default/status_edit.html.twig:34
+#: ../templates/default/categories_list.html.twig:53
+#: ../templates/default/objects_edit.html.twig:86
+#: ../templates/default/status_list.html.twig:65
+#: ../templates/default/objects_list.html.twig:165
 msgid "Active:"
 msgstr "செயலில்:"
 
-#: ../tempcache/status_edit.html.twig:87 ../tempcache/status_list.html.twig:98
-#: ../tempcache/status_list.html.twig:380
+#: ../templates/default/status_edit.html.twig:44
+#: ../templates/default/status_list.html.twig:11
+#: ../templates/default/status_list.html.twig:102
 msgid "Days for rent"
 msgstr "வாடகைக்கு நாட்கள்"
 
-#: ../tempcache/status_edit.html.twig:87
+#: ../templates/default/status_edit.html.twig:44
 msgid "Number of days to rent per default"
 msgstr "இயல்புநிலைக்கு வாடகைக்கு விட வேண்டிய நாட்களின் எண்ணிக்கை"
 
-#: ../tempcache/status_edit.html.twig:87
+#: ../templates/default/status_edit.html.twig:44
 msgid "used to compute return date"
 msgstr "வருவாய் தேதியைக் கணக்கிடப் பயன்படுகிறது"
 
-#: ../tempcache/categories_list.html.twig:62
+#: ../templates/default/macros.twig:49
+msgid "--- Select a status ---"
+msgstr "--- ஒரு நிலையைத் தேர்ந்தெடுக்கவும் ---"
+
+#: ../templates/default/macros.twig:53
+#: ../templates/default/status_list.html.twig:104
+#, php-format
+msgid "%days days"
+msgstr "%days நாட்கள்"
+
+#: ../templates/default/macros.twig:71
+msgid "Click to view fullsize image"
+msgstr "முழு அளவிலான படத்தைக் காண சொடுக்கு செய்க"
+
+#: ../templates/default/clone_object.html.twig:13
+#, php-format
+msgid ""
+"A copy of \"%1$s\" will be created, without its picture nor its lends "
+"history."
+msgstr ""
+
+#: ../templates/default/clone_object.html.twig:19
+#: ../templates/default/objects_edit.html.twig:105
+msgid "Duplicate"
+msgstr "நகல்"
+
+#: ../templates/default/categories_list.html.twig:32
 #, php-format
 msgid "%count category"
 msgid_plural "%count categories"
 msgstr[0] "%count வகை"
 msgstr[1] "%count எண்ணுங்கள்"
 
-#: ../tempcache/categories_list.html.twig:86
+#: ../templates/default/categories_list.html.twig:44
 msgid "Add a category"
 msgstr "ஒரு வகையைச் சேர்க்கவும்"
 
-#: ../tempcache/categories_list.html.twig:296
-#: ../tempcache/categories_list.html.twig:304
-#: ../tempcache/status_list.html.twig:339
-#: ../tempcache/status_list.html.twig:343
-#: ../tempcache/objects_list.html.twig:734
+#: ../templates/default/categories_list.html.twig:77
+#: ../templates/default/categories_list.html.twig:78
+#: ../templates/default/status_list.html.twig:89
+#: ../templates/default/status_list.html.twig:90
+#: ../templates/default/objects_list.html.twig:249
 msgid "Inactive"
 msgstr "செயலற்றது"
 
-#: ../tempcache/categories_list.html.twig:315
+#: ../templates/default/categories_list.html.twig:82
 #, php-format
 msgid "Edit \"%category\""
 msgstr "திருத்து \"%category\""
 
-#: ../tempcache/categories_list.html.twig:325
+#: ../templates/default/categories_list.html.twig:94
 #, php-format
 msgid "Remove \"%category\""
 msgstr "\"%category\" ஐ அகற்று"
 
-#: ../tempcache/preferences.html.twig:57
+#: ../templates/default/preferences.html.twig:42
 msgid "Plugin preferences"
 msgstr "சொருகி விருப்பத்தேர்வுகள்"
 
-#: ../tempcache/preferences.html.twig:61
+#: ../templates/default/preferences.html.twig:43
 msgid "Images related"
 msgstr "படங்கள் தொடர்பான"
 
-#: ../tempcache/preferences.html.twig:65
+#: ../templates/default/preferences.html.twig:44
 msgid "Display preferences"
 msgstr "காட்சி விருப்பங்களைக் காண்பி"
 
-#: ../tempcache/preferences.html.twig:74
+#: ../templates/default/preferences.html.twig:50
 msgid "Members can borrow:"
 msgstr "உறுப்பினர்கள் கடன் வாங்கலாம்:"
 
-#: ../tempcache/preferences.html.twig:74
+#: ../templates/default/preferences.html.twig:50
 msgid ""
 "Allow a member (not staff neither admin) to borrow an object. If set to "
 "'No', only admin and staff members can access the 'Take object' page"
 msgstr ""
 "ஒரு பொருளை கடன் வாங்க ஒரு உறுப்பினரை (ஊழியர்கள் அல்ல) அனுமதிக்கவும். 'இல்லை' என "
-"அமைக்கப்பட்டால், நிர்வாகி மற்றும் ஊழியர்கள் மட்டுமே 'பொருள் எடுத்துக் கொள்ளுங்கள்' பக்கத்தை அணு"
-"க முடியும்"
+"அமைக்கப்பட்டால், நிர்வாகி மற்றும் ஊழியர்கள் மட்டுமே 'பொருள் எடுத்துக் கொள்ளுங்கள்' பக்கத்தை "
+"அணுக முடியும்"
 
-#: ../tempcache/preferences.html.twig:76
+#: ../templates/default/preferences.html.twig:50
 msgid "Generate contribution:"
 msgstr "பங்களிப்பை உருவாக்கு:"
 
-#: ../tempcache/preferences.html.twig:76
+#: ../templates/default/preferences.html.twig:50
 msgid ""
 "Automatically generate a contribution for the member of the amount of the "
 "rental price of the object"
-msgstr ""
-"பொருளின் வாடகை விலையின் உறுப்பினருக்கு தானாக ஒரு பங்களிப்பை உருவாக்குகிறது"
+msgstr "பொருளின் வாடகை விலையின் உறுப்பினருக்கு தானாக ஒரு பங்களிப்பை உருவாக்குகிறது"
 
-#: ../tempcache/preferences.html.twig:105
-msgid "Choose a contribution type"
-msgstr "பங்களிப்பு வகையைத் தேர்வுசெய்க"
-
-#: ../tempcache/preferences.html.twig:127
-msgid "Contribution type:"
-msgstr "பங்களிப்பு வகை:"
-
-#: ../tempcache/preferences.html.twig:134
+#: ../templates/default/preferences.html.twig:83
 msgid "Contribution text:"
 msgstr "பங்களிப்பு உரை:"
 
-#: ../tempcache/preferences.html.twig:134
+#: ../templates/default/preferences.html.twig:83
 msgid "Comment text to add on generated contribution"
 msgstr "உருவாக்கப்பட்ட பங்களிப்பைச் சேர்க்க கருத்து உரை"
 
-#: ../tempcache/preferences.html.twig:134
+#: ../templates/default/preferences.html.twig:83
 msgid ""
 "Comment text to add on generated contribution. Automatically replaced values "
 "(put into curly brackets): <br/>- NAME: Name<br/>- DESCRIPTION: "
@@ -557,374 +652,338 @@ msgstr ""
 ">- சீரியல்_நம்பர்: வரிசை எண் <br/>- விலை: விலை <br/>- Rend_price: கடன் விலை <br/>- "
 "எடை: எடை <br/>- பரிமாணம்: பரிமாணங்கள்"
 
-#: ../tempcache/preferences.html.twig:148
+#: ../templates/default/preferences.html.twig:102
 msgid "Max thumb height (in px)"
 msgstr "அதிகபட்ச கட்டைவிரல் உயரம் (பிஎக்சில்)"
 
-#: ../tempcache/preferences.html.twig:154
+#: ../templates/default/preferences.html.twig:109
 msgid "Max thumb width (in px)"
 msgstr "அதிகபட்ச கட்டைவிரல் அகலம் (பிஎக்சில்)"
 
-#: ../tempcache/preferences.html.twig:159
+#: ../templates/default/preferences.html.twig:116
+msgid "Max picture size (in Ko)"
+msgstr ""
+
+#: ../templates/default/preferences.html.twig:116
+#, php-format
+msgid "0 to use the Galette setting for pictures, currently %1$s"
+msgstr ""
+
+#: ../templates/default/preferences.html.twig:121
 msgid "Images in lists:"
 msgstr "பட்டியல்களில் உள்ள படங்கள்:"
 
-#: ../tempcache/preferences.html.twig:159
+#: ../templates/default/preferences.html.twig:121
 msgid "Display images in objects and categories lists"
 msgstr "பொருள்கள் மற்றும் வகைகள் பட்டியல்களில் படங்களைக் காண்பி"
 
-#: ../tempcache/preferences.html.twig:161
-msgid "Enable fullsize:"
-msgstr "ஃபுல்சை இயக்கு:"
-
-#: ../tempcache/preferences.html.twig:161
-msgid "Show fullsize image or just thumbs"
-msgstr "ஃபுல்சிச் படத்தை அல்லது கட்டைவிரலைக் காட்டுங்கள்"
-
-#: ../tempcache/preferences.html.twig:161
-msgid ""
-"Will permit to see fullsize image clicking on thumbnails.<br/>If disabled, "
-"only thumbnails will be displayed, but full images are still kept."
-msgstr ""
-"சிறுபடத்தில் முழு அளவிலான படக் சொடுக்கு செய்வதைக் காண அனுமதிக்கும். <br/> முடக்கப்பட்டால்"
-", சிறுபடங்கள் மட்டுமே காண்பிக்கப்படும், ஆனால் முழு படங்கள் இன்னும் வைக்கப்படுகின்றன."
-
-#: ../tempcache/preferences.html.twig:196
+#: ../templates/default/preferences.html.twig:135
 msgid "View category:"
 msgstr "வகையைக் காண்க:"
 
-#: ../tempcache/preferences.html.twig:198
+#: ../templates/default/preferences.html.twig:135
 msgid "View forecast return date:"
 msgstr "முன்னறிவிப்பு திரும்ப தேதியைக் காண்க:"
 
-#: ../tempcache/preferences.html.twig:200
+#: ../templates/default/preferences.html.twig:135
 msgid "View description"
 msgstr "விளக்கத்தைக் காண்க"
 
-#: ../tempcache/preferences.html.twig:202
+#: ../templates/default/preferences.html.twig:135
 msgid "View dimensions:"
 msgstr "பரிமாணங்களைக் காண்க:"
 
-#: ../tempcache/preferences.html.twig:204
+#: ../templates/default/preferences.html.twig:135
 msgid "View borrow price:"
 msgstr "கடன் விலையைக் காண்க:"
 
-#: ../tempcache/preferences.html.twig:206
+#: ../templates/default/preferences.html.twig:135
 msgid "View price sum:"
 msgstr "விலை தொகையைக் காண்க:"
 
-#: ../tempcache/preferences.html.twig:206
+#: ../templates/default/preferences.html.twig:135
 msgid "View the objects buy price sum on the list under the category"
 msgstr "வகையின் கீழ் பட்டியலில் உள்ள பொருட்களின் விலை தொகையை வாங்கவும்"
 
-#: ../tempcache/preferences.html.twig:208
+#: ../templates/default/preferences.html.twig:135
 msgid "View buy price:"
 msgstr "விலையை வாங்குவதைக் காண்க:"
 
-#: ../tempcache/preferences.html.twig:210
+#: ../templates/default/preferences.html.twig:135
 msgid "View serial number:"
 msgstr "வரிசை எண்ணைக் காண்க:"
 
-#: ../tempcache/preferences.html.twig:212
+#: ../templates/default/preferences.html.twig:135
 msgid "View weight"
 msgstr "எடையைக் காண்க"
 
-#: ../tempcache/objects_edit.html.twig:63 ../tempcache/take_object.html.twig:63
-msgid "Object"
-msgstr "பொருள்"
+#: ../templates/default/preferences.html.twig:166
+msgid "Sample data"
+msgstr ""
 
-#: ../tempcache/objects_edit.html.twig:70 ../tempcache/take_object.html.twig:70
+#: ../templates/default/preferences.html.twig:167
+msgid ""
+"The catalog is empty. You can fill it with sample categories, statuses and "
+"objects, along with a rents history given to existing members."
+msgstr ""
+
+#: ../templates/default/preferences.html.twig:169
+msgid "Load sample data"
+msgstr ""
+
+#: ../templates/default/objects_edit.html.twig:18
+#: ../templates/default/take_object.html.twig:22
 msgid "Name:"
 msgstr "பெயர்:"
 
-#: ../tempcache/objects_edit.html.twig:76
-#: ../tempcache/take_object.html.twig:106
+#: ../templates/default/objects_edit.html.twig:25
+#: ../templates/default/take_object.html.twig:27
 msgid "Description:"
 msgstr "விளக்கம்:"
 
-#: ../tempcache/objects_edit.html.twig:84
+#: ../templates/default/objects_edit.html.twig:30
 msgid "--- Select a category ---"
 msgstr "--- ஒரு வகையைத் தேர்ந்தெடுக்கவும் ---"
 
-#: ../tempcache/objects_edit.html.twig:105
+#: ../templates/default/objects_edit.html.twig:38
+#: ../templates/default/objects_list.html.twig:140
 msgid "Category:"
 msgstr "வகை:"
 
-#: ../tempcache/objects_edit.html.twig:115
-#: ../tempcache/take_object.html.twig:124
+#: ../templates/default/objects_edit.html.twig:46
+#: ../templates/default/take_object.html.twig:33
 msgid "Serial number:"
 msgstr "வரிசை எண்:"
 
-#: ../tempcache/objects_edit.html.twig:121
-#: ../tempcache/take_object.html.twig:142
+#: ../templates/default/objects_edit.html.twig:52
+#: ../templates/default/take_object.html.twig:39
 msgid "Price:"
 msgstr "விலை:"
 
-#: ../tempcache/objects_edit.html.twig:128
-#: ../tempcache/take_object.html.twig:218
+#: ../templates/default/objects_edit.html.twig:59
+#: ../templates/default/take_object.html.twig:57
+#: ../templates/default/take_object.html.twig:64
 msgid "Borrow price:"
 msgstr "கடன் விலை:"
 
-#: ../tempcache/objects_edit.html.twig:134
+#: ../templates/default/objects_edit.html.twig:64
 msgid "Price per rental day:"
 msgstr "வாடகை நாளுக்கு விலை:"
 
-#: ../tempcache/objects_edit.html.twig:134
+#: ../templates/default/objects_edit.html.twig:64
 msgid "The price applies on each rental day if checked, only once otherwise"
 msgstr ""
 "சரிபார்க்கப்பட்டால் ஒவ்வொரு வாடகை நாளிலும் விலை பொருந்தும், இல்லையெனில் ஒரு முறை மட்டுமே"
 
-#: ../tempcache/objects_edit.html.twig:141
-#: ../tempcache/take_object.html.twig:162
+#: ../templates/default/objects_edit.html.twig:74
+#: ../templates/default/take_object.html.twig:45
 msgid "Dimensions:"
 msgstr "பரிமாணங்கள்:"
 
-#: ../tempcache/objects_edit.html.twig:147
-#: ../tempcache/take_object.html.twig:192
+#: ../templates/default/objects_edit.html.twig:81
+#: ../templates/default/take_object.html.twig:51
 msgid "Weight:"
 msgstr "எடை:"
 
-#: ../tempcache/objects_edit.html.twig:162
-#: ../tempcache/objects_edit.html.twig:328
-#: ../tempcache/take_object.html.twig:340
-#: ../tempcache/take_object.html.twig:415
-msgid "--- Select a status ---"
-msgstr "--- ஒரு நிலையைத் தேர்ந்தெடுக்கவும் ---"
-
-#: ../tempcache/objects_edit.html.twig:182
+#: ../templates/default/objects_edit.html.twig:95
 msgid "Where is the object?"
 msgstr "பொருள் எங்கே?"
 
-#: ../tempcache/objects_edit.html.twig:195
-#: ../tempcache/objects_edit.html.twig:219
-msgid "Object's photo"
-msgstr "பொருளின் புகைப்படம்"
-
-#: ../tempcache/objects_edit.html.twig:265
-msgid "Duplicate"
-msgstr "நகல்"
-
-#: ../tempcache/objects_edit.html.twig:274
+#: ../templates/default/objects_edit.html.twig:108
 msgid "Print object"
 msgstr "பொருள் அச்சிடுக"
 
-#: ../tempcache/objects_edit.html.twig:299
-msgid "History"
-msgstr "வரலாறு"
+#: ../templates/default/objects_edit.html.twig:121
+#: ../templates/default/objects_edit.html.twig:131
+msgid "Object's photo"
+msgstr "பொருளின் புகைப்படம்"
 
-#: ../tempcache/objects_edit.html.twig:322
-#: ../tempcache/objects_edit.html.twig:416
+#: ../templates/default/objects_edit.html.twig:161
+#: ../templates/default/objects_list.html.twig:268
+msgid "Show object lends"
+msgstr "பொருள் குத்தகைகளைக் காட்டு"
+
+#: ../templates/default/objects_edit.html.twig:166
+#: ../templates/default/objects_edit.html.twig:185
 msgid "Change status"
 msgstr "நிலையை மாற்றவும்"
 
-#: ../tempcache/category_edit.html.twig:74
+#: ../templates/default/history_modal.js.twig:22
+msgid "History of object"
+msgstr "பொருளின் வரலாறு"
+
+#: ../templates/default/history_modal.js.twig:32
+msgid "An error occurred loading history display :("
+msgstr "வரலாறு காட்சியை ஏற்றுவதில் பிழை ஏற்பட்டது :("
+
+#: ../templates/default/category_edit.html.twig:25
 msgid "Is active"
 msgstr "செயலில் உள்ளது"
 
-#: ../tempcache/category_edit.html.twig:81
+#: ../templates/default/category_edit.html.twig:33
 msgid "Picture:"
 msgstr "படம்:"
 
-#: ../tempcache/category_edit.html.twig:103
+#: ../templates/default/category_edit.html.twig:39
 msgid "Category photo"
 msgstr "வகை புகைப்படம்"
 
-#: ../tempcache/list_lent_object.html.twig:66
+#: ../templates/default/list_lent_object.html.twig:13
 msgid "Begin date"
-msgstr "தொடங்கும் தேதி"
+msgstr "தொடக்க தேதி"
 
-#: ../tempcache/list_lent_object.html.twig:66
+#: ../templates/default/list_lent_object.html.twig:13
 msgid "End date"
-msgstr "இறுதி தேதி"
+msgstr "முடிவு தேதி"
 
-#: ../tempcache/list_lent_object.html.twig:164
+#: ../templates/default/list_lent_object.html.twig:54
 msgid "No lend found"
 msgstr "கடன் எதுவும் கிடைக்கவில்லை"
 
-#: ../tempcache/status_list.html.twig:86
-msgid "Add a status"
-msgstr "ஒரு நிலையைச் சேர்க்கவும்"
-
-#: ../tempcache/status_list.html.twig:98 ../tempcache/status_list.html.twig:351
+#: ../templates/default/status_list.html.twig:11
+#: ../templates/default/status_list.html.twig:93
 msgid "Stock"
 msgstr "பங்கு"
 
-#: ../tempcache/status_list.html.twig:368
-#: ../tempcache/status_list.html.twig:372
+#: ../templates/default/status_list.html.twig:41
+#, fuzzy, php-format
+#| msgid "New status"
+msgid "%1$s status"
+msgid_plural "%1$s statuses"
+msgstr[0] "புதிய நிலை"
+msgstr[1] "புதிய நிலை"
+
+#: ../templates/default/status_list.html.twig:56
+msgid "Add a status"
+msgstr "ஒரு நிலையைச் சேர்க்கவும்"
+
+#: ../templates/default/status_list.html.twig:98
+#: ../templates/default/status_list.html.twig:99
 msgid "Not in stock"
 msgstr "கையிருப்பில் இல்லை"
 
-#: ../tempcache/status_list.html.twig:387
-#: ../tempcache/take_object.html.twig:354
-#, php-format
-msgid "%days days"
-msgstr "%days நாட்கள்"
-
-#: ../tempcache/status_list.html.twig:400
+#: ../templates/default/status_list.html.twig:110
 #, php-format
 msgid "Edit %status"
 msgstr "%status திருத்து"
 
-#: ../tempcache/status_list.html.twig:402
+#: ../templates/default/status_list.html.twig:115
 #, php-format
 msgid "Remove %status from database"
 msgstr "தரவுத்தளத்திலிருந்து %status அகற்று"
 
-#: ../tempcache/status_list.html.twig:438
+#: ../templates/default/status_list.html.twig:136
 msgid "No status has been found"
 msgstr "எந்த நிலையும் கிடைக்கவில்லை"
 
-#: ../tempcache/headers.html.twig:43
-msgid "Click to view fullsize image"
-msgstr "முழு அளவிலான படத்தைக் காண சொடுக்கு செய்க"
-
-#: ../tempcache/objects_list.html.twig:57
-msgid "No object selected"
-msgstr "எந்த பொருளும் தேர்ந்தெடுக்கப்படவில்லை"
-
-#: ../tempcache/objects_list.html.twig:57
-msgid ""
-"Please make sure to select at least one object from the list to perform this "
-"action."
-msgstr ""
-"இந்த செயலைச் செய்ய பட்டியலிலிருந்து குறைந்தது ஒரு பொருளையாவது தேர்ந்தெடுக்கவும்."
-
-#: ../tempcache/objects_list.html.twig:59
-msgid "Print objects list"
-msgstr "பொருள்களின் பட்டியலை அச்சிடுக"
-
-#: ../tempcache/objects_list.html.twig:100
-msgid "Add an object"
-msgstr "ஒரு பொருளைச் சேர்க்கவும்"
-
-#: ../tempcache/objects_list.html.twig:200
-#: ../tempcache/objects_list.html.twig:675
+#: ../templates/default/objects_list.html.twig:67
+#: ../templates/default/objects_list.html.twig:232
 msgid "By"
 msgstr "மூலம்"
 
-#: ../tempcache/objects_list.html.twig:378
-msgid "Categories"
-msgstr "வகைகள்"
+#: ../templates/default/objects_list.html.twig:347
+msgid "No object selected"
+msgstr "எந்த பொருளும் தேர்ந்தெடுக்கப்படவில்லை"
 
-#: ../tempcache/objects_list.html.twig:532
-#: ../tempcache/take_object.html.twig:95
+#: ../templates/default/objects_list.html.twig:347
+msgid ""
+"Please make sure to select at least one object from the list to perform this "
+"action."
+msgstr "இந்த செயலைச் செய்ய பட்டியலிலிருந்து குறைந்தது ஒரு பொருளையாவது தேர்ந்தெடுக்கவும்."
+
+#: ../templates/default/objects_list.html.twig:357
+msgid "Print objects list"
+msgstr "பொருள்களின் பட்டியலை அச்சிடுக"
+
+#: ../templates/default/objects_list.html.twig:120
+msgid "Add an object"
+msgstr "ஒரு பொருளைச் சேர்க்கவும்"
+
+#: ../templates/default/objects_list.html.twig:185
+#: ../templates/default/take_object.html.twig:75
 msgid "Object photo"
 msgstr "பொருள் புகைப்படம்"
 
-#: ../tempcache/objects_list.html.twig:600
-#: ../tempcache/take_object.html.twig:250
-msgid "(per day)"
-msgstr "(ஒரு நாளைக்கு)"
-
-#: ../tempcache/objects_list.html.twig:606
-#: ../tempcache/take_object.html.twig:256
+#: ../templates/default/objects_list.html.twig:210
+#: ../templates/default/take_object.html.twig:69
 msgid "(at once)"
 msgstr "(ஒரே நேரத்தில்)"
 
-#: ../tempcache/objects_list.html.twig:723
+#: ../templates/default/objects_list.html.twig:246
 msgid "Object is active"
 msgstr "பொருள் செயலில் உள்ளது"
 
-#: ../tempcache/objects_list.html.twig:725
+#: ../templates/default/objects_list.html.twig:246
 msgid "Object is inactive"
 msgstr "பொருள் செயலற்றது"
 
-#: ../tempcache/objects_list.html.twig:748
-msgid "Duplicate object"
-msgstr "நகல் பொருள்"
-
-#: ../tempcache/objects_list.html.twig:749
-msgid "Show object lends"
-msgstr "பொருள் குத்தகைகளைக் காட்டு"
-
-#: ../tempcache/objects_list.html.twig:750
+#: ../templates/default/objects_list.html.twig:277
 msgid "Object card in PDF"
 msgstr "PDF இல் பொருள் அட்டை"
 
-#: ../tempcache/objects_list.html.twig:751
+#: ../templates/default/objects_list.html.twig:285
 #, php-format
 msgid "Remove %object from database"
 msgstr "தரவுத்தளத்திலிருந்து %object அகற்று"
 
-#: ../tempcache/objects_list.html.twig:767
+#: ../templates/default/objects_list.html.twig:303
 msgid "Take away"
 msgstr "எடுத்துக் கொள்ளுங்கள்"
 
-#: ../tempcache/objects_list.html.twig:778
+#: ../templates/default/objects_list.html.twig:318
 msgid "Give back"
 msgstr "திருப்பித் தரவும்"
 
-#: ../tempcache/objects_list.html.twig:821
+#: ../templates/default/objects_list.html.twig:340
 msgid "No object has been found"
 msgstr "எந்த பொருளும் கிடைக்கவில்லை"
 
-#: ../tempcache/objects_list.html.twig:862
-msgid "History of object"
-msgstr "பொருளின் வரலாறு"
+#: ../templates/default/take_object.html.twig:15
+msgid "Object"
+msgstr "பொருள்"
 
-#: ../tempcache/objects_list.html.twig:868
-msgid "An error occurred loading history display :("
-msgstr "வரலாறு காட்சியை ஏற்றுவதில் பிழை ஏற்பட்டது :("
-
-#: ../tempcache/objects_list.html.twig:904
-msgid "Take objects"
-msgstr "பொருள்களை எடுத்துக் கொள்ளுங்கள்"
-
-#: ../tempcache/objects_list.html.twig:921
-msgid "An error occurred loading 'Take away' display :("
-msgstr "'டேக் அவே' காட்சியை ஏற்றுவதில் பிழை ஏற்பட்டது :("
-
-#: ../tempcache/objects_list.html.twig:951
-msgid "Give back objects"
-msgstr "பொருட்களை திருப்பித் தரவும்"
-
-#: ../tempcache/objects_list.html.twig:968
-msgid "An error occurred loading 'Give back' display :("
-msgstr "'திருப்பி கொடுங்கள்' காட்சியை ஏற்றுவதில் பிழை ஏற்பட்டது :("
-
-#: ../tempcache/take_object.html.twig:275
+#: ../templates/default/take_object.html.twig:85
 msgid "Borrow information"
 msgstr "செய்தி கடன்"
 
-#: ../tempcache/take_object.html.twig:286
+#: ../templates/default/take_object.html.twig:89
 msgid "Member:"
 msgstr "உறுப்பினர்:"
 
-#: ../tempcache/take_object.html.twig:380
+#: ../templates/default/take_object.html.twig:104
 msgid "Expected return:"
 msgstr "எதிர்பார்க்கப்படும் வருவாய்:"
 
-#: ../tempcache/take_object.html.twig:408
+#: ../templates/default/take_object.html.twig:124
 msgid "Return information"
 msgstr "செய்தி திரும்ப"
 
-#: ../tempcache/take_object.html.twig:442
+#: ../templates/default/take_object.html.twig:132
 msgid "Time:"
 msgstr "நேரம்:"
 
-#: ../tempcache/take_object.html.twig:446
+#: ../templates/default/take_object.html.twig:133
 #, php-format
 msgid "From %begindate to %enddate"
 msgstr "%begindate இல் இருந்து %enddate வரை"
 
-#: ../tempcache/take_object.html.twig:452
+#: ../templates/default/take_object.html.twig:136
 msgid "Comments:"
 msgstr "கருத்துரைகள்:"
 
-#: ../tempcache/take_object.html.twig:455
+#: ../templates/default/take_object.html.twig:142
 msgid "remaining characters"
 msgstr "மீதமுள்ள எழுத்துக்கள்"
 
-#: ../tempcache/take_object.html.twig:473
+#: ../templates/default/take_object.html.twig:152
 msgid "I have read and I agree with terms and conditions"
-msgstr ""
-"நான் படித்திருக்கிறேன், விதிமுறைகள் மற்றும் நிபந்தனைகளுடன் உடன்படுகிறேன்"
+msgstr "நான் படித்திருக்கிறேன், விதிமுறைகள் மற்றும் நிபந்தனைகளுடன் உடன்படுகிறேன்"
 
-#: ../tempcache/take_object.html.twig:480
+#: ../templates/default/take_object.html.twig:156
 msgid "Show terms and conditions"
 msgstr "விதிமுறைகளையும் நிபந்தனைகளையும் காட்டுங்கள்"
 
-#: ../tempcache/take_object.html.twig:487
+#: ../templates/default/take_object.html.twig:160
 msgid ""
 "The items offered for rent are in good condition and verification rental "
 "contradictory to their status is at the time of withdrawal. No claims will "
@@ -944,8 +1003,8 @@ msgstr ""
 "வாடகைக்கு வழங்கப்படும் உருப்படிகள் நல்ல நிலையில் உள்ளன மற்றும் அவற்றின் நிலைக்கு சரிபார்ப்பு "
 "வாடகை முரண்பாடு திரும்பப் பெறும் நேரத்தில். பொருள் வெளியான பிறகு எந்த உரிமைகோரல்களும் "
 "ஏற்றுக்கொள்ளப்படாது. முன்பதிவு பட்டியலை கடையில் எழுதுவது வாடிக்கையாளர் தனது "
-"மறுபிரவேசத்தை சரிபார்க்க விலக்கு அளிக்காது. வாடகை செலுத்துதல் வாங்குபவருக்கு கடன் வாங்கி"
-"ய பொருளை சாதாரணமாகப் பயன்படுத்துவதற்கு உரிமை உண்டு. பொருள் சீரழிந்த நிலையில் "
+"மறுபிரவேசத்தை சரிபார்க்க விலக்கு அளிக்காது. வாடகை செலுத்துதல் வாங்குபவருக்கு கடன் "
+"வாங்கிய பொருளை சாதாரணமாகப் பயன்படுத்துவதற்கு உரிமை உண்டு. பொருள் சீரழிந்த நிலையில் "
 "வழங்கப்பட்டால், பாதுகாப்பு வைப்புத்தொகையின் அனைத்து அல்லது ஒரு பகுதியையும் சேகரிக்கும் "
 "உரிமையை விற்பனையாளர் கொண்டுள்ளது. நிலையான பொருளுக்கு அப்பால் வாடகைக்கு விடப்பட்டால், "
 "கூடுதல் தூய்மை செய்ய பொருள் பங்களிப்பு தேவைப்படும். வாடகை சொத்தின் சேதம், இழப்பு அல்லது "
@@ -954,14 +1013,58 @@ msgstr ""
 "முறையான முறைக்கும் தேவை. மேலே பட்டியலிடப்படாத வேறு சில சந்தர்ப்பங்களில், விற்பனையாளரின் "
 "விருப்பப்படி, வைப்பு காசோலை முழு அல்லது கட்சியிலும் சேகரிக்கப்படலாம்."
 
-#: ../tempcache/take_object.html.twig:501
+#: ../templates/default/take_object.html.twig:168
 msgid "Borrow object"
 msgstr "பொருள் கடன்"
 
-#: ../tempcache/take_object.html.twig:503
+#: ../templates/default/take_object.html.twig:168
 msgid "Return object"
 msgstr "திரும்ப பொருள்"
 
-#: ../tempcache/take_object.html.twig:558
-msgid "You must agree with terms and conditions in order to borrow."
-msgstr "கடன் வாங்க நீங்கள் விதிமுறைகள் மற்றும் நிபந்தனைகளுடன் உடன்பட வேண்டும்."
+#~ msgid "Price per rental day"
+#~ msgstr "வாடகை நாளுக்கு விலை"
+
+#~ msgid "Unable to store preferences :("
+#~ msgstr "விருப்பங்களை சேமிக்க முடியவில்லை :("
+
+#~ msgid "Choose a contribution type"
+#~ msgstr "பங்களிப்பு வகையைத் தேர்வுசெய்க"
+
+#~ msgid "Contribution type:"
+#~ msgstr "பங்களிப்பு வகை:"
+
+#~ msgid "Enable fullsize:"
+#~ msgstr "ஃபுல்சை இயக்கு:"
+
+#~ msgid "Show fullsize image or just thumbs"
+#~ msgstr "ஃபுல்சிச் படத்தை அல்லது கட்டைவிரலைக் காட்டுங்கள்"
+
+#~ msgid ""
+#~ "Will permit to see fullsize image clicking on thumbnails.<br/>If "
+#~ "disabled, only thumbnails will be displayed, but full images are still "
+#~ "kept."
+#~ msgstr ""
+#~ "சிறுபடத்தில் முழு அளவிலான படக் சொடுக்கு செய்வதைக் காண அனுமதிக்கும். <br/> "
+#~ "முடக்கப்பட்டால், சிறுபடங்கள் மட்டுமே காண்பிக்கப்படும், ஆனால் முழு படங்கள் இன்னும் "
+#~ "வைக்கப்படுகின்றன."
+
+#~ msgid "History"
+#~ msgstr "வரலாறு"
+
+#~ msgid "Categories"
+#~ msgstr "வகைகள்"
+
+#~ msgid "Take objects"
+#~ msgstr "பொருள்களை எடுத்துக் கொள்ளுங்கள்"
+
+#~ msgid "An error occurred loading 'Take away' display :("
+#~ msgstr "'டேக் அவே' காட்சியை ஏற்றுவதில் பிழை ஏற்பட்டது :("
+
+#~ msgid "Give back objects"
+#~ msgstr "பொருட்களை திருப்பித் தரவும்"
+
+#~ msgid "An error occurred loading 'Give back' display :("
+#~ msgstr "'திருப்பி கொடுங்கள்' காட்சியை ஏற்றுவதில் பிழை ஏற்பட்டது :("
+
+#~ msgid "You must agree with terms and conditions in order to borrow."
+#~ msgstr "கடன் வாங்க நீங்கள் விதிமுறைகள் மற்றும் நிபந்தனைகளுடன் உடன்பட வேண்டும்."

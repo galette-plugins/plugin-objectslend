@@ -1,29 +1,15 @@
 <?php
 
 /**
- * Copyright © 2003-2025 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
 namespace GaletteObjectsLend\Entity;
 
-use Analog\Analog;
 use ArrayObject;
 use Galette\Core\Db;
 
@@ -32,17 +18,11 @@ use Galette\Core\Db;
  *
  * @author Mélissa Djebel <melissa.djebel@gmx.net>
  * @author Johan Cwiklinski <johan@x-tnd.be>
- *
- * @property int $status_id
- * @property string $status_text
- * @property bool $in_stock
- * @property bool $is_active
- * @property int $rent_day_number
  */
 class LendStatus
 {
-    public const TABLE = 'status';
-    public const PK = 'status_id';
+    public const string TABLE = 'status';
+    public const string PK = 'status_id';
 
     private Db $zdb;
 
@@ -54,7 +34,7 @@ class LendStatus
         'is_active' => 'boolean',
         'rent_day_number' => 'int'
     ];
-    private int $status_id;
+    private ?int $status_id = null;
     private string $status_text = '';
     private bool $in_stock = false;
     private bool $is_active = true;
@@ -63,27 +43,19 @@ class LendStatus
     /**
      * Status constructor
      *
-     * @param Db                                      $zdb  Database instance
-     * @param int|ArrayObject<string,int|string>|null $args Can be null, an ID or a database row
+     * @param Db                                 $zdb  Database instance
+     * @param int|ArrayObject<string,mixed>|null $args Can be null, an ID or a database row
      */
     public function __construct(Db $zdb, int|ArrayObject|null $args = null)
     {
         $this->zdb = $zdb;
 
         if (is_int($args)) {
-            try {
-                $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
-                        ->where([self::PK => $args]);
-                $result = $this->zdb->execute($select);
-                if ($result->count() == 1) {
-                    $this->loadFromRS($result->current());
-                }
-            } catch (\Exception $e) {
-                Analog::log(
-                    'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                        . $e->getTraceAsString(),
-                    Analog::ERROR
-                );
+            $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
+                    ->where([self::PK => $args]);
+            $result = $this->zdb->execute($select);
+            if ($result->count() == 1) {
+                $this->loadFromRS($result->current());
             }
         } elseif (is_object($args)) {
             $this->loadFromRS($args);
@@ -93,216 +65,166 @@ class LendStatus
     /**
      * Populate object from a resultset row
      *
-     * @param ArrayObject<string,int|string> $r the resultset row
-     *
-     * @return void
+     * @param ArrayObject<string,mixed> $r the resultset row
      */
     private function loadFromRS(ArrayObject $r): void
     {
-        $this->status_id = (int)$r->status_id;
-        $this->status_text = $r->status_text;
-        $this->in_stock = $r->in_stock == '1';
-        $this->is_active = $r->is_active == '1';
-        $this->rent_day_number = $r->rent_day_number != null ? (int)$r->rent_day_number : null;
+        $this->status_id = (int)$r['status_id'];
+        $this->status_text = (string)$r['status_text'];
+        $this->in_stock = $r['in_stock'] == '1';
+        $this->is_active = $r['is_active'] == '1';
+        $this->rent_day_number = $r['rent_day_number'] != null ? (int)$r['rent_day_number'] : null;
     }
 
     /**
      * Store current element
-     *
-     * @return bool
      */
-    public function store(): bool
+    public function store(): void
     {
-        try {
-            $values = [];
+        $values = [];
 
-            foreach (array_keys($this->fields) as $k) {
-                if (
-                    ($k === 'is_active' || $k === 'in_stock')
-                    && $this->$k === false
-                ) {
-                    //Handle booleans for postgres ; bugs #18899 and #19354
-                    $values[$k] = $this->zdb->isPostgres() ? 'false' : 0;
-                } else {
-                    $values[$k] = $this->$k ?? null;
-                }
+        foreach (array_keys($this->fields) as $k) {
+            if (
+                ($k === 'is_active' || $k === 'in_stock')
+                && $this->$k === false
+            ) {
+                //Handle booleans for postgres ; bugs #18899 and #19354
+                $values[$k] = $this->zdb->isPostgres() ? 'false' : 0;
+            } else {
+                $values[$k] = $this->$k ?? null;
             }
+        }
 
-            if (!isset($this->status_id) || $this->status_id == '') {
-                unset($values[self::PK]);
-                $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
-                        ->values($values);
-                $result = $this->zdb->execute($insert);
-                if ($result->count() > 0) {
-                    if ($this->zdb->isPostgres()) {
-                        /** @phpstan-ignore-next-line */
-                        $this->status_id = (int)$this->zdb->driver->getLastGeneratedValue(
-                            PREFIX_DB . 'lend_status_id_seq'
-                        );
-                    } else {
-                        $this->status_id = (int)$this->zdb->driver->getLastGeneratedValue();
-                    }
+        if ($this->status_id === null) {
+            unset($values[self::PK]);
+            $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
+                    ->values($values);
+            $result = $this->zdb->execute($insert);
+            if ($result->count() > 0) {
+                if ($this->zdb->isPostgres()) {
+                    /** @phpstan-ignore-next-line */
+                    $this->status_id = (int)$this->zdb->driver->getLastGeneratedValue(
+                        PREFIX_DB . 'lend_status_id_seq'
+                    );
                 } else {
-                    throw new \Exception(_T("Status has not been added :(", "objectslend"));
+                    $this->status_id = (int)$this->zdb->driver->getLastGeneratedValue();
                 }
             } else {
-                $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
-                        ->set($values)
-                        ->where([self::PK => $this->status_id]);
-                $this->zdb->execute($update);
+                throw new \Exception(_T("Status has not been added :(", "objectslend"));
             }
-            return true;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            return false;
+        } else {
+            $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
+                    ->set($values)
+                    ->where([self::PK => $this->status_id]);
+            $this->zdb->execute($update);
         }
     }
 
     /**
-     * Get all active statuses sorted by name
+     * Is status used by a rent, current or past?
      *
-     * @param Db $zdb Database instance
-     *
-     * @return LendStatus[]
+     * Rents keep their status for the history: such a status cannot be removed.
      */
-    public static function getActiveStatuses(Db $zdb): array
+    public function isUsed(): bool
     {
-        try {
-            $select = $zdb->select(LEND_PREFIX . self::TABLE)
-                    ->where(['is_active' => 1])
-                    ->order('status_text');
-
-            $status = [];
-            $result = $zdb->execute($select);
-            foreach ($result as $r) {
-                $status[] = new LendStatus($zdb, $r);
-            }
-            return $status;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            throw $e;
-        }
-    }
-
-    /**
-     * Get all borrowed active statuses sorted by
-     *
-     * @param Db $zdb Database instance
-     *
-     * @return LendStatus[]
-     */
-    public static function getActiveTakeAwayStatuses(Db $zdb): array
-    {
-        try {
-            $select = $zdb->select(LEND_PREFIX . self::TABLE)
-                    ->where(['is_active' => 1, 'in_stock' => 0])
-                    ->order('status_text');
-
-            $status = [];
-            $result = $zdb->execute($select);
-            foreach ($result as $r) {
-                $status[] = new LendStatus($zdb, $r);
-            }
-            return $status;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            throw $e;
-        }
-    }
-
-    /**
-     * Return list of active in stock statuses
-     *
-     * @param Db $zdb Database instance
-     *
-     * @return LendStatus[]
-     */
-    public static function getActiveStockStatuses(Db $zdb): array
-    {
-        try {
-            $select = $zdb->select(LEND_PREFIX . self::TABLE)
-                    ->where(['is_active' => 1, 'in_stock' => 1])
-                    ->order('status_text');
-
-            $status = [];
-            $result = $zdb->execute($select);
-            foreach ($result as $r) {
-                $status[] = new LendStatus($zdb, $r);
-            }
-            return $status;
-        } catch (\Exception $e) {
-            throw $e;
-        }
+        $select = $this->zdb->select(LEND_PREFIX . LendRent::TABLE)
+            ->columns([LendRent::PK])
+            ->where([self::PK => $this->status_id])
+            ->limit(1);
+        return $this->zdb->execute($select)->count() > 0;
     }
 
     /**
      * Delete status
-     *
-     * @return bool
      */
-    public function delete(): bool
+    public function delete(): void
     {
-        try {
-            $delete = $this->zdb->delete(LEND_PREFIX . self::TABLE)
-                    ->where([self::PK => $this->status_id]);
-            $this->zdb->execute($delete);
-            return true;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            return false;
-        }
+        $delete = $this->zdb->delete(LEND_PREFIX . self::TABLE)
+                ->where([self::PK => $this->status_id]);
+        $this->zdb->execute($delete);
     }
 
     /**
-     * Global getter method
-     *
-     * @param string $name name of the property we want to retrieve
-     *
-     * @return mixed the called property
+     * Get ID
      */
-    public function __get(string $name): mixed
+    public function getId(): ?int
     {
-        return $this->$name ?? null;
+        return $this->status_id;
     }
 
     /**
-     * Global setter method
-     *
-     * @param string $name  name of the property we want to assign a value to
-     * @param mixed  $value a relevant value for the property
-     *
-     * @return void
+     * Get text
      */
-    public function __set(string $name, mixed $value): void
+    public function getText(): string
     {
-        $this->$name = $value;
+        return $this->status_text;
     }
 
     /**
-     * Generic isset function
+     * Set text
      *
-     * @param string $name Property name
-     *
-     * @return bool
+     * @param string $text Status text
      */
-    public function __isset(string $name): bool
+    public function setText(string $text): self
     {
-        return property_exists($this, $name);
+        $this->status_text = $text;
+        return $this;
+    }
+
+    /**
+     * Is object in stock with this status?
+     */
+    public function isInStock(): bool
+    {
+        return $this->in_stock;
+    }
+
+    /**
+     * Set in stock
+     *
+     * @param bool $in_stock In stock
+     */
+    public function setInStock(bool $in_stock): self
+    {
+        $this->in_stock = $in_stock;
+        return $this;
+    }
+
+    /**
+     * Is status active?
+     */
+    public function isActive(): bool
+    {
+        return $this->is_active;
+    }
+
+    /**
+     * Set active
+     *
+     * @param bool $active Active
+     */
+    public function setActive(bool $active): self
+    {
+        $this->is_active = $active;
+        return $this;
+    }
+
+    /**
+     * Get number of days of rent
+     */
+    public function getRentDayNumber(): ?int
+    {
+        return $this->rent_day_number;
+    }
+
+    /**
+     * Set number of days of rent
+     *
+     * @param ?int $days Number of days, null for none
+     */
+    public function setRentDayNumber(?int $days): self
+    {
+        $this->rent_day_number = $days;
+        return $this;
     }
 }

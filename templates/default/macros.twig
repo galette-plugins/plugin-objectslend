@@ -1,0 +1,78 @@
+{#
+ # This file is part of Galette Objects Lend plugin (https://galette.eu).
+ # SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ # SPDX-License-Identifier: GPL-3.0-or-later
+ #}
+
+{# Free text search of the filter forms #}
+{% macro searchField(value) %}
+    <div class="field">
+        <label for="filter_str">{{ _T("Search:") }}</label>
+        <input type="search" name="filter_str" id="filter_str" value="{{ value }}" placeholder="{{ _T("Enter a value") }}"/>
+    </div>
+{% endmacro %}
+
+{# "Don't care", "Yes" and "No" radio buttons; values are keyed by dc, yes and no.
+   A radio group rather than a fieldset, whose border does not belong in a filter form. #}
+{% macro triStateFilter(name, suffix, label, current, values) %}
+    <div class="field">
+        <div class="inline fields" role="radiogroup" aria-labelledby="filter_{{ suffix }}_label">
+            <label id="filter_{{ suffix }}_label">{{ label }}</label>
+    {% for key, text in {dc: _T("Don't care"), yes: _T("Yes"), no: _T("No")} %}
+            <div class="field inline">
+                <div class="ui radio checkbox">
+                    <input type="radio" name="{{ name }}" id="filter_{{ key }}_{{ suffix }}" value="{{ values[key] }}"{% if current == values[key] %} checked="checked"{% endif %}>
+                    <label for="filter_{{ key }}_{{ suffix }}">{{ text }}</label>
+                </div>
+            </div>
+    {% endfor %}
+        </div>
+    </div>
+{% endmacro %}
+
+{# Submit and reset buttons of the filter forms #}
+{% macro filterButtons(extra_class) %}
+    <div class="ui right aligned basic fitted segment{% if extra_class %} {{ extra_class }}{% endif %} field">
+        <button type="submit" class="tooltip action ui labeled icon primary button" title="{{ _T("Apply filters") }}" name="filter">
+            <i class="search icon" aria-hidden="true"></i>
+            {{ _T("Filter") }}
+        </button>
+        <button type="submit" name="clear_filter" class="ui labeled icon button tooltip" title="{{ _T("Reset all filters to defaults") }}">
+            <i class="trash alt red icon" aria-hidden="true"></i>
+            {{ _T("Clear filter") }}
+        </button>
+    </div>
+{% endmacro %}
+
+{# Status menu; detail adds the rent days ("days") or the stock state ("stock") to each status #}
+{% macro statusSelect(id, label, statuses, empty_value, detail) %}
+    {% set values = {(empty_value): _T("--- Select a status ---", "objectslend")} %}
+    {% for sta in statuses %}
+        {% set text = sta.getText() %}
+        {% if detail == 'days' and sta.getRentDayNumber() %}
+            {% set text = text ~ ' (' ~ _T("%days days", "objectslend")|replace({'%days': sta.getRentDayNumber()}) ~ ')' %}
+        {% elseif detail == 'stock' and sta.isInStock() %}
+            {% set text = text ~ ' (' ~ _T("In stock", "objectslend") ~ ')' %}
+        {% endif %}
+        {% set values = values + {(sta.getId()): text} %}
+    {% endfor %}
+
+    {% include "components/forms/select.html.twig" with {
+        id: id,
+        value: '',
+        values: values,
+        label: label
+    } %}
+{% endmacro %}
+
+{# Thumbnail, linked to the full size picture; no id for the default picture #}
+{% macro thumbnail(type, id, picture, prefs, alt, extra_class) %}
+    {% set args = id ? {"type": type, "id": id} : {"type": type} %}
+    <a href="{{ url_for("objectslend_photo", args|merge({"mode": "photo"})) }}" class="fullimage{% if extra_class %} {{ extra_class }}{% endif %}" title="{{ _T("Click to view fullsize image", "objectslend") }}">
+        <img src="{{ url_for("objectslend_photo", args|merge({"mode": "thumbnail"})) }}"
+            class="picture"
+            width="{{ picture.getOptimalThumbWidth(prefs) }}"
+            height="{{ picture.getOptimalThumbHeight(prefs) }}"
+            alt="{{ alt }}"/>
+    </a>
+{% endmacro %}

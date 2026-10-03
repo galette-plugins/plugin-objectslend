@@ -1,26 +1,32 @@
 {#
-/**
- * Copyright © 2003-2024 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
- */
-#}
+ # This file is part of Galette Objects Lend plugin (https://galette.eu).
+ # SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ # SPDX-License-Identifier: GPL-3.0-or-later
+ #}
+
 {% extends 'elements/list.html.twig' %}
 
 {% set nb = nb_status %}
+
+{% set columns = [
+    {
+        'label': '#', order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_ID'),
+        'collapse': true
+    },
+    {'label': _T("Status", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_NAME')},
+    {
+        'label': _T("Active", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_ACTIVE'),
+        'collapse': true
+    },
+    {
+        'label': _T("Stock", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_STOCK'),
+        'collapse': true
+    },
+    {
+        'label': _T("Days for rent", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_RENTDAYS'),
+        'collapse': true
+    }
+] %}
 
 {% set form = {
     'order': {
@@ -29,10 +35,11 @@
 } %}
 
 {% import "macros.twig" as macros %}
+{% import "@PluginGaletteObjectslend/macros.twig" as lend %}
 
 {% block infoline %}
     {% set infoline = {
-        'label': _Tn("%count status", "%count statuses", nb)|replace({"%count": nb}),
+        'label': _Tn("%1$s status", "%1$s statuses", nb, "objectslend")|format(nb),
         'route': {
             'name': 'objectslend_filter_statuses'
         }
@@ -50,97 +57,18 @@
     </a>
 {% endblock %}
 
-{% block header %}
-    {% set columns = [
-        {
-            'label': '#', order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_ID'),
-            'collapse': true
-        },
-        {'label': _T("Status", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_NAME')},
-        {
-            'label': _T("Active", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_ACTIVE'),
-            'collapse': true
-        },
-        {
-            'label': _T("Stock", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_STOCK'),
-            'collapse': true
-        },
-        {
-            'label': _T("Days for rent", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Status::ORDERBY_RENTDAYS'),
-            'collapse': true
-        }
-    ] %}
-
-    {{ parent() }}
-{% endblock %}
-
 {% block search %}
     <form action="{{ url_for("objectslend_filter_statuses") }}" method="post" id="filtre" class="ui form filters">
         <div class="ui secondary yellow segment">
-            <div class="ui four fields">
-                <div class="field">
-                    <label for="event_filter">{{ _T("Search:") }}</label>
-                    <input type="text" name="filter_str" id="filter_str" value="{{ filters.filter_str }}" type="search" placeholder="{{ _T("Enter a value") }}"/>
-                </div>
-                <div class="field">
-                    <label for="email_filter">{{ _T("Active:", "objectslend") }}</label>
-                    <div class="inline fields">
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_dc_active" value="{{ constant('GaletteObjectsLend\\Repository\\Status::ALL') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Status::ALL') %} checked="checked"{% endif %}>
-                                <label for="filter_dc_active" >{{ _T("Don't care") }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_yes_active" value="{{ constant('GaletteObjectsLend\\Repository\\Status::ACTIVE') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Status::ACTIVE') %} checked="checked"{% endif %}>
-                                <label for="filter_yes_active" >{{ _T("Yes") }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_no_active" value="{{ constant('GaletteObjectsLend\\Repository\\Status::INACTIVE') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Status::INACTIVE') %} checked="checked"{% endif %}>
-                                <label for="filter_no_active" >{{ _T("No") }}</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="field">
-                    <label for="email_filter">{{ _T("In stock:", "objectslend") }}</label>
-                    <div class="inline fields">
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="stock_filter" id="filter_dc_stock" value="{{ constant('GaletteObjectsLend\\Repository\\Status::DC_STOCK') }}"{% if filters.stock_filter == constant('GaletteObjectsLend\\Repository\\Status::DC_STOCK') %} checked="checked"{% endif %}>
-                                <label for="filter_dc_stock" >{{ _T("Don't care") }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="stock_filter" id="filter_yes_stock" value="{{ constant('GaletteObjectsLend\\Repository\\Status::IN_STOCK') }}"{% if filters.stock_filter == constant('GaletteObjectsLend\\Repository\\Status::IN_STOCK') %} checked="checked"{% endif %}>
-                                <label for="filter_yes_stock" >{{ _T("Yes") }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="stock_filter" id="filter_no_stock" value="{{ constant('GaletteObjectsLend\\Repository\\Status::OUT_STOCK') }}"{% if filters.stock_filter == constant('GaletteObjectsLend\\Repository\\Status::OUT_STOCK') %} checked="checked"{% endif %}>
-                                <label for="filter_no_stock" >{{ _T("No") }}</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="ui right aligned basic fitted segment field flexend">
-                    <button type="submit"  class="tooltip action ui labeled icon primary button" title="{{ _T('Apply filters') }}" name="filter">
-                        <i class="search icon"></i>
-                        {{ _T('Filter') }}
-                    </button>
-                    <button type="submit" name="clear_filter" class="ui labeled icon button tooltip" title="{{ _T('Reset all filters to defaults') }}">
-                        <i class="trash alt red icon" aria-hidden="true"></i>
-                        {{ _T('Clear filter') }}
-                    </button>
-                </div>
+            {{ lend.searchField(filters.filter_str) }}
+            <div class="two fields">
+                {{ lend.triStateFilter('active_filter', 'active', _T("Active:", "objectslend"), filters.active_filter, {dc: constant('GaletteObjectsLend\\Repository\\Status::ALL'), yes: constant('GaletteObjectsLend\\Repository\\Status::ACTIVE'), no: constant('GaletteObjectsLend\\Repository\\Status::INACTIVE')}) }}
+                {{ lend.triStateFilter('stock_filter', 'stock', _T("In stock:", "objectslend"), filters.stock_filter, {dc: constant('GaletteObjectsLend\\Repository\\Status::DC_STOCK'), yes: constant('GaletteObjectsLend\\Repository\\Status::IN_STOCK'), no: constant('GaletteObjectsLend\\Repository\\Status::OUT_STOCK')}) }}
+            </div>
+            <div class="fields last-child">
+                {{ lend.filterButtons('sixteen wide') }}
             </div>
         </div>
-        {% include "components/forms/csrf.html.twig" %}
     </form>
 {% endblock %}
 
@@ -148,32 +76,32 @@
     {% for status in statuses %}
         <tr class="{% if loop.index is odd %}even{% else %}odd{% endif %}">
             <td class="collapsing" data-scope="id">
-                {{ status.status_id }}
+                {{ status.getId() }}
             </td>
             <td data-col-label="{{ _T("Status", "objectslend") }}">
-                {{ status.status_text }}
+                {{ status.getText() }}
             </td>
             <td class="center collapsing" data-col-label="{{ _T("Active", "objectslend") }}">
-                {% if status.is_active %}
-                    <i class="thumbs up green icon tooltip" data-html="{{ _T("Active", "objectslend") }}"></i>
+                {% if status.isActive() %}
+                    <i class="check circle green icon tooltip" data-html="{{ _T("Active", "objectslend") }}" aria-hidden="true"></i>
                     <span class="visually-hidden">{{ _T("Active", "objectslend") }}</span>
                 {% else %}
-                    <i class="thumbs down red icon tooltip" data-html="{{ _T("Inactive", "objectslend") }}"></i>
+                    <i class="times circle red icon tooltip" data-html="{{ _T("Inactive", "objectslend") }}" aria-hidden="true"></i>
                     <span class="visually-hidden">{{ _T("Inactive", "objectslend") }}</span>
                 {% endif %}
             </td>
             <td class="center collapsing" data-col-label="{{ _T("Stock", "objectslend") }}">
-                {% if status.in_stock %}
-                    <i class="thumbs up green icon tooltip" data-html="{{ _T("In stock", "objectslend") }}"></i>
+                {% if status.isInStock() %}
+                    <i class="warehouse green icon tooltip" data-html="{{ _T("In stock", "objectslend") }}" aria-hidden="true"></i>
                     <span class="visually-hidden">{{ _T("In stock", "objectslend") }}</span>
                 {% else %}
-                    <i class="thumbs down red icon tooltip" data-html="{{ _T("Not in stock", "objectslend") }}"></i>
+                    <i class="hand holding orange icon tooltip" data-html="{{ _T("Not in stock", "objectslend") }}" aria-hidden="true"></i>
                     <span class="visually-hidden">{{ _T("Not in stock", "objectslend") }}</span>
                 {% endif %}
             </td>
             <td class="collapsing" data-col-label="{{ _T("Days for rent", "objectslend") }}">
-                {% if status.rent_day_number %}
-                    {{ _T("%days days", "objectslend")|replace({'%days': status.rent_day_number}) }}
+                {% if status.getRentDayNumber() %}
+                    {{ _T("%days days", "objectslend")|replace({'%days': status.getRentDayNumber()}) }}
                 {% else %}
                     -
                 {% endif %}
@@ -181,18 +109,18 @@
             <td class="center actions_row collapsing">
                 {% set actions = [
                     {
-                        'label': _T("Edit %status", "objectslend")|replace({'%status': status.status_text}),
+                        'label': _T("Edit %status", "objectslend")|replace({'%status': status.getText()}),
                         'route': {
                             'name': 'objectslend_status_edit',
-                            'args': {'id': status.status_id}
+                            'args': {'id': status.getId()}
                         },
                         'icon': 'edit'
                     },
                     {
-                        'label': _T("Remove %status from database", "objectslend")|replace({'%status': status.status_text}),
+                        'label': _T("Remove %status from database", "objectslend")|replace({'%status': status.getText()}),
                         'route': {
                         'name': 'objectslend_remove_status',
-                            'args': {'id': status.status_id}
+                            'args': {'id': status.getId()}
                         },
                         'icon': 'trash red',
                         'extra_class': 'delete'
@@ -205,6 +133,6 @@
             </td>
         </tr>
     {% else %}
-        <tr><td colspan="6" class="emptylist">{{ _T("No status has been found", "objectslend") }}</td></tr>
+        <tr><td colspan="{{ columns_count }}" class="emptylist">{{ _T("No status has been found", "objectslend") }}</td></tr>
     {% endfor %}
 {% endblock %}

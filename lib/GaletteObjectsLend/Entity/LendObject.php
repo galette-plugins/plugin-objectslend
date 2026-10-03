@@ -1,75 +1,38 @@
 <?php
 
 /**
- * Copyright © 2003-2025 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
 namespace GaletteObjectsLend\Entity;
 
-use Analog\Analog;
 use ArrayObject;
 use Galette\Core\Db;
-use Galette\Entity\Adherent;
-use GaletteObjectsLend\Filters\ObjectsList;
-use GaletteObjectsLend\Repository\Objects;
+use Galette\Util\Html;
 
 /**
  * Object
  *
+ * Information on the current rent (status, member, dates) and on the category
+ * are only available when the object has been loaded from the Objects repository.
+ *
  * @author Mélissa Djebel <melissa.djebel@gmx.net>
  * @author Johan Cwiklinski <johan@x-tnd.be>
- *
- * @property ?int $object_id
- * @property ObjectPicture $picture
- * @property string $name
- * @property string $description
- * @property string $serial_number
- * @property float $price
- * @property float $rent_price
- * @property float $value_rent_price
- * @property bool $price_per_day
- * @property string $dimension
- * @property float $weight
- * @property bool $is_active
- * @property string $cat_name
- * @property string $status_text
- * @property string $date_begin
- * @property Adherent $member
- * @property string $date_forecast
- * @property array $rents
- * @property int $category_id
- * @property string $nom_adh
- * @property string $prenom_adh
- * @property string $currency
- * @property bool $in_stock
  */
 class LendObject
 {
-    public const TABLE = 'objects';
-    public const PK = 'object_id';
+    public const string TABLE = 'objects';
+    public const string PK = 'object_id';
 
     /** @var array<string,string> */
     private array $fields = [
         'object_id' => 'integer',
         'name' => 'varchar(100)',
-        'description' => 'varchar(500)',
+        'description' => 'text',
         'serial_number' => 'varchar(30)',
         'price' => 'decimal',
         'rent_price' => 'decimal',
@@ -80,7 +43,7 @@ class LendObject
         'category_id' => 'int',
         'nb_available' => 'int',
     ];
-    private ?int $object_id;
+    private ?int $object_id = null;
     private string $name = '';
     private string $description = '';
     private string $serial_number = '';
@@ -90,124 +53,39 @@ class LendObject
     private string $dimension = '';
     private float $weight = 0.0;
     private bool $is_active = true;
-    private ?int $category_id;
+    private ?int $category_id = null;
     private int $nb_available = 1;
 
-    private string $date_begin;
-    private ?string $date_forecast;
-    private ?string $date_end;
+    //current rent
+    private ?int $rent_id = null;
+    private ?string $date_begin = null;
+    private ?string $date_forecast = null;
     private string $status_text = '';
-    private int $status_id;
     private bool $in_stock = true;
-
+    private ?int $id_adh = null;
     private string $nom_adh = '';
     private string $prenom_adh = '';
-    private string $email_adh = '';
-    private ?int $id_adh;
-    private ?int $rent_id;
-    private string $comments = '';
-    private string $currency = '€';
-    private ObjectPicture $picture;
+
+    //category
     private bool $cat_active = true;
     private ?string $cat_name = null;
-    private Adherent $member;
 
-    /** @var array<string,bool> */
-    private array $deps = [
-        'picture'   => true,
-        'rents'     => false,
-        'last_rent' => false,
-        'status'    => false,
-        'member'    => false,
-        'category'  => false
-    ];
-
-    private Db $zdb;
-
-    /**
-     * @var LendRent[]
-     * Rents list for the object
-     */
-    private array $rents;
+    private ?ObjectPicture $picture = null;
 
     /**
      * Default constructor
      *
-     * @param Db                                      $zdb  Database instance
-     * @param int|ArrayObject<string,int|string>|null $args Maybe null, an RS object or an id from database
-     * @param ?array<string,bool>                     $deps Dependencies configuration, see LendOb::$deps
+     * @param Db                                 $zdb  Database instance
+     * @param int|ArrayObject<string,mixed>|null $args Maybe null, an RS object or an id from database
      */
-    public function __construct(Db $zdb, int|ArrayObject|null $args = null, ?array $deps = null)
+    public function __construct(private Db $zdb, int|ArrayObject|null $args = null)
     {
-        $this->zdb = $zdb;
-
-        if ($deps !== null) {
-            $this->deps = array_merge(
-                $this->deps,
-                $deps
-            );
-        }
-
-        if ($this->deps['picture'] === true) {
-            $this->picture = new ObjectPicture();
-        }
-
         if (is_int($args)) {
-            try {
-                $select = $this->zdb->select(LEND_PREFIX . self::TABLE, 'o');
-
-                if ($this->deps['status'] || $this->deps['last_rent'] === true) {
-                    if ($this->deps['last_rent'] === true) {
-                        $fields = ['date_begin', 'date_forecast', 'date_end', 'comments'];
-                    } else {
-                        $fields = [];
-                    }
-                    $select->join(
-                        ['r' => PREFIX_DB . LEND_PREFIX . LendRent::TABLE],
-                        'o.' . LendRent::PK . '=r.' . LendRent::PK,
-                        $fields,
-                        $select::JOIN_LEFT
-                    );
-                }
-
-                if ($this->deps['status'] === true) {
-                    $select->join(
-                        ['s' => PREFIX_DB . LEND_PREFIX . LendStatus::TABLE],
-                        'r.' . LendStatus::PK . '=s.' . LendStatus::PK,
-                        ['status_id', 'status_text', 'in_stock'],
-                        $select::JOIN_LEFT
-                    );
-                }
-
-                if ($this->deps['member'] === true) {
-                    $select->join(
-                        ['a' => PREFIX_DB . Adherent::TABLE],
-                        'r.adherent_id=a.' . Adherent::PK,
-                        [Adherent::PK, 'nom_adh', 'prenom_adh'],
-                        $select::JOIN_LEFT
-                    );
-                }
-
-                if ($this->deps['category'] === true) {
-                    $select->join(
-                        ['c' => PREFIX_DB . LEND_PREFIX . LendCategory::TABLE],
-                        'o.' . LendCategory::PK . '=c.' . LendCategory::PK,
-                        ['cat_active'   => 'is_active', 'cat_name' => 'name'],
-                        $select::JOIN_LEFT
-                    );
-                }
-
-                $select->where(['o.' . self::PK => $args]);
-                $results = $this->zdb->execute($select);
-                if ($results->count() == 1) {
-                    $this->loadFromRS($results->current());
-                }
-            } catch (\Exception $e) {
-                Analog::log(
-                    'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                        . $e->getTraceAsString(),
-                    Analog::ERROR
-                );
+            $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
+                ->where([self::PK => $args]);
+            $results = $this->zdb->execute($select);
+            if ($results->count() == 1) {
+                $this->loadFromRS($results->current());
             }
         } elseif (is_object($args)) {
             $this->loadFromRS($args);
@@ -217,341 +95,116 @@ class LendObject
     /**
      * Populate object from a resultset row
      *
-     * @param ArrayObject<string,int|string> $r the resultset row
-     *
-     * @return void
+     * @param ArrayObject<string,mixed> $r the resultset row
      */
     private function loadFromRS(ArrayObject $r): void
     {
-        $this->object_id = (int)$r->object_id;
-        $this->name = $r->name;
-        $this->description = $r->description;
-        $this->serial_number = $r->serial_number;
-        $this->price = is_numeric($r->price) ? (float)$r->price : 0.0;
-        $this->rent_price = is_numeric($r->rent_price) ? (float)$r->rent_price : 0.0;
-        $this->price_per_day = $r->price_per_day == '1';
-        $this->dimension = $r->dimension;
-        $this->weight = is_numeric($r->weight) ? (float)$r->weight : 0.0;
-        $this->is_active = $r->is_active == '1';
-        if (property_exists($r, 'cat_active') && ($r->cat_active == 1 || $r->cat_active === null)) {
-            $this->cat_active = true;
-        } else {
-            $this->cat_active = false;
-        }
-        if (property_exists($r, 'cat_name') && $r->cat_name) {
-            $this->cat_name = $r->cat_name;
-        }
-        if ($r->category_id != null) {
-            $this->category_id = (int)$r->category_id;
-        }
-        $this->nb_available = (int)$r->nb_available;
-        if ($r->rent_id != null) {
-            $this->rent_id = (int)$r->rent_id;
+        $this->object_id = (int)$r['object_id'];
+        $this->name = (string)$r['name'];
+        $this->description = (string)$r['description'];
+        $this->serial_number = (string)$r['serial_number'];
+        $this->price = is_numeric($r['price']) ? (float)$r['price'] : 0.0;
+        $this->rent_price = is_numeric($r['rent_price']) ? (float)$r['rent_price'] : 0.0;
+        $this->price_per_day = $r['price_per_day'] == '1';
+        $this->dimension = (string)$r['dimension'];
+        $this->weight = is_numeric($r['weight']) ? (float)$r['weight'] : 0.0;
+        $this->is_active = $r['is_active'] == '1';
+        $this->category_id = $r['category_id'] !== null ? (int)$r['category_id'] : null;
+        $this->nb_available = (int)$r['nb_available'];
+        $this->rent_id = $r['rent_id'] !== null ? (int)$r['rent_id'] : null;
+
+        //category, when joined
+        $this->cat_active = !isset($r['cat_active']) || $r['cat_active'] == '1';
+        if (isset($r['cat_name']) && $r['cat_name'] !== '') {
+            $this->cat_name = (string)$r['cat_name'];
         }
 
-        //load last rent infos (status, member, and so on
-        if (isset($this->rent_id)) {
-            if (property_exists($r, 'status_id')) {
-                $this->status_id = (int)$r->status_id;
+        //current rent, when joined
+        if ($this->rent_id !== null) {
+            if (isset($r['status_text'])) {
+                $this->status_text = (string)$r['status_text'];
             }
-
-            if (property_exists($r, 'status_text')) {
-                $this->status_text = $r->status_text;
+            if (isset($r['in_stock'])) {
+                $this->in_stock = (bool)$r['in_stock'];
             }
-
-            if (property_exists($r, 'date_begin')) {
-                $this->date_begin = $r->date_begin;
+            if (isset($r['date_begin'])) {
+                $this->date_begin = (string)$r['date_begin'];
             }
-
-            if (property_exists($r, 'date_end')) {
-                $this->date_end = $r->date_end;
+            if (isset($r['date_forecast'])) {
+                $this->date_forecast = (string)$r['date_forecast'];
             }
-
-            if (property_exists($r, 'date_forecast')) {
-                $this->date_forecast = $r->date_forecast;
+            if (isset($r['id_adh'])) {
+                $this->id_adh = (int)$r['id_adh'];
             }
-
-            if (property_exists($r, Adherent::PK)) {
-                $this->id_adh = (int)$r->{Adherent::PK};
+            if (isset($r['nom_adh'])) {
+                $this->nom_adh = (string)$r['nom_adh'];
             }
-
-            if (property_exists($r, 'in_stock')) {
-                $this->in_stock = (bool)$r->in_stock;
+            if (isset($r['prenom_adh'])) {
+                $this->prenom_adh = (string)$r['prenom_adh'];
             }
-        }
-
-        if ($this->object_id && $this->deps['rents'] === true) {
-            $this->rents = LendRent::getRentsForObjectId($this->object_id);
-        }
-
-        if ($this->deps['picture'] === true) {
-            $this->picture = new ObjectPicture((int)$this->object_id);
-        }
-
-        if ($this->deps['member'] === true) {
-            $this->member = new Adherent(
-                $this->zdb,
-                (int)$r->id_adh,
-                [
-                    'picture'   => false,
-                    'groups'    => false,
-                    'dues'      => false,
-                ]
-            );
         }
     }
 
     /**
      * Store object
-     *
-     * @return bool
      */
-    public function store(): bool
+    public function store(): void
     {
-        try {
-            $values = [];
+        $values = [];
 
-            foreach (array_keys($this->fields) as $k) {
-                if (
-                    ($k === 'is_active' || $k === 'price_per_day')
-                    && $this->$k === false
-                ) {
-                    //Handle booleans for postgres ; bugs #18899 and #19354
-                    $values[$k] = $this->zdb->isPostgres() ? 'false' : 0;
-                } else {
-                    $values[$k] = $this->$k ?? null;
-                }
-            }
-
-            if (!isset($this->object_id) || $this->object_id == '') {
-                unset($values[self::PK]);
-                $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
-                        ->values($values);
-                $result = $this->zdb->execute($insert);
-                if ($result->count() > 0) {
-                    if ($this->zdb->isPostgres()) {
-                        /** @phpstan-ignore-next-line */
-                        $this->object_id = (int)$this->zdb->driver->getLastGeneratedValue(
-                            PREFIX_DB . 'lend_objects_id_seq'
-                        );
-                    } else {
-                        $this->object_id = (int)$this->zdb->driver->getLastGeneratedValue();
-                    }
-
-                    if ($this->deps['picture'] === true) {
-                        $this->picture = new ObjectPicture((int)$this->object_id);
-                    }
-                } else {
-                    throw new \Exception(_T("Object has not been added :(", "objectslend"));
-                }
+        foreach (array_keys($this->fields) as $k) {
+            if (
+                ($k === 'is_active' || $k === 'price_per_day')
+                && $this->$k === false
+            ) {
+                //Handle booleans for postgres ; bugs #18899 and #19354
+                $values[$k] = $this->zdb->isPostgres() ? 'false' : 0;
             } else {
-                $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
-                        ->set($values)
-                        ->where([self::PK => $this->object_id]);
-                $this->zdb->execute($update);
-            }
-            return true;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            throw $e;
-        }
-    }
-
-    /**
-     * Global getter method
-     *
-     * @param string $name name of the property we want to retrieve
-     *
-     * @return mixed the called property
-     */
-    public function __get(string $name): mixed
-    {
-        switch ($name) {
-            case 'date_begin':
-            case 'date_forecast':
-                return $this->getDateField($name);
-            case 'price':
-            case 'rent_price':
-                return number_format($this->$name, 2, ',', ' ');
-            case 'value_rent_price':
-                return $this->rent_price;
-            case 'weight':
-                return number_format($this->weight, 3, ',', ' ');
-            default:
-                return $this->$name ?? null;
-        }
-    }
-
-    /**
-     * Global setter method
-     *
-     * @param string $name  name of the property we want to assign a value to
-     * @param mixed  $value a relevant value for the property
-     *
-     * @return void
-     */
-    public function __set(string $name, mixed $value): void
-    {
-        $forbidden = ['currency'];
-        if (!in_array($name, $forbidden)) {
-            switch ($name) {
-                case 'category_id':
-                    if ($value == '') {
-                        $value = null;
-                    } else {
-                        $value = (int)$value;
-                    }
-                    //no break for value to be set in default
-                default:
-                    $this->$name = $value;
-                    break;
+                $values[$k] = $this->$k;
             }
         }
-    }
 
-    /**
-     * Get currency
-     *
-     * @return string
-     */
-    public function getCurrency(): string
-    {
-        return $this->currency;
-    }
-
-    /**
-     * Get current rent
-     *
-     * @return LendRent|null
-     */
-    public function getCurrentRent(): ?LendRent
-    {
-        if (isset($this->rents) && is_array($this->rents) && count($this->rents) > 0) {
-            return $this->rents[0];
+        if ($this->object_id === null) {
+            unset($values[self::PK]);
+            $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
+                    ->values($values);
+            $result = $this->zdb->execute($insert);
+            if ($result->count() > 0) {
+                if ($this->zdb->isPostgres()) {
+                    // @phpstan-ignore arguments.count (laminas does not respect its own interfaces)
+                    $this->object_id = (int)$this->zdb->driver->getLastGeneratedValue(
+                        PREFIX_DB . 'lend_objects_id_seq'
+                    );
+                } else {
+                    $this->object_id = (int)$this->zdb->driver->getLastGeneratedValue();
+                }
+                $this->picture = null;
+            } else {
+                throw new \Exception(_T("Object has not been added :(", "objectslend"));
+            }
+        } else {
+            $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
+                    ->set($values)
+                    ->where([self::PK => $this->object_id]);
+            $this->zdb->execute($update);
         }
-        return null;
-    }
-
-    /**
-     * Is current object active?
-     *
-     * Check for activity from object and from its parent category if any
-     *
-     * @return bool
-     */
-    public function isActive(): bool
-    {
-        return $this->is_active && $this->cat_active;
-    }
-
-    /**
-     * Get highlighted string
-     *
-     * @param ObjectsList $filters Filters
-     * @param string      $field   Field name
-     *
-     * @return string
-     */
-    private function getHighlighted(ObjectsList $filters, string $field): string
-    {
-        //check if search concerns field
-        $process = false;
-        switch ($field) {
-            case 'description':
-            case 'name':
-                if ($filters->field_filter == Objects::FILTER_NAME) {
-                    $process = true;
-                }
-                break;
-            case 'serial_number':
-                if ($filters->field_filter == Objects::FILTER_SERIAL) {
-                    $process = true;
-                }
-                break;
-            case 'dimension':
-                if ($filters->field_filter == Objects::FILTER_DIM) {
-                    $process = true;
-                }
-                break;
-            case 'object_id':
-                if ($filters->field_filter === Objects::FILTER_ID) {
-                    $process = true;
-                }
-                break;
-        }
-
-        if ($process === false) {
-            return $this->$field;
-        }
-
-        return preg_replace(
-            '/(' . trim($filters->filter_str ?? '', '%') . ')/iu',
-            '<span class="search">$1</span>',
-            $this->$field
-        );
-    }
-
-    /**
-     * Displays name, with search terms highlighted
-     *
-     * @param ObjectsList $filters Filters
-     *
-     * @return string
-     */
-    public function displayName(ObjectsList $filters): string
-    {
-        return $this->getHighlighted($filters, 'name');
-    }
-
-    /**
-     * Displays description, with search terms highlighted
-     *
-     * @param ObjectsList $filters Filters
-     *
-     * @return string
-     */
-    public function displayDescription(ObjectsList $filters): string
-    {
-        return $this->getHighlighted($filters, 'description');
-    }
-
-    /**
-     * Displays serial number, with search terms highlighted
-     *
-     * @param ObjectsList $filters Filters
-     *
-     * @return string
-     */
-    public function displaySerial(ObjectsList $filters): string
-    {
-        return $this->getHighlighted($filters, 'serial_number');
-    }
-
-    /**
-     * Displays dimension, with search terms highlighted
-     *
-     * @param ObjectsList $filters Filters
-     *
-     * @return string
-     */
-    public function displayDimension(ObjectsList $filters): string
-    {
-        return $this->getHighlighted($filters, 'dimension');
     }
 
     /**
      * Delete object
-     *
-     * @return bool
      */
-    public function delete(): bool
+    public function delete(): void
     {
+        $need_transaction = !$this->zdb->inTransaction();
         try {
-            $this->zdb->connection->beginTransaction();
+            if ($need_transaction) {
+                $this->zdb->beginTransaction();
+            }
+            //a picture file removed here comes back from the database on rollback
+            $picture = $this->getPicture();
+            if ($picture->hasPicture() && !$picture->delete(false)) {
+                throw new \RuntimeException('Unable to remove picture');
+            }
             //remove rents
             $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
                     ->set([LendRent::PK => null])
@@ -563,15 +216,13 @@ class LendObject
             $delete = $this->zdb->delete(LEND_PREFIX . self::TABLE)
                     ->where([self::PK => $this->object_id]);
             $this->zdb->execute($delete);
-            $this->zdb->connection->commit();
-            return true;
+            if ($need_transaction) {
+                $this->zdb->commit();
+            }
         } catch (\Exception $e) {
-            $this->zdb->connection->rollBack();
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                Analog::ERROR
-            );
+            if ($need_transaction) {
+                $this->zdb->rollback();
+            }
             throw $e;
         }
     }
@@ -579,31 +230,26 @@ class LendObject
     /**
      * Clone object
      *
-     * @return bool
+     * The copy has neither picture nor rents.
      */
-    public function clone(): bool
+    public function clone(): void
     {
-        //unset id so this is considered as new object
-        unset($this->object_id);
-        //unset image
-        $this->picture = new ObjectPicture();
-        return $this->store();
+        $this->object_id = null;
+        $this->rent_id = null;
+        $this->picture = null;
+        $this->store();
     }
 
     /**
      * Get ID
-     *
-     * @return ?int
      */
     public function getId(): ?int
     {
-        return $this->object_id ?? null;
+        return $this->object_id;
     }
 
     /**
      * Get name
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -611,131 +257,47 @@ class LendObject
     }
 
     /**
-     * Get picture
+     * Set name
      *
-     * @return ObjectPicture
+     * @param string $name Name
      */
-    public function getPicture(): ObjectPicture
+    public function setName(string $name): self
     {
-        return $this->picture;
+        $this->name = $name;
+        return $this;
     }
 
     /**
-     * Get price
+     * Get raw description
      *
-     * @return float
+     * Description may contain HTML, use getDescriptionHtml() to display it.
      */
-    public function getPrice(): float
+    public function getDescription(): string
     {
-        return $this->price;
+        return $this->description;
     }
 
     /**
-     * Get rent price
-     *
-     * @return float
+     * Get description as sanitized HTML
      */
-    public function getRentPrice(): float
+    public function getDescriptionHtml(): string
     {
-        return $this->rent_price;
+        return Html::clean($this->description);
     }
 
     /**
-     * Is a price per day
+     * Set description
      *
-     * @return bool
+     * @param string $description Description, may contain HTML
      */
-    public function isPricePerDay(): bool
+    public function setDescription(string $description): self
     {
-        return $this->price_per_day;
-    }
-
-    /**
-     * Get weight
-     *
-     * @return float
-     */
-    public function getWeight(): float
-    {
-        return $this->weight;
-    }
-
-    /**
-     * Get textual status
-     *
-     * @return string
-     */
-    public function getStatusText(): string
-    {
-        return $this->status_text;
-    }
-
-    /**
-     * Is in stock
-     *
-     * @return bool
-     */
-    public function inStock(): bool
-    {
-        return $this->in_stock;
-    }
-
-    /**
-     * Get localized begin date
-     *
-     * @return string
-     * @throws \Exception
-     */
-    public function getDateBegin(): string
-    {
-        return $this->getDateField('date_begin');
-    }
-
-    /**
-     * Get localized forecast date
-     *
-     * @return string
-     * @throws \Exception
-     */
-    public function getDateForecast(): string
-    {
-        return $this->getDateField('date_forecast');
-    }
-
-    /**
-     * Get member ID
-     *
-     * @return ?int
-     */
-    public function getIdAdh(): ?int
-    {
-        return $this->id_adh ?? null;
-    }
-
-    /**
-     * Get rent ID
-     *
-     * @return ?int
-     */
-    public function getRentId(): ?int
-    {
-        return $this->rent_id ?? null;
-    }
-
-    /**
-     * Get category ID
-     *
-     * @return ?int
-     */
-    public function getCategoryId(): ?int
-    {
-        return $this->category_id ?? null;
+        $this->description = $description;
+        return $this;
     }
 
     /**
      * Get serial number
-     *
-     * @return string
      */
     public function getSerialNumber(): string
     {
@@ -743,32 +305,241 @@ class LendObject
     }
 
     /**
-     * Get localized date field
+     * Set serial number
      *
-     * @param string $name Field name
-     *
-     * @return string
-     * @throws \Exception
+     * @param string $serial_number Serial number
      */
-    protected function getDateField(string $name): string
+    public function setSerialNumber(string $serial_number): self
     {
-        $date = $this->$name ?? null;
-        if ($date == '' || $date == null) {
-            return '';
-        }
-        $datetime = new \DateTime($date);
-        return $datetime->format(_T('Y-m-d'));
+        $this->serial_number = $serial_number;
+        return $this;
     }
 
     /**
-     * Generic isset function
-     *
-     * @param string $name Property name
-     *
-     * @return bool
+     * Get price
      */
-    public function __isset(string $name): bool
+    public function getPrice(): float
     {
-        return property_exists($this, $name);
+        return $this->price;
+    }
+
+    /**
+     * Set price
+     *
+     * @param float $price Price
+     */
+    public function setPrice(float $price): self
+    {
+        $this->price = $price;
+        return $this;
+    }
+
+    /**
+     * Get rent price
+     */
+    public function getRentPrice(): float
+    {
+        return $this->rent_price;
+    }
+
+    /**
+     * Set rent price
+     *
+     * @param float $rent_price Rent price
+     */
+    public function setRentPrice(float $rent_price): self
+    {
+        $this->rent_price = $rent_price;
+        return $this;
+    }
+
+    /**
+     * Is rent price per day?
+     */
+    public function isPricePerDay(): bool
+    {
+        return $this->price_per_day;
+    }
+
+    /**
+     * Set whether rent price is per day
+     *
+     * @param bool $price_per_day Price per day
+     */
+    public function setPricePerDay(bool $price_per_day): self
+    {
+        $this->price_per_day = $price_per_day;
+        return $this;
+    }
+
+    /**
+     * Get dimension
+     */
+    public function getDimension(): string
+    {
+        return $this->dimension;
+    }
+
+    /**
+     * Set dimension
+     *
+     * @param string $dimension Dimension
+     */
+    public function setDimension(string $dimension): self
+    {
+        $this->dimension = $dimension;
+        return $this;
+    }
+
+    /**
+     * Get weight
+     */
+    public function getWeight(): float
+    {
+        return $this->weight;
+    }
+
+    /**
+     * Set weight
+     *
+     * @param float $weight Weight
+     */
+    public function setWeight(float $weight): self
+    {
+        $this->weight = $weight;
+        return $this;
+    }
+
+    /**
+     * Is object active?
+     *
+     * Check for activity from object and from its parent category if any
+     */
+    public function isActive(): bool
+    {
+        return $this->is_active && $this->cat_active;
+    }
+
+    /**
+     * Is object itself active, whatever its category?
+     */
+    public function isObjectActive(): bool
+    {
+        return $this->is_active;
+    }
+
+    /**
+     * Set active
+     *
+     * @param bool $active Active
+     */
+    public function setActive(bool $active): self
+    {
+        $this->is_active = $active;
+        return $this;
+    }
+
+    /**
+     * Get category ID
+     */
+    public function getCategoryId(): ?int
+    {
+        return $this->category_id;
+    }
+
+    /**
+     * Set category ID
+     *
+     * @param ?int $category_id Category ID, null for none
+     */
+    public function setCategoryId(?int $category_id): self
+    {
+        $this->category_id = $category_id;
+        return $this;
+    }
+
+    /**
+     * Get category name
+     */
+    public function getCategoryName(): ?string
+    {
+        return $this->cat_name;
+    }
+
+    /**
+     * Get picture
+     */
+    public function getPicture(): ObjectPicture
+    {
+        return $this->picture ??= new ObjectPicture($this->object_id);
+    }
+
+    /**
+     * Get current rent ID
+     */
+    public function getRentId(): ?int
+    {
+        return $this->rent_id;
+    }
+
+    /**
+     * Get current status text
+     */
+    public function getStatusText(): string
+    {
+        return $this->status_text;
+    }
+
+    /**
+     * Is object in stock?
+     */
+    public function inStock(): bool
+    {
+        return $this->in_stock;
+    }
+
+    /**
+     * Get localized begin date of current rent
+     */
+    public function getDateBegin(): string
+    {
+        return $this->formatDate($this->date_begin);
+    }
+
+    /**
+     * Get localized forecast date of current rent
+     */
+    public function getDateForecast(): string
+    {
+        return $this->formatDate($this->date_forecast);
+    }
+
+    /**
+     * Get ID of the member holding the object
+     */
+    public function getIdAdh(): ?int
+    {
+        return $this->id_adh;
+    }
+
+    /**
+     * Get name of the member holding the object
+     */
+    public function getMemberName(): string
+    {
+        return trim($this->nom_adh . ' ' . $this->prenom_adh);
+    }
+
+    /**
+     * Get localized date
+     *
+     * @param ?string $date Raw date
+     */
+    private function formatDate(?string $date): string
+    {
+        if ($date === null || $date === '') {
+            return '';
+        }
+        return (new \DateTime($date))->format(_T('Y-m-d'));
     }
 }

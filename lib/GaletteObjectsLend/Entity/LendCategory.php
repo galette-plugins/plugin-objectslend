@@ -1,29 +1,15 @@
 <?php
 
 /**
- * Copyright © 2003-2025 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
 namespace GaletteObjectsLend\Entity;
 
-use Analog\Analog;
 use ArrayObject;
 use Galette\Core\Db;
 use Laminas\Db\Sql\Predicate;
@@ -33,16 +19,11 @@ use Laminas\Db\Sql\Predicate;
  *
  * @author Mélissa Djebel <melissa.djebel@gmx.net>
  * @author Johan Cwiklinski <johan@x-tnd.be>
- *
- * @property bool $is_active
- * @property string $name
- * @property int $category_id
- * @property CategoryPicture $picture
  */
 class LendCategory
 {
-    public const TABLE = 'category';
-    public const PK = 'category_id';
+    public const string TABLE = 'category';
+    public const string PK = 'category_id';
 
     /** @var array<string> */
     private array $fields = [
@@ -50,13 +31,11 @@ class LendCategory
         'name' => 'varchar(100)',
         'is_active' => 'boolean'
     ];
-    private int $category_id;
+    private ?int $category_id = null;
     private ?string $name = null;
     private bool $is_active = true;
     private int $objects_nb = 0;
     private float $objects_price_sum = 0.0;
-    // Used to have an url for the image
-    private string $categ_image_url = '';
     private CategoryPicture $picture;
 
     /** @var array<string, bool> */
@@ -69,9 +48,9 @@ class LendCategory
     /**
      * Default constructor
      *
-     * @param Db                                      $zdb  Database instance
-     * @param int|ArrayObject<string,int|string>|null $args Maybe null, an RS object or an id from database
-     * @param ?array<string,bool>                     $deps Dependencies configuration, see LendCategory::$deps
+     * @param Db                                 $zdb  Database instance
+     * @param int|ArrayObject<string,mixed>|null $args Maybe null, an RS object or an id from database
+     * @param ?array<string,bool>                $deps Dependencies configuration, see LendCategory::$deps
      */
     public function __construct(Db $zdb, int|ArrayObject|null $args = null, ?array $deps = null)
     {
@@ -89,19 +68,11 @@ class LendCategory
         }
 
         if (is_int($args)) {
-            try {
-                $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
-                        ->where([self::PK => $args]);
-                $results = $this->zdb->execute($select);
-                if ($results->count() == 1) {
-                    $this->loadFromRS($results->current());
-                }
-            } catch (\Exception $e) {
-                Analog::log(
-                    'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                    . $e->getTraceAsString(),
-                    Analog::ERROR
-                );
+            $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
+                    ->where([self::PK => $args]);
+            $results = $this->zdb->execute($select);
+            if ($results->count() == 1) {
+                $this->loadFromRS($results->current());
             }
         } elseif (is_object($args)) {
             $this->loadFromRS($args);
@@ -111,22 +82,20 @@ class LendCategory
     /**
      * Populate object from a resultset row
      *
-     * @param ArrayObject<string, int|string> $r the resultset row
-     *
-     * @return void
+     * @param ArrayObject<string,mixed> $r the resultset row
      */
     private function loadFromRS(ArrayObject $r): void
     {
-        $this->category_id = (int)$r->category_id;
-        $this->name = $r->name;
-        $this->is_active = $r->is_active == '1';
+        $this->category_id = (int)$r['category_id'];
+        $this->name = $r['name'] !== null ? (string)$r['name'] : null;
+        $this->is_active = $r['is_active'] == '1';
 
-        if (property_exists($r, 'objects_count')) {
-            $this->objects_nb = (int)$r->objects_count;
+        if (isset($r['objects_count'])) {
+            $this->objects_nb = (int)$r['objects_count'];
         }
 
-        if (property_exists($r, 'objects_price_sum') && $r->objects_price_sum !== null) {
-            $this->objects_price_sum = (float)$r->objects_price_sum;
+        if (isset($r['objects_price_sum'])) {
+            $this->objects_price_sum = (float)$r['objects_price_sum'];
         }
 
         if ($this->deps['picture'] === true) {
@@ -136,66 +105,60 @@ class LendCategory
 
     /**
      * Store category
-     *
-     * @return bool
      */
-    public function store(): bool
+    public function store(): void
     {
-        try {
-            $values = [];
+        $values = [];
 
-            foreach (array_keys($this->fields) as $k) {
-                if ($k === 'is_active' && $this->$k === false) {
-                    //Handle booleans for postgres ; bugs #18899 and #19354
-                    $values[$k] = $this->zdb->isPostgres() ? 'false' : 0;
-                } else {
-                    $values[$k] = $this->$k ?? null;
-                }
+        foreach (array_keys($this->fields) as $k) {
+            if ($k === 'is_active' && $this->$k === false) {
+                //Handle booleans for postgres ; bugs #18899 and #19354
+                $values[$k] = $this->zdb->isPostgres() ? 'false' : 0;
+            } else {
+                $values[$k] = $this->$k ?? null;
             }
+        }
 
-            if (!isset($this->category_id) || $this->category_id == '') {
-                unset($values['category_id']);
-                $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
-                        ->values($values);
-                $result = $this->zdb->execute($insert);
-                if ($result->count() > 0) {
-                    if ($this->zdb->isPostgres()) {
-                        /** @phpstan-ignore-next-line */
-                        $this->category_id = (int)$this->zdb->driver->getLastGeneratedValue(
-                            PREFIX_DB . 'lend_category_id_seq'
-                        );
-                    } else {
-                        $this->category_id = (int)$this->zdb->driver->getLastGeneratedValue();
-                    }
+        if ($this->category_id === null) {
+            unset($values['category_id']);
+            $insert = $this->zdb->insert(LEND_PREFIX . self::TABLE)
+                    ->values($values);
+            $result = $this->zdb->execute($insert);
+            if ($result->count() > 0) {
+                if ($this->zdb->isPostgres()) {
+                    /** @phpstan-ignore-next-line */
+                    $this->category_id = (int)$this->zdb->driver->getLastGeneratedValue(
+                        PREFIX_DB . 'lend_category_id_seq'
+                    );
                 } else {
-                    throw new \RuntimeException('Unable to add category!');
+                    $this->category_id = (int)$this->zdb->driver->getLastGeneratedValue();
                 }
             } else {
-                $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
-                        ->set($values)
-                        ->where([self::PK => $this->category_id]);
-                $this->zdb->execute($update);
+                throw new \RuntimeException('Unable to add category!');
             }
-            return true;
-        } catch (\Exception $e) {
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            return false;
+        } else {
+            $update = $this->zdb->update(LEND_PREFIX . self::TABLE)
+                    ->set($values)
+                    ->where([self::PK => $this->category_id]);
+            $this->zdb->execute($update);
         }
     }
 
     /**
      * Drop a category. All objects for removed category will be assigned to none.
-     *
-     * @return bool
      */
-    public function delete(): bool
+    public function delete(): void
     {
+        $need_transaction = !$this->zdb->inTransaction();
         try {
-            $this->zdb->connection->beginTransaction();
+            if ($need_transaction) {
+                $this->zdb->beginTransaction();
+            }
+            //a picture file removed here comes back from the database on rollback
+            $picture = new CategoryPicture($this->category_id);
+            if ($picture->hasPicture() && !$picture->delete(false)) {
+                throw new \RuntimeException('Unable to remove picture');
+            }
             $select = $this->zdb->select(LEND_PREFIX . LendObject::TABLE)
                     ->where(['category_id' => $this->category_id]);
             $results = $this->zdb->execute($select);
@@ -210,16 +173,14 @@ class LendCategory
             $delete = $this->zdb->delete(LEND_PREFIX . self::TABLE)
                     ->where([self::PK => $this->category_id]);
             $this->zdb->execute($delete);
-            $this->zdb->connection->commit();
-            return true;
+            if ($need_transaction) {
+                $this->zdb->commit();
+            }
         } catch (\Exception $e) {
-            $this->zdb->connection->rollBack();
-            Analog::log(
-                'Something went wrong :\'( | ' . $e->getMessage() . "\n"
-                . $e->getTraceAsString(),
-                Analog::ERROR
-            );
-            return false;
+            if ($need_transaction) {
+                $this->zdb->rollback();
+            }
+            throw $e;
         }
     }
 
@@ -227,8 +188,6 @@ class LendCategory
      * Get category name
      *
      * @param bool $count Whether to display count along with name (defaults to true)
-     *
-     * @return string
      */
     public function getName(bool $count = true): string
     {
@@ -242,50 +201,37 @@ class LendCategory
     }
 
     /**
-     * Global getter method
+     * Set name
      *
-     * @param string $name name of the property we want to retrieve
-     *
-     * @return mixed the called property
+     * @param string $name Category name
      */
-    public function __get(string $name): mixed
+    public function setName(string $name): self
     {
-        switch ($name) {
-            case 'objects_price_sum':
-                return number_format($this->$name, 2, ',', '');
-            case 'is_active':
-            default:
-                return $this->$name ?? null;
-        }
+        $this->name = $name;
+        return $this;
     }
 
     /**
-     * Global setter method
+     * Set active
      *
-     * @param string $name  name of the property we want to assign a value to
-     * @param mixed  $value a relevant value for the property
-     *
-     * @return void
+     * @param bool $active Active
      */
-    public function __set(string $name, mixed $value): void
+    public function setActive(bool $active): self
     {
-        $this->$name = $value;
+        $this->is_active = $active;
+        return $this;
     }
 
     /**
-     * Get object ID
-     *
-     * @return ?int
+     * Get category ID
      */
     public function getId(): ?int
     {
-        return $this->category_id ?? null;
+        return $this->category_id;
     }
 
     /**
      * Is object active
-     *
-     * @return bool
      */
     public function isActive(): bool
     {
@@ -294,8 +240,6 @@ class LendCategory
 
     /**
      * Get picture
-     *
-     * @return ?CategoryPicture
      */
     public function getPicture(): ?CategoryPicture
     {
@@ -304,8 +248,6 @@ class LendCategory
 
     /**
      * Get sum
-     *
-     * @return float
      */
     public function getSum(): float
     {
@@ -314,23 +256,9 @@ class LendCategory
 
     /**
      * Get objects count
-     *
-     * @return int
      */
     public function getObjectsNb(): int
     {
         return $this->objects_nb;
-    }
-
-    /**
-     * Generic isset function
-     *
-     * @param string $name Property name
-     *
-     * @return bool
-     */
-    public function __isset(string $name): bool
-    {
-        return property_exists($this, $name);
     }
 }

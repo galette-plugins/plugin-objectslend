@@ -1,36 +1,23 @@
 {#
-/**
- * Copyright © 2003-2024 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
- */
-#}
+ # This file is part of Galette Objects Lend plugin (https://galette.eu).
+ # SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ # SPDX-License-Identifier: GPL-3.0-or-later
+ #}
+
 {% extends "page.html.twig" %}
+{% import "@PluginGaletteObjectslend/macros.twig" as lend %}
 
 {% block content %}
-<form action="{% if category.category_id %}{{ url_for("objectslend_category_action_edit", {"id": category.category_id}) }}{% else %}{{ url_for("objectslend_category_action_add") }}{% endif %}" method="post" enctype="multipart/form-data" class="ui form">
+<form action="{% if category.getId() %}{{ url_for("objectslend_category_action_edit", {"id": category.getId()}) }}{% else %}{{ url_for("objectslend_category_action_add") }}{% endif %}" method="post" enctype="multipart/form-data" class="ui form">
     <div class="ui styled fluid accordion field">
-        <div class="active title">
-            <i class="icon dropdown"></i>
+        <div class="active title" role="heading" aria-level="2">
+            <i class="icon dropdown" aria-hidden="true"></i>
             {{ _T("Category", "objectslend") }}
         </div>
         <div class="active content">
             {% include "components/forms/text.html.twig" with {
                 id: 'name',
-                value: category.name,
+                value: category.getId() ? category.getName(false) : "",
                 label: _T("Name", "objectslend"),
                 required: true
             } %}
@@ -39,17 +26,17 @@
                 id: 'is_active',
                 value: 1,
                 label: _T("Is active", "objectslend"),
-                checked: category.is_active
+                checked: category.isActive()
             } %}
 
             <div class="inline field">
-                <label>{{ _T("Picture:", "objectslend") }}</label>
-                <img
-                    src="{% if category.category_id %}{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": category.category_id}) }}{% else %}{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail"}) }}{% endif %}"
-                    class="picture"
-                    width="{{ picture.getOptimalThumbWidth(olendsprefs) }}"
-                    height="{{ picture.getOptimalThumbHeight(olendsprefs) }}"
-                    alt="{{ _T("Category photo", "objectslend") }}"/>
+                {% include "components/forms/max_size.html.twig" with {
+                    label: _T("Picture:", "objectslend"),
+                    for: "picture_file",
+                    max_size: olendsprefs.getUploadSize(),
+                    input_id: "picture_file"
+                } %}
+                {{ lend.thumbnail("category", category.getId(), picture, olendsprefs, _T("Category photo", "objectslend")) }}
                 <br/>
                 {% if picture.hasPicture() %}
                     {% include "components/forms/checkbox.html.twig" with {
@@ -59,17 +46,16 @@
                         required: false
                     } %}
                 {% endif %}
-                <input class="labelalign" type="file" name="picture"/>
+                <input class="labelalign" id="picture_file" type="file" name="picture" aria-describedby="picture_file-tip"/>
             </div>
         </div>
     </div>
 
     <div class="ui basic center aligned fitted segment">
         <button type="submit" name="valid" class="action ui labeled icon primary button">
-            <i class="save icon"></i> {{ _T("Save") }}
+            <i class="save icon" aria-hidden="true"></i> {{ _T("Save") }}
         </button>
         <input type="hidden" name="category_id" id="id" value="{{ category.getId() }}"/>
-        {% include "components/forms/csrf.html.twig" %}
     </div>
 </form>
 {% endblock %}

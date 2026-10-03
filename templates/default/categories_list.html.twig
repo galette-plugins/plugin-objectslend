@@ -1,27 +1,26 @@
 {#
-/**
- * Copyright © 2003-2024 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
- */
-#}
+ # This file is part of Galette Objects Lend plugin (https://galette.eu).
+ # SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ # SPDX-License-Identifier: GPL-3.0-or-later
+ #}
+
 {% extends 'elements/list.html.twig' %}
 {% import "macros.twig" as macros %}
+{% import "@PluginGaletteObjectslend/macros.twig" as lend %}
 
 {% set nb = nb_categories %}
+
+{% set columns = [
+    {
+        'label': '#',
+        'collapse': true
+    },
+    {'label': _T("Name", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Categories::ORDERBY_NAME')},
+    {
+        'label': _T("Active", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Categories::ORDERBY_ACTIVITY'),
+        'collapse': true
+    },
+] %}
 
 {% set form = {
     'order': {
@@ -31,7 +30,7 @@
 
 {% block infoline %}
     {% set infoline = {
-        'label': _Tn("%count category", "%count categories", nb, "events")|replace({"%count": nb}),
+        'label': _Tn("%count category", "%count categories", nb, "objectslend")|replace({"%count": nb}),
     } %}
     {{ parent() }}
 {% endblock %}
@@ -46,65 +45,15 @@
     </a>
 {% endblock %}
 
-{% block header %}
-    {% set columns = [
-        {
-            'label': '#',
-            'collapse': true
-        },
-        {'label': _T("Name", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Categories::ORDERBY_NAME')},
-        {
-            'label': _T("Active", "objectslend"), order: constant('GaletteObjectsLend\\Repository\\Categories::ORDERBY_ACTIVITY'),
-            'collapse': true
-        },
-    ] %}
-    {{ parent() }}
-{% endblock %}
-
 {% block search %}
     <form action="{{ url_for("objectslend_filter_categories") }}" method="post" id="filtre" class="ui form filters">
         <div class="ui secondary yellow segment">
-            <div class="ui three fields">
-                <div class="field">
-                    <label for="filter_str">{{ _T("Search:") }}</label>
-                    <input type="text" name="filter_str" id="filter_str" value="{{ filters.filter_str }}" type="search" placeholder="{{ _T("Enter a value") }}"/>
-                </div>
-                <div class="field">
-                    <label for="email_filter">{{ _T("Active:", "objectslend") }}</label>
-                    <div class="inline fields">
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_dc_active" value="{{ constant('GaletteObjectsLend\\Repository\\Categories::ALL_CATEGORIES') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Status::ALL') %} checked="checked"{% endif %}>
-                                <label for="filter_dc_active" >{{ _T("Don't care") }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_yes_active" value="{{ constant('GaletteObjectsLend\\Repository\\\Categories::ACTIVE_CATEGORIES') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Status::ACTIVE') %} checked="checked"{% endif %}>
-                                <label for="filter_yes_active" >{{ _T("Yes") }}</label>
-                            </div>
-                        </div>
-                        <div class="field inline">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="active_filter" id="filter_no_active" value="{{ constant('GaletteObjectsLend\\Repository\\Categories::INACTIVE_CATEGORIES') }}"{% if filters.active_filter == constant('GaletteObjectsLend\\Repository\\Status::INACTIVE') %} checked="checked"{% endif %}>
-                                <label for="filter_no_active" >{{ _T("No") }}</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="ui right aligned basic fitted segment field flexend">
-                    <button type="submit"  class="tooltip action ui labeled icon primary button" title="{{ _T('Apply filters') }}" name="filter">
-                        <i class="search icon"></i>
-                        {{ _T('Filter') }}
-                    </button>
-                    <button type="submit" name="clear_filter" class="ui labeled icon button tooltip" title="{{ _T('Reset all filters to defaults') }}">
-                        <i class="trash alt red icon" aria-hidden="true"></i>
-                        {{ _T('Clear filter') }}
-                    </button>
-                </div>
+            {{ lend.searchField(filters.filter_str) }}
+            <div class="two fields last-child">
+                {{ lend.triStateFilter('active_filter', 'active', _T("Active:", "objectslend"), filters.active_filter, {dc: constant('GaletteObjectsLend\\Repository\\Categories::ALL_CATEGORIES'), yes: constant('GaletteObjectsLend\\Repository\\Categories::ACTIVE_CATEGORIES'), no: constant('GaletteObjectsLend\\Repository\\Categories::INACTIVE_CATEGORIES')}) }}
+                {{ lend.filterButtons() }}
             </div>
         </div>
-        {% include "components/forms/csrf.html.twig" %}
     </form>
 {% endblock %}
 
@@ -112,30 +61,30 @@
     {% for categ in categories %}
             <tr class="{% if loop.index is odd %}odd{% else %}even{% endif %}">
                 <td class="collapsing" data-col-label="#">
-                    {{ categ.category_id }}
+                    {{ categ.getId() }}
                 </td>
                 <td data-col-label="{{ _T("Name", "objectslend") }}">
         {% if olendsprefs.imagesInLists() %}
-                    <img src="{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": categ.category_id}) }}"
+                    <img src="{{ url_for("objectslend_photo", {"type": "category", "mode": "thumbnail", "id": categ.getId()}) }}"
                         class="ui middle aligned image"
-                        width="{{ categ.picture.getOptimalThumbWidth(olendsprefs) }}"
-                        height="{{ categ.picture.getOptimalThumbHeight(olendsprefs) }}"
+                        width="{{ categ.getPicture().getOptimalThumbWidth(olendsprefs) }}"
+                        height="{{ categ.getPicture().getOptimalThumbHeight(olendsprefs) }}"
                         alt=""/>
         {% endif %}
-                    {{ categ.name }}
+                    {{ categ.getName(false) }}
                 </td>
                 <td class="center collapsing" data-col-label="{{ _T("Active", "objectslend") }}">
-                    <i class="thumbs {% if categ.is_active%}up green{% else %}down red{% endif %} icon tooltip" data-html="{% if categ.is_active %}{{ _T("Active", "objectslend") }}{% else %}{{ _T("Inactive", "objectslend") }}{% endif %}"></i>
-                    <span class="visually-hidden">{% if categ.is_active %}{{ _T("Active", "objectslend") }}{% else %}{{ _T("Inactive", "objectslend") }}{% endif %}</span>
+                    <i class="{% if categ.isActive() %}check circle green{% else %}times circle red{% endif %} icon tooltip" data-html="{% if categ.isActive() %}{{ _T("Active", "objectslend") }}{% else %}{{ _T("Inactive", "objectslend") }}{% endif %}" aria-hidden="true"></i>
+                    <span class="visually-hidden">{% if categ.isActive() %}{{ _T("Active", "objectslend") }}{% else %}{{ _T("Inactive", "objectslend") }}{% endif %}</span>
                 </td>
         {% if login.isAdmin() or login.isStaff() %}
                 <td class="center actions_row collapsing">
                     {% set actions = [
                         {
-                            'label': _T("Edit \"%category\"", "objectslend")|replace({"%category": categ.name}),
+                            'label': _T("Edit \"%category\"", "objectslend")|replace({"%category": categ.getName(false)}),
                             'route': {
                                 'name': 'objectslend_category_edit',
-                                'args': {'id': categ.category_id}
+                                'args': {'id': categ.getId()}
                             },
                             'icon': 'edit'
                         }
@@ -144,10 +93,10 @@
                     {% if login.isAdmin() %}
                         {% set actions = actions|merge([
                             {
-                                'label': _T("Remove \"%category\"", "events")|replace({"%category": categ.name}),
+                                'label': _T("Remove \"%category\"", "objectslend")|replace({"%category": categ.getName(false)}),
                                 'route': {
                                     'name': 'objectslend_remove_category',
-                                    'args': {'id': categ.category_id}
+                                    'args': {'id': categ.getId()}
                                 },
                                 'icon': 'trash red',
                                 'extra_class': 'delete'
@@ -163,8 +112,7 @@
             </tr>
     {% else %}
             <tr>
-                <td colspan="4">{{ _T("No category", "objectslend") }}</td>
+                <td colspan="{{ columns_count }}" class="emptylist">{{ _T("No category", "objectslend") }}</td>
             </tr>
     {% endfor %}
-</table>
 {% endblock %}

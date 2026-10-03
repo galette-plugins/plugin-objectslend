@@ -1,31 +1,28 @@
 <?php
 
 /**
- * Copyright © 2003-2025 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
 namespace GaletteObjectsLend;
 
+use DI\Attribute\Inject;
+use Galette\Core\Db;
 use Galette\Core\Login;
-use Galette\Entity\Adherent;
+use Galette\Core\Plugins\InstallableInterface;
+use Galette\Core\Plugins\MenuProviderInterface;
+use Galette\Core\Plugins\PreferencesProviderInterface;
 use Galette\Core\GalettePlugin;
+use GaletteObjectsLend\Entity\CategoryPicture;
+use GaletteObjectsLend\Entity\LendObject;
+use GaletteObjectsLend\Entity\LendCategory;
+use GaletteObjectsLend\Entity\LendRent;
+use GaletteObjectsLend\Entity\ObjectPicture;
+use GaletteObjectsLend\Entity\LendStatus;
 
 /**
  * Plugin Galette Objects Lend
@@ -33,17 +30,20 @@ use Galette\Core\GalettePlugin;
  * @author Johan Cwiklinski <johan@x-tnd.be>
  */
 
-class PluginGaletteObjectslend extends GalettePlugin
+class PluginGaletteObjectslend extends GalettePlugin implements InstallableInterface, MenuProviderInterface, PreferencesProviderInterface
 {
+    #[Inject]
+    private readonly Db $zdb; //@phpstan-ignore property.uninitializedReadonly, property.onlyRead (injected from DI)
+    #[Inject]
+    private readonly Login $login; //@phpstan-ignore property.uninitializedReadonly, property.onlyRead (injected from DI)
+
     /**
      * Extra menus entries
      *
      * @return array<string, string|array<string,mixed>>
      */
-    public static function getMenusContents(): array
+    public function getMenus(): array
     {
-        /** @var Login $login */
-        global $login;
         $menus = [];
 
         $menus['galetteplugin_objectslends'] = [
@@ -65,7 +65,7 @@ class PluginGaletteObjectslend extends GalettePlugin
             ]
         ];
 
-        if ($login->isAdmin() || $login->isStaff()) {
+        if ($this->login->isAdmin() || $this->login->isStaff()) {
             $menus['galetteplugin_objectslends']['items'] = array_merge(
                 $menus['galetteplugin_objectslends']['items'],
                 [
@@ -97,66 +97,47 @@ class PluginGaletteObjectslend extends GalettePlugin
     }
 
     /**
+     * Get the preferences the plugin declares
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function getPreferences(): array
+    {
+        return LendPreferences::getSchema();
+    }
+
+    /**
      * Extra public menus entries
      *
      * @return array<int, string|array<string,mixed>>
      */
-    public static function getPublicMenusItemsList(): array
+    public function getPublicMenus(): array
     {
         return [];
     }
 
     /**
-     * Get dashboards contents
-     *
-     * @return array<int, string|array<string,mixed>>
+     * Is the plugin fully installed (including database, extra configuration, etc.)?
      */
-    public static function getDashboardsContents(): array
+    public function isInstalled(): bool
     {
-        return [];
+        return
+            $this->zdb->tableExists(LEND_PREFIX . CategoryPicture::TABLE)
+                && $this->zdb->tableExists(LEND_PREFIX . LendCategory::TABLE)
+                && $this->zdb->tableExists(LEND_PREFIX . LendObject::TABLE)
+                && $this->zdb->tableExists(LEND_PREFIX . LendRent::TABLE)
+                && $this->zdb->tableExists(LEND_PREFIX . LendStatus::TABLE)
+                && $this->zdb->tableExists(LEND_PREFIX . ObjectPicture::TABLE)
+        ;
     }
 
     /**
-     * Get actions contents
+     * Database version of tables installed before versions tracking
      *
-     * @param Adherent $member Member instance
-     *
-     * @return array<int, string|array<string,mixed>>
+     * Parameters table has been dropped in 1.1, when preferences moved to core.
      */
-    public static function getListActionsContents(Adherent $member): array
+    public function getLegacyDbVersion(): ?float
     {
-        return [];
-    }
-
-    /**
-     * Get detailed actions contents
-     *
-     * @param Adherent $member Member instance
-     *
-     * @return array<int, string|array<string,mixed>>
-     */
-    public static function getDetailedActionsContents(Adherent $member): array
-    {
-        return static::getListActionsContents($member);
-    }
-
-    /**
-     * Get batch actions contents
-     *
-     * @return array<int, string|array<string,mixed>>
-     */
-    public static function getBatchActionsContents(): array
-    {
-        return [];
-    }
-
-    /**
-     * Get current logged-in user dashboards contents
-     *
-     * @return array<int, string|array<string,mixed>>
-     */
-    public static function getMyDashboardsContents(): array
-    {
-        return [];
+        return $this->zdb->tableExists(LEND_PREFIX . 'parameters') ? 1.0 : null;
     }
 }

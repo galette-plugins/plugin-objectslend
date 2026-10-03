@@ -1,29 +1,17 @@
 <?php
 
 /**
- * Copyright © 2003-2025 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
-namespace GaletteObjectslend\Filters\test\units;
+namespace GaletteObjectsLend\Filters\tests\units;
 
-use Galette\GaletteTestCase;
+use Analog\Analog;
+use Galette\Tests\GaletteTestCase;
 
 /**
  * Categories filters tests class
@@ -36,8 +24,6 @@ class CategoriesList extends GaletteTestCase
      * Test filter defaults values
      *
      * @param \GaletteObjectsLend\Filters\CategoriesList $filters Filters instance
-     *
-     * @return void
      */
     protected function testDefaults(\GaletteObjectsLend\Filters\CategoriesList $filters): void
     {
@@ -51,8 +37,6 @@ class CategoriesList extends GaletteTestCase
 
     /**
      * Test creation
-     *
-     * @return void
      */
     public function testCreate(): void
     {
@@ -73,7 +57,7 @@ class CategoriesList extends GaletteTestCase
         //not existing order, same kept
         $filters->setDirection('abcd');
         $this->expectLogEntry(
-            \Analog::WARNING,
+            Analog::WARNING,
             '[GaletteObjectsLend\Filters\CategoriesList|Pagination] "abcd" is not a valid backing value for enum Galette\Enums\SQLOrder'
         );
         $this->assertSame(\GaletteObjectsLend\Repository\Categories::ORDERBY_ACTIVITY, $filters->orderby);
@@ -99,9 +83,8 @@ class CategoriesList extends GaletteTestCase
         //out of known values, no change
         $filters->active_filter = 42;
         $this->expectLogEntry(
-            \Analog::WARNING,
-            '[CategoriesList] Value for active filter should be either 0, 1 or 2 (42 given)
-'
+            Analog::WARNING,
+            '[GaletteObjectsLend\Filters\CategoriesList] Value for active_filter should be one of 0, 1, 2 (42 given)'
         );
         $this->assertSame(\GaletteObjectsLend\Repository\Categories::INACTIVE_CATEGORIES, $filters->active_filter);
 
@@ -116,29 +99,25 @@ class CategoriesList extends GaletteTestCase
 
     /**
      * Test setting non existing filter
-     *
-     * @return void
      */
-    public function testSetNotExisting()
+    public function testSetNotExisting(): void
     {
         $filters = new \GaletteObjectsLend\Filters\CategoriesList();
         $this->testDefaults($filters);
 
         $this->expectException(\RuntimeException::class);
-        $filters->non_existing = 42;
+        $filters->non_existing = 42; // @phpstan-ignore property.notFound
     }
 
     /**
      * Test getting non existing filter
-     *
-     * @return void
      */
-    public function testGetNotExisting()
+    public function testGetNotExisting(): void
     {
         $filters = new \GaletteObjectsLend\Filters\CategoriesList();
         $this->testDefaults($filters);
 
         $this->expectException(\RuntimeException::class);
-        $value = $filters->non_existing;
+        $this->assertNull($filters->non_existing); // @phpstan-ignore property.notFound
     }
 }

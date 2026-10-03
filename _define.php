@@ -1,37 +1,26 @@
 <?php
 
 /**
- * Copyright © 2003-2025 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 declare(strict_types=1);
 
+/** @var \Galette\Core\Plugins $this */
 $this->register(
-    'Galette Objects Lend',             //Name
-    'Manage rent/lend of object',       //Short description
-    'Mélissa Djebel, Johan Cwiklinski', //Author
-    '2.2.1',                            //Version
-    '1.2.0',                            //Galette version compatibility
-    'objectslend',                      //routing name and translation domain
-    '2025-12-08',                       //Date
-    [
+    name: 'Galette Objects Lend',               //Name
+    desc: 'Manage rent/lend of object',         //Short description
+    author: 'Mélissa Djebel, Johan Cwiklinski', //Author
+    version: '2.3.0',                           //Version
+    compver: '1.3.0',                           //Galette version compatibility
+    route: 'objectslend',                       //routing name and translation domain
+    date: '2026-10-03',                         //Date
+    acls: [
         'objectslend_preferences'       => 'admin',
         'store_objectlend_preferences'  => 'admin',
+        'objectslend_sample_data'       => 'admin',
         'objectslend_category_add'      => 'staff',
         'objectslend_category_edit'     => 'staff',
         'objectslend_category_action_add' => 'staff',
@@ -54,6 +43,7 @@ $this->register(
         'objectslend_object_action_add' => 'staff',
         'objectslend_object_action_edit' => 'staff',
         'objectslend_object_clone'      => 'staff',
+        'objectslend_object_doclone'    => 'staff',
         'objectslend_objects'           => 'member',
         'objectslend_filter_objects'    => 'member',
         'objectslend_remove_object'     => 'admin',
@@ -66,5 +56,6 @@ $this->register(
         'objectslend_object_take'       => 'member',
         'objectslend_object_dotake'     => 'member',
         'objectslend_object_doreturn'   => 'member'
-    ]
+    ],
+    dbver: 1.1
 );

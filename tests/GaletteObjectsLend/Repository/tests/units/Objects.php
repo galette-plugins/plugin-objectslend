@@ -1,27 +1,16 @@
 <?php
 
 /**
- * Copyright © 2003-2025 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace GaletteObjectsLends\Repository\tests\units;
+declare(strict_types=1);
 
-use Galette\GaletteTestCase;
+namespace GaletteObjectsLend\Repository\tests\units;
+
+use Galette\Tests\GaletteTestCase;
 
 /**
  * Categories tests
@@ -31,24 +20,21 @@ use Galette\GaletteTestCase;
 class Objects extends GaletteTestCase
 {
     protected int $seed = 20240526224135;
+    protected bool $load_plugins = true;
 
-    protected \GaletteObjectsLend\Entity\Preferences $lend_prefs;
+    protected \GaletteObjectsLend\LendPreferences $lend_prefs;
 
     /**
      * Set up tests
-     *
-     * @return void
      */
     public function setUp(): void
     {
         parent::setUp();
-        $this->lend_prefs = new \GaletteObjectsLend\Entity\Preferences($this->zdb);
+        $this->lend_prefs = new \GaletteObjectsLend\LendPreferences($this->preferences);
     }
 
     /**
      * Cleanup after each test method
-     *
-     * @return void
      */
     public function tearDown(): void
     {
@@ -63,12 +49,10 @@ class Objects extends GaletteTestCase
 
     /**
      * Test getList
-     *
-     * @return void
      */
     public function testGetList(): void
     {
-        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->lend_prefs);
+        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->preferences, $this->login, $this->lend_prefs);
 
         $rs_list = $objects->getList();
         $this->assertInstanceOf(\Laminas\Db\ResultSet\ResultSet::class, $rs_list);
@@ -80,51 +64,52 @@ class Objects extends GaletteTestCase
         $this->assertSame(0, $objects->getCount());
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
-        $category->name = 'First category';
-        $category->is_active = true;
-        $this->assertTrue($category->store());
+        $category->setName('First category');
+        $category->setActive(true);
+        $category->store();
         $first_category_id = $category->getId();
         $this->assertGreaterThan(0, $first_category_id);
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
-        $category->name = 'Second category';
-        $category->is_active = true;
-        $this->assertTrue($category->store());
+        $category->setName('Second category');
+        $category->setActive(true);
+        $category->store();
         $second_category_id = $category->getId();
         $this->assertGreaterThan(0, $second_category_id);
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
-        $object->name = 'First object';
-        $object->category_id = $first_category_id;
-        $object->is_active = true;
-        $this->assertTrue($object->store());
+        $object->setName('First object');
+        $object->setCategoryId($first_category_id);
+        $object->setActive(true);
+        $object->store();
         $first_object_id = $object->getId();
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
-        $object->name = 'Second object';
-        $object->description = 'First description';
-        $object->category_id = $first_category_id;
-        $object->is_active = true;
-        $this->assertTrue($object->store());
+        $object->setName('Second object');
+        $object->setDescription('First description');
+        $object->setCategoryId($first_category_id);
+        $object->setActive(true);
+        $object->store();
         $second_object_id = $object->getId();
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
-        $object->name = 'Third object';
-        $object->category_id = $second_category_id;
-        $object->is_active = true;
-        $this->assertTrue($object->store());
+        $object->setName('Third object');
+        $object->setCategoryId($second_category_id);
+        $object->setActive(true);
+        $object->store();
         $third_object_id = $object->getId();
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
-        $object->name = 'Fourth object';
-        $object->serial_number = 'GGABCDEXX';
-        $object->dimension = '210x297';
-        $object->is_active = false;
-        $this->assertTrue($object->store());
-        $fourth_object_id = $object->getId();
+        $object->setName('Fourth object');
+        $object->setSerialNumber('GGABCDEXX');
+        $object->setDimension('210x297');
+        $object->setActive(false);
+        $object->store();
+        //ids are not reset between tests, a hardcoded one may exist
+        $missing_id = $object->getId() + 1;
 
         $filters = new \GaletteObjectsLend\Filters\ObjectsList();
-        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->lend_prefs, $filters);
+        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->preferences, $this->login, $this->lend_prefs, $filters);
 
         $this->assertCount(4, $objects->getObjectsList(true));
         $this->assertSame(4, $objects->getCount());
@@ -169,24 +154,25 @@ class Objects extends GaletteTestCase
         $this->assertSame(2, $objects->getCount());
 
         //disable view description
-        $orig_prefs = $this->lend_prefs->getPreferences();
-        $all_prefs = $orig_prefs;
-        $all_prefs[\GaletteObjectsLend\Entity\Preferences::PARAM_VIEW_DESCRIPTION] = 0;
-        $this->assertTrue($this->lend_prefs->store($all_prefs));
+        $this->assertTrue(
+            $this->preferences->setValue(\GaletteObjectsLend\LendPreferences::VIEW_DESCRIPTION, 0, $this->login)
+        );
 
         //only one result (first in name only)
         $this->assertCount(1, $objects->getObjectsList(true));
         $this->assertSame(1, $objects->getCount());
 
         //reset prefs
-        $this->assertTrue($this->lend_prefs->store($orig_prefs));
+        $this->assertTrue(
+            $this->preferences->setValue(\GaletteObjectsLend\LendPreferences::VIEW_DESCRIPTION, 1, $this->login)
+        );
 
         $filters->field_filter = \GaletteObjectsLend\Repository\Objects::FILTER_ID;
         $filters->filter_str = (string)$third_object_id;
         $this->assertCount(1, $objects->getObjectsList(true));
         $this->assertSame(1, $objects->getCount());
 
-        $filters->filter_str = '42';
+        $filters->filter_str = (string)$missing_id;
         $this->assertCount(0, $objects->getObjectsList(true));
         $this->assertSame(0, $objects->getCount());
 
@@ -233,7 +219,46 @@ class Objects extends GaletteTestCase
         $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_CATEGORY;
         $this->assertCount(4, $objects->getObjectsList(true));
 
-        $this->assertTrue($objects->removeObjects([$first_object_id, $second_object_id, $third_object_id]));
+        $objects->removeObjects([$first_object_id, $second_object_id, $third_object_id]);
         $this->assertCount(1, $objects->getObjectsList(true));
+    }
+
+    /**
+     * Objects of homonymous categories are not mixed when ordered by category
+     */
+    public function testOrderByHomonymousCategories(): void
+    {
+        $category_ids = [];
+        foreach ([1, 2] as $i) {
+            $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
+            $category->setName('Same name');
+            $category->setActive(true);
+            $category->store();
+            $category_ids[] = $category->getId();
+        }
+
+        //stored alternately, so that an order on the name alone may mix them
+        foreach ([0, 1, 0, 1, 0, 1] as $i => $index) {
+            $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
+            $object->setName('Object ' . $i);
+            $object->setCategoryId($category_ids[$index]);
+            $object->setActive(true);
+            $object->store();
+        }
+
+        $filters = new \GaletteObjectsLend\Filters\ObjectsList();
+        $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_CATEGORY;
+        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->preferences, $this->login, $this->lend_prefs, $filters);
+        $list = $objects->getObjectsList(true, true, false);
+        $this->assertCount(6, $list);
+
+        $sequence = array_map(fn($object) => $object->getCategoryId(), $list);
+        $changes = 0;
+        for ($i = 1; $i < count($sequence); $i++) {
+            if ($sequence[$i] !== $sequence[$i - 1]) {
+                $changes++;
+            }
+        }
+        $this->assertSame(1, $changes, 'Categories order: ' . implode(', ', $sequence));
     }
 }

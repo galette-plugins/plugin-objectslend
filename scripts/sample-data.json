@@ -1,0 +1,217 @@
+{
+    "_comment": "Sample data for Galette Objects Lend. Dates are days relative to the import; the last rent of each object is its current one. Members are picked among existing ones, by position.",
+    "categories": [
+        {"key": "tools", "name": "Outillage", "active": true},
+        {"key": "garden", "name": "Jardin", "active": true},
+        {"key": "party", "name": "Fêtes et événements", "active": true},
+        {"key": "books", "name": "Ludothèque", "active": true},
+        {"key": "old", "name": "Ancien matériel", "active": false}
+    ],
+    "statuses": [
+        {"key": "shelf", "text": "Local associatif", "in_stock": true, "active": true},
+        {"key": "cellar", "text": "Cave de la mairie", "in_stock": true, "active": true},
+        {"key": "loan", "text": "Prêt courte durée", "in_stock": false, "active": true, "days": 7},
+        {"key": "long", "text": "Prêt longue durée", "in_stock": false, "active": true, "days": 30},
+        {"key": "repair", "text": "En réparation", "in_stock": false, "active": true, "days": 21},
+        {"key": "lost", "text": "Perdu", "in_stock": false, "active": false}
+    ],
+    "objects": [
+        {
+            "name": "Perceuse-visseuse sans fil",
+            "description": "18 V, deux batteries et chargeur",
+            "serial": "OUT-001",
+            "price": 129.90, "rent_price": 2.00, "per_day": true,
+            "dimension": "30x25x10", "weight": 1.8,
+            "category": "tools", "active": true,
+            "rents": [
+                {"status": "loan", "member": 0, "begin": -95, "end": -90, "comment": "Rendue avec les deux batteries"},
+                {"status": "shelf", "begin": -90, "end": -40},
+                {"status": "loan", "member": 1, "begin": -40, "end": -33},
+                {"status": "shelf", "begin": -33, "end": -3},
+                {"status": "loan", "member": 2, "begin": -3}
+            ]
+        },
+        {
+            "name": "Scie sauteuse",
+            "description": "Avec lot de lames bois et métal",
+            "serial": "OUT-002",
+            "price": 89.00, "rent_price": 1.50, "per_day": true,
+            "dimension": "25x20x8", "weight": 2.1,
+            "category": "tools", "active": true,
+            "rents": [
+                {"status": "loan", "member": 3, "begin": -60, "end": -52, "comment": "Une lame cassée"},
+                {"status": "repair", "begin": -52, "end": -30, "comment": "Changement du guide"},
+                {"status": "shelf", "begin": -30}
+            ]
+        },
+        {
+            "name": "Escabeau 5 marches",
+            "description": "Aluminium",
+            "serial": "OUT-003",
+            "price": 65.00, "rent_price": 0, "per_day": false,
+            "dimension": "150x45x10", "weight": 5.5,
+            "category": "tools", "active": true,
+            "rents": [
+                {"status": "cellar", "begin": -200}
+            ]
+        },
+        {
+            "name": "Ponceuse orbitale",
+            "description": "",
+            "serial": "OUT-004",
+            "price": 75.00, "rent_price": 1.00, "per_day": true,
+            "dimension": "20x15x15", "weight": 1.6,
+            "category": "tools", "active": true,
+            "rents": [
+                {"status": "long", "member": 4, "begin": -45, "comment": "Rénovation d'un parquet"}
+            ]
+        },
+        {
+            "name": "Tondeuse thermique",
+            "description": "Coupe 46 cm, bac de ramassage",
+            "serial": "JAR-001",
+            "price": 349.00, "rent_price": 5.00, "per_day": false,
+            "dimension": "150x50x100", "weight": 28,
+            "category": "garden", "active": true,
+            "rents": [
+                {"status": "loan", "member": 1, "begin": -150, "end": -145},
+                {"status": "shelf", "begin": -145, "end": -20},
+                {"status": "repair", "begin": -20, "comment": "Démarreur à changer"}
+            ]
+        },
+        {
+            "name": "Taille-haie électrique",
+            "description": "",
+            "serial": "JAR-002",
+            "price": 99.00, "rent_price": 2.00, "per_day": false,
+            "dimension": "100x20x20", "weight": 3.9,
+            "category": "garden", "active": true,
+            "rents": [
+                {"status": "loan", "member": 0, "begin": -12, "end": -10},
+                {"status": "shelf", "begin": -10}
+            ]
+        },
+        {
+            "name": "Brouette",
+            "description": "100 litres",
+            "serial": "JAR-003",
+            "price": 55.00, "rent_price": 0, "per_day": false,
+            "dimension": "140x60x60", "weight": 12,
+            "category": "garden", "active": true,
+            "rents": [
+                {"status": "shelf", "begin": -300}
+            ]
+        },
+        {
+            "name": "Barnum 3x6 m",
+            "description": "Avec parois latérales et lestes",
+            "serial": "FET-001",
+            "price": 420.00, "rent_price": 15.00, "per_day": false,
+            "dimension": "120x40x40", "weight": 35,
+            "category": "party", "active": true,
+            "rents": [
+                {"status": "loan", "member": 2, "begin": -80, "end": -78, "comment": "Fête de quartier"},
+                {"status": "cellar", "begin": -78, "end": -8},
+                {"status": "loan", "member": 5, "begin": -8, "end": -6, "comment": "Mariage"},
+                {"status": "cellar", "begin": -6}
+            ]
+        },
+        {
+            "name": "Sonorisation portable",
+            "description": "Enceinte 300 W, deux micros sans fil",
+            "serial": "FET-002",
+            "price": 499.00, "rent_price": 10.00, "per_day": false,
+            "dimension": "60x40x35", "weight": 14,
+            "category": "party", "active": true,
+            "rents": [
+                {"status": "loan", "member": 3, "begin": -30, "end": -29},
+                {"status": "shelf", "begin": -29, "end": -2},
+                {"status": "loan", "member": 0, "begin": -2}
+            ]
+        },
+        {
+            "name": "Lot de 10 tables pliantes",
+            "description": "180x75 cm",
+            "serial": "FET-003",
+            "price": 600.00, "rent_price": 8.00, "per_day": false,
+            "dimension": "180x75x5", "weight": 120,
+            "category": "party", "active": true,
+            "rents": [
+                {"status": "cellar", "begin": -365}
+            ]
+        },
+        {
+            "name": "Machine à barbe à papa",
+            "description": "",
+            "serial": "FET-004",
+            "price": 110.00, "rent_price": 4.00, "per_day": false,
+            "dimension": "50x50x40", "weight": 8,
+            "category": "party", "active": true,
+            "rents": [
+                {"status": "loan", "member": 6, "begin": -15, "end": -14},
+                {"status": "shelf", "begin": -14}
+            ]
+        },
+        {
+            "name": "Jeu de société « Les Aventuriers du Rail »",
+            "description": "Boîte complète",
+            "serial": "LUD-001",
+            "price": 45.00, "rent_price": 0, "per_day": false,
+            "dimension": "30x30x8", "weight": 1.5,
+            "category": "books", "active": true,
+            "rents": [
+                {"status": "loan", "member": 4, "begin": -50, "end": -43},
+                {"status": "shelf", "begin": -43, "end": -21},
+                {"status": "loan", "member": 1, "begin": -21, "end": -14},
+                {"status": "shelf", "begin": -14, "end": -5},
+                {"status": "loan", "member": 7, "begin": -5}
+            ]
+        },
+        {
+            "name": "Mölkky",
+            "description": "Quilles finlandaises en bois",
+            "serial": "LUD-002",
+            "price": 35.00, "rent_price": 0, "per_day": false,
+            "dimension": "40x20x20", "weight": 3,
+            "category": "books", "active": true,
+            "rents": [
+                {"status": "loan", "member": 2, "begin": -70, "end": -60, "comment": "Une quille manquante au retour"},
+                {"status": "lost", "begin": -60, "comment": "Quille numéro 7 jamais retrouvée"}
+            ]
+        },
+        {
+            "name": "Rétroprojecteur",
+            "description": "Remplacé par le vidéoprojecteur",
+            "serial": "ANC-001",
+            "price": 150.00, "rent_price": 0, "per_day": false,
+            "dimension": "40x40x50", "weight": 9,
+            "category": "old", "active": false,
+            "rents": [
+                {"status": "cellar", "begin": -1000}
+            ]
+        },
+        {
+            "name": "Vidéoprojecteur",
+            "description": "Full HD, câble HDMI de 10 m",
+            "serial": "FET-005",
+            "price": 550.00, "rent_price": 6.00, "per_day": true,
+            "dimension": "30x25x10", "weight": 2.8,
+            "category": "party", "active": true,
+            "rents": [
+                {"status": "long", "member": 5, "begin": -35, "end": -5, "comment": "Cycle de projections"},
+                {"status": "shelf", "begin": -5}
+            ]
+        },
+        {
+            "name": "Nettoyeur haute pression",
+            "description": "",
+            "serial": "",
+            "price": 0, "rent_price": 3.00, "per_day": false,
+            "dimension": "", "weight": 0,
+            "category": null, "active": true,
+            "rents": [
+                {"status": "shelf", "begin": -7}
+            ]
+        }
+    ]
+}

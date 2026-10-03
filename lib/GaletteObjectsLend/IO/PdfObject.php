@@ -1,22 +1,9 @@
 <?php
 
 /**
- * Copyright © 2003-2025 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 declare(strict_types=1);
@@ -26,8 +13,9 @@ namespace GaletteObjectsLend\IO;
 use Galette\IO\Pdf;
 use Galette\Core\Db;
 use Galette\Core\Preferences;
-use GaletteObjectsLend\Entity\Preferences as LPreferences;
+use GaletteObjectsLend\LendPreferences;
 use GaletteObjectsLend\Entity\LendObject;
+use GaletteObjectsLend\Repository\Rents;
 
 /**
  * Object card PDF
@@ -36,17 +24,23 @@ use GaletteObjectsLend\Entity\LendObject;
  */
 class PdfObject extends Pdf
 {
+    /** @var array<string> Tags kept in HTML values */
+    private const array HTML_TAGS = [
+        'a', 'b', 'blockquote', 'br', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i',
+        'li', 'ol', 'p', 's', 'span', 'strong', 'sub', 'sup', 'u', 'ul'
+    ];
+
     private Db $zdb;
-    private LPreferences $lprefs;
+    private LendPreferences $lprefs;
 
     /**
      * Main constructor
      *
-     * @param Db           $zdb    Database instance
-     * @param Preferences  $prefs  Preferences instance
-     * @param LPreferences $lprefs Plugin Preferences instance
+     * @param Db              $zdb    Database instance
+     * @param Preferences     $prefs  Preferences instance
+     * @param LendPreferences $lprefs Plugin Preferences instance
      */
-    public function __construct(Db $zdb, Preferences $prefs, LPreferences $lprefs)
+    public function __construct(Db $zdb, Preferences $prefs, LendPreferences $lprefs)
     {
         parent::__construct($prefs);
         // Disable Auto Page breaks
@@ -60,8 +54,6 @@ class PdfObject extends Pdf
 
     /**
      * Initialize PDF
-     *
-     * @return void
      */
     public function init(): void
     {
@@ -85,8 +77,6 @@ class PdfObject extends Pdf
      * Draw listed object cards
      *
      * @param LendObject[] $objects Object list
-     *
-     * @return void
      */
     public function drawCards(array $objects): void
     {
@@ -104,16 +94,14 @@ class PdfObject extends Pdf
      * Draw object card
      *
      * @param LendObject $object Object
-     *
-     * @return void
      */
     public function drawCard(LendObject $object): void
     {
         $this->SetFont(Pdf::FONT, 'B');
         $wpic = 0;
         $hpic = 0;
-        if ($object->picture->hasPicture()) {
-            $pic = $object->picture;
+        $pic = $object->getPicture();
+        if ($pic->hasPicture()) {
             // Set picture size to max width 30 mm or max height 30 mm
             $tw = $pic->getOptimalThumbWidth($this->lprefs);
             $th = $pic->getOptimalThumbHeight($this->lprefs);
@@ -124,56 +112,52 @@ class PdfObject extends Pdf
                 } else {
                     $hpic = $th;
                 }
-                $wpic = round($hpic * $ratio);
+                $wpic = (int)round($hpic * $ratio);
             } else {
                 if ($tw > 16) {
                     $wpic = 30;
                 } else {
                     $wpic = $tw;
                 }
-                $hpic = round($wpic / $ratio);
+                $hpic = (int)round($wpic / $ratio);
             }
 
-            $this->Image($object->picture->getThumbPath(), 10, 10, $wpic, $hpic);
+            $this->Image($pic->getThumb($this->lprefs), 10, 10, $wpic, $hpic);
         }
 
-        $this->addCell(_T("Name", "objectslend"), $object->name, $wpic);
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_DESCRIPTION}) {
-            $this->addCell(_T("Description", "objectslend"), $object->description, $wpic);
+        $this->addCell(_T("Name", "objectslend"), $object->getName(), $wpic);
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_DESCRIPTION)) {
+            $this->addHtmlCell(_T("Description", "objectslend"), $object->getDescriptionHtml(), $wpic);
         }
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_CATEGORY}) {
-            $this->addCell(_T("Category", "objectslend"), $object->cat_name ?? '', $wpic);
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_CATEGORY)) {
+            $this->addCell(_T("Category", "objectslend"), $object->getCategoryName() ?? '', $wpic);
         }
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_SERIAL}) {
-            $this->addCell(_T("Serial number", "objectslend"), $object->serial_number, $wpic);
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_SERIAL)) {
+            $this->addCell(_T("Serial number", "objectslend"), $object->getSerialNumber(), $wpic);
         }
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_PRICE}) {
-            $this->addCell(_T("Price", "objectslend"), $object->price, $wpic);
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_PRICE)) {
+            $this->addCell(_T("Price", "objectslend"), number_format($object->getPrice(), 2, ',', ' '), $wpic);
         }
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_LEND_PRICE}) {
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_LEND_PRICE)) {
             $this->addCell(
-                _T("Borrow price"),
-                $object->rent_price . ' ' . $object->getCurrency(),
-                $wpic
-            );
-            $this->addCell(
-                _T("Price per rental day", "objectslend"),
-                $object->price_per_day . ' ' . $object->getCurrency(),
+                _T("Borrow price", "objectslend"),
+                number_format($object->getRentPrice(), 2, ',', ' ') . ' €'
+                    . ($object->isPricePerDay() ? ' ' . _T("(per day)", "objectslend") : ''),
                 $wpic
             );
         }
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_DIMENSION}) {
-            $this->addCell(_T("Dimensions", "objectslend"), $object->dimension . ' ' . _T('Cm', 'objectslend'), $wpic);
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_DIMENSION)) {
+            $this->addCell(_T("Dimensions", "objectslend"), $object->getDimension() . ' ' . _T('Cm', 'objectslend'), $wpic);
         }
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_WEIGHT}) {
-            $this->addCell(_T("Weight", "objectslend"), $object->weight . ' ' . _T('Kg', 'objectslend'), $wpic);
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_WEIGHT)) {
+            $this->addCell(_T("Weight", "objectslend"), number_format($object->getWeight(), 3, ',', ' ') . ' ' . _T('Kg', 'objectslend'), $wpic);
         }
-        $this->addCell(_T("Active", "objectslend"), $object->is_active ? 'X' : '', $wpic);
-        $this->addCell(_T("Location", "objectslend"), $object->status_text ?? '', $wpic);
-        $this->addCell(_T("Since", "objectslend"), $object->date_begin, $wpic);
-        $this->addCell(_T("Member", "objectslend"), $object->member->sname, $wpic);
-        if ($this->lprefs->{LPreferences::PARAM_VIEW_DATE_FORECAST}) {
-            $this->addCell(_T("Return", "objectslend"), $object->date_forecast, $wpic);
+        $this->addCell(_T("Active", "objectslend"), $object->isObjectActive() ? 'X' : '', $wpic);
+        $this->addCell(_T("Location", "objectslend"), $object->getStatusText(), $wpic);
+        $this->addCell(_T("Since", "objectslend"), $object->getDateBegin(), $wpic);
+        $this->addCell(_T("Member", "objectslend"), $object->getMemberName(), $wpic);
+        if ($this->lprefs->isEnabled(LendPreferences::VIEW_DATE_FORECAST)) {
+            $this->addCell(_T("Return", "objectslend"), $object->getDateForecast(), $wpic);
         }
 
         if ($this->GetY() < $hpic) {
@@ -181,7 +165,7 @@ class PdfObject extends Pdf
         }
         $this->Ln();
 
-        $rents = $object->rents;
+        $rents = (new Rents($this->zdb))->getForObject((int)$object->getId());
 
         $col_begin = 33;
         $col_end = 33;
@@ -203,12 +187,12 @@ class PdfObject extends Pdf
         $this->SetFont(Pdf::FONT, '', 9);
 
         foreach ($rents as $rt) {
-            $this->Cell($col_begin, 0, $this->cut($rt->date_begin, $col_begin), 'B');
-            $this->Cell($col_end, 0, $this->cut($rt->date_end, $col_end), 'B');
-            $this->Cell($col_status, 0, $this->cut($rt->status_text, $col_status), 'B');
-            $this->Cell($col_stock, 0, $rt->in_stock ? '    X' : '', 'B');
-            $this->Cell($col_adh, 0, $this->cut($rt->nom_adh . ' ' . $rt->prenom_adh, $col_adh), 'B');
-            $this->Cell($col_comments, 0, $this->cut($rt->comments, $col_comments), 'B');
+            $this->Cell($col_begin, 0, $this->cut($rt->getDateBegin(), $col_begin), 'B');
+            $this->Cell($col_end, 0, $this->cut($rt->getDateEnd(), $col_end), 'B');
+            $this->Cell($col_status, 0, $this->cut($rt->getStatusText(), $col_status), 'B');
+            $this->Cell($col_stock, 0, $rt->isInStock() ? '    X' : '', 'B');
+            $this->Cell($col_adh, 0, $this->cut($rt->getMemberName(), $col_adh), 'B');
+            $this->Cell($col_comments, 0, $this->cut($rt->getComments(), $col_comments), 'B');
             $this->Ln();
         }
     }
@@ -220,8 +204,6 @@ class PdfObject extends Pdf
      * @param string $title Line title
      * @param string $value Line value
      * @param int    $width Cell width
-     *
-     * @return void
      */
     private function addCell(string $title, string $value, int $width): void
     {
@@ -241,5 +223,30 @@ class PdfObject extends Pdf
             }
             $this->MultiCell(0, 0, $w, 0, 'L');
         }
+    }
+
+    /**
+     * Add a cell whose value is sanitized HTML
+     *
+     * Only text formatting is kept: TCPDF would load an image source from the
+     * server, be it an internal URL or a local file.
+     *
+     * @param string $title Cell title
+     * @param string $html  Cell value
+     * @param int    $width Picture width
+     */
+    private function addHtmlCell(string $title, string $html, int $width): void
+    {
+        $html = strip_tags($html, self::HTML_TAGS);
+
+        if ($width > 0) {
+            $this->Cell($width, 0, '');
+        }
+        $this->SetFont(Pdf::FONT, 'B', 9);
+        $padding = 50;
+        $this->Cell($padding, 0, $this->cut($title, $padding));
+
+        $this->SetFont(Pdf::FONT, '', 9);
+        $this->MultiCell(0, 0, $html, 0, 'L', false, 1, null, null, true, 0, true);
     }
 }

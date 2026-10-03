@@ -1,22 +1,9 @@
 <?php
 
 /**
- * Copyright © 2003-2025 The Galette Team
- *
- * This file is part of Galette (https://galette.eu).
- *
- * Galette is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Galette is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Galette. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Galette Objects Lend plugin (https://galette.eu).
+ * SPDX-FileCopyrightText: Copyright © 2013-2026 The Galette Team
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 declare(strict_types=1);
@@ -24,8 +11,8 @@ declare(strict_types=1);
 namespace GaletteObjectsLend\Controllers;
 
 use Galette\Controllers\PdfController as GPdfController;
-use GaletteObjectsLend\Entity\Preferences;
-use GaletteObjectsLend\Entity\LendObject;
+use GaletteObjectsLend\Controllers\Crud\ObjectsController;
+use GaletteObjectsLend\LendPreferences;
 use GaletteObjectsLend\Filters\ObjectsList;
 use GaletteObjectsLend\Repository\Objects;
 use GaletteObjectsLend\IO\PdfObject;
@@ -47,26 +34,12 @@ class PdfController extends GPdfController
      * @param Request  $request  PSR Request
      * @param Response $response PSR Response
      * @param int      $id       Object ID
-     *
-     * @return Response
      */
     public function printObject(Request $request, Response $response, int $id): Response
     {
-        $deps = [
-            'picture' => true,
-            'rents' => true,
-            'last_rent' => true,
-            'status' => true,
-            'member' => true,
-            'category' => true
-        ];
-        $object = new LendObject(
-            $this->zdb,
-            $id,
-            $deps
-        );
+        $lendsprefs = new LendPreferences($this->preferences);
+        $object = (new Objects($this->zdb, $this->preferences, $this->login, $lendsprefs))->getWithCurrentRent($id);
 
-        $lendsprefs = new Preferences($this->zdb);
         $pdf = new PdfObject(
             $this->zdb,
             $this->preferences,
@@ -81,30 +54,24 @@ class PdfController extends GPdfController
      *
      * @param Request  $request  PSR Request
      * @param Response $response PSR Response
-     *
-     * @return Response
      */
     public function printObjects(Request $request, Response $response): Response
     {
-        $lendsprefs = new Preferences($this->zdb);
+        $lendsprefs = new LendPreferences($this->preferences);
 
-        if (isset($this->session->objectslend_filter_objects)) {
-            $filters =  clone $this->session->objectslend_filter_objects;
-        } else {
-            $filters = new ObjectsList();
-        }
+        $filters = clone ($this->session->{$this->getFilterName(ObjectsController::getDefaultFilterName())}
+            ?? new ObjectsList());
 
         if ($filters->orderby !== Objects::ORDERBY_CATEGORY) {
             $filters->orderby = Objects::ORDERBY_CATEGORY;
         }
-        $objects = new Objects($this->zdb, $lendsprefs, $filters);
-        $list = $objects->getObjectsList(true, null, true, false);
+        $objects = new Objects($this->zdb, $this->preferences, $this->login, $lendsprefs, $filters);
+        $list = $objects->getObjectsList(true, true, false);
 
         $pdf = new PdfObjects(
             $this->zdb,
             $this->preferences,
             $lendsprefs,
-            $filters,
             $this->login
         );
 
