@@ -123,6 +123,58 @@ class SampleData extends GaletteTestCase
     }
 
     /**
+     * Remove sample data, keeping what is not part of it
+     */
+    public function testRemove(): void
+    {
+        $data = json_decode(
+            (string)file_get_contents(\GaletteObjectsLend\SampleData::FILE),
+            true,
+            flags: JSON_THROW_ON_ERROR
+        );
+        $this->assertIsArray($data);
+
+        $sample = new \GaletteObjectsLend\SampleData($this->zdb);
+        $created = $sample->load([(int)$this->getMemberOne()->id]);
+
+        //an object of the user, in a sample category and rented with a sample status
+        $select = $this->zdb->select(LEND_PREFIX . LendCategory::TABLE)
+            ->where(['name' => $data['categories'][0]['name']]);
+        $category_id = (int)$this->zdb->execute($select)->current()->{LendCategory::PK};
+        $select = $this->zdb->select(LEND_PREFIX . LendStatus::TABLE)
+            ->where(['status_text' => $data['statuses'][0]['text']]);
+        $status_id = (int)$this->zdb->execute($select)->current()->{LendStatus::PK};
+
+        $object = new LendObject($this->zdb);
+        $object->setName('User object')->setSerialNumber('USER-001')->setCategoryId($category_id);
+        $object->store();
+        $rent = new LendRent($this->zdb);
+        $rent->setObjectId((int)$object->getId())->setStatusId($status_id)->setComments('');
+        $rent->store();
+
+        $removed = $sample->remove();
+        $this->assertSame(
+            [
+                'categories' => $created['categories'] - 1,
+                'statuses' => $created['statuses'] - 1,
+                'objects' => $created['objects'],
+                'rents' => $created['rents']
+            ],
+            $removed
+        );
+        $this->assertSame(1, $this->countRows(LendObject::TABLE));
+        $this->assertSame(1, $this->countRows(LendRent::TABLE));
+        $this->assertSame(1, $this->countRows(LendCategory::TABLE));
+        $this->assertSame(1, $this->countRows(LendStatus::TABLE));
+
+        //nothing left to remove
+        $this->assertSame(
+            ['categories' => 0, 'statuses' => 0, 'objects' => 0, 'rents' => 0],
+            $sample->remove()
+        );
+    }
+
+    /**
      * Rents are anonymous without members
      */
     public function testLoadWithoutMembers(): void

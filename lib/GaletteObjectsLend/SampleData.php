@@ -142,6 +142,108 @@ final class SampleData
     }
 
     /**
+     * Remove sample data, in a single transaction
+     *
+     * Objects are found by their serial number, with their rents. Categories
+     * and statuses are found by name, and only removed when nothing else uses
+     * them.
+     *
+     * @return array{categories: int, statuses: int, objects: int, rents: int} What was removed
+     */
+    public function remove(): array
+    {
+        $data = $this->read();
+        $removed = ['categories' => 0, 'statuses' => 0, 'objects' => 0, 'rents' => 0];
+
+        $need_transaction = !$this->zdb->inTransaction();
+        try {
+            if ($need_transaction) {
+                $this->zdb->beginTransaction();
+            }
+
+            $select = $this->zdb->select(LEND_PREFIX . LendObject::TABLE)
+                ->columns([LendObject::PK]);
+            $select->where->in('serial_number', array_column($data['objects'], 'serial'));
+            $objects = [];
+            foreach ($this->zdb->execute($select) as $row) {
+                $objects[] = (int)$row->{LendObject::PK};
+            }
+
+            if ($objects !== []) {
+                //objects and rents reference each other: drop current rent first
+                $update = $this->zdb->update(LEND_PREFIX . LendObject::TABLE)
+                    ->set([LendRent::PK => null]);
+                $update->where->in(LendObject::PK, $objects);
+                $this->zdb->execute($update);
+
+                $delete = $this->zdb->delete(LEND_PREFIX . LendRent::TABLE);
+                $delete->where->in(LendObject::PK, $objects);
+                $removed['rents'] = $this->zdb->execute($delete)->getAffectedRows();
+
+                $delete = $this->zdb->delete(LEND_PREFIX . LendObject::TABLE);
+                $delete->where->in(LendObject::PK, $objects);
+                $removed['objects'] = $this->zdb->execute($delete)->getAffectedRows();
+            }
+
+            $removed['categories'] = $this->removeUnused(
+                LEND_PREFIX . LendCategory::TABLE,
+                LendCategory::PK,
+                'name',
+                array_column($data['categories'], 'name'),
+                LEND_PREFIX . LendObject::TABLE
+            );
+            $removed['statuses'] = $this->removeUnused(
+                LEND_PREFIX . LendStatus::TABLE,
+                LendStatus::PK,
+                'status_text',
+                array_column($data['statuses'], 'text'),
+                LEND_PREFIX . LendRent::TABLE
+            );
+
+            if ($need_transaction) {
+                $this->zdb->commit();
+            }
+        } catch (Throwable $e) {
+            if ($need_transaction) {
+                $this->zdb->rollback();
+            }
+            throw $e;
+        }
+
+        return $removed;
+    }
+
+    /**
+     * Remove named rows nothing references anymore
+     *
+     * @param string       $table      Table name
+     * @param string       $pk         Primary key, also the referencing column
+     * @param string       $column     Name column
+     * @param list<string> $names      Names to remove
+     * @param string       $referencer Table referencing rows
+     *
+     * @return int Number of removed rows
+     */
+    private function removeUnused(string $table, string $pk, string $column, array $names, string $referencer): int
+    {
+        $select = $this->zdb->select($referencer)
+            ->columns([$pk])
+            ->quantifier('DISTINCT');
+        $select->where->isNotNull($pk);
+        $used = [];
+        foreach ($this->zdb->execute($select) as $row) {
+            $used[] = (int)$row->{$pk};
+        }
+
+        $delete = $this->zdb->delete($table);
+        $delete->where->in($column, $names);
+        if ($used !== []) {
+            $delete->where->notIn($pk, $used);
+        }
+        return $this->zdb->execute($delete)->getAffectedRows();
+    }
+
+    /**
      * Read and check data file
      *
      * @return array{
