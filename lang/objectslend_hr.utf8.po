@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: translations@galette.eu\n"
 "POT-Creation-Date: 2026-09-30 12:08+0200\n"
-"PO-Revision-Date: 2026-10-08 21:01+0000\n"
+"PO-Revision-Date: 2026-10-10 11:51+0000\n"
 "Last-Translator: Marko Puljic <markopuljic.uo@gmail.com>\n"
 "Language-Team: Croatian <https://hosted.weblate.org/projects/galette/"
 "objectslend-plugin/hr/>\n"
@@ -30,7 +30,7 @@ msgstr ""
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:63
 msgid "Labels"
-msgstr ""
+msgstr "Adresne naljepnice"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:128
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:136
@@ -42,12 +42,12 @@ msgstr ""
 #: ../templates/default/objects_list.html.twig:33
 #: ../templates/default/objects_list.html.twig:188
 msgid "Name"
-msgstr ""
+msgstr "Naziv"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:130
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:137
 msgid "Description"
-msgstr ""
+msgstr "Opis"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:133
 #: ../templates/default/category_edit.html.twig:15
@@ -118,7 +118,7 @@ msgstr ""
 #: ../templates/default/objects_list.html.twig:243
 #: ../templates/default/objects_list.html.twig:249
 msgid "Active"
-msgstr ""
+msgstr "Aktivan"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:156
 msgid "Location"
@@ -136,7 +136,7 @@ msgstr ""
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:145
 #: ../templates/default/objects_edit.html.twig:177
 msgid "Member"
-msgstr ""
+msgstr "Član"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:160
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:146
@@ -152,11 +152,11 @@ msgstr ""
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:180
 msgid "Begin"
-msgstr ""
+msgstr "Početak"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:181
 msgid "End"
-msgstr ""
+msgstr "Završetak"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:182
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:143
@@ -167,7 +167,7 @@ msgstr ""
 #: ../templates/default/objects_list.html.twig:67
 #: ../templates/default/objects_list.html.twig:224
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:183 ../templates/default/macros.twig:55
 #: ../templates/default/list_lent_object.html.twig:43
@@ -232,7 +232,7 @@ msgstr ""
 
 #: ../lib/GaletteObjectsLend/Entity/LendStatus.php:113
 msgid "Status has not been added :("
-msgstr ""
+msgstr "Status nije dodan :("
 
 #: ../lib/GaletteObjectsLend/Entity/LendObject.php:183
 msgid "Object has not been added :("
@@ -292,7 +292,7 @@ msgstr ""
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:151
 msgid "New status"
-msgstr ""
+msgstr "Novi status"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:168
 msgid "Status has been saved"
@@ -327,7 +327,7 @@ msgstr ""
 #: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:154
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:403
 msgid "Delete failed"
-msgstr ""
+msgstr "Brisanje nije uspjelo"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:168
 msgid "Category has been saved"
@@ -486,7 +486,7 @@ msgstr ""
 #: ../templates/default/status_edit.html.twig:20 ../templates/default/take_object.html.twig:98
 #: ../templates/default/take_object.html.twig:128
 msgid "Status:"
-msgstr ""
+msgstr "Status:"
 
 #: ../templates/default/status_edit.html.twig:25 ../templates/default/status_list.html.twig:66
 msgid "In stock:"
@@ -546,7 +546,7 @@ msgstr ""
 #: ../templates/default/clone_object.html.twig:19
 #: ../templates/default/objects_edit.html.twig:105
 msgid "Duplicate"
-msgstr ""
+msgstr "Kopiraj"
 
 #: ../templates/default/categories_list.html.twig:32
 #, php-format
@@ -565,7 +565,7 @@ msgstr ""
 #: ../templates/default/status_list.html.twig:90
 #: ../templates/default/objects_list.html.twig:249
 msgid "Inactive"
-msgstr ""
+msgstr "Neaktivan"
 
 #: ../templates/default/categories_list.html.twig:82
 #, php-format
@@ -706,12 +706,12 @@ msgstr ""
 
 #: ../templates/default/objects_edit.html.twig:18 ../templates/default/take_object.html.twig:22
 msgid "Name:"
-msgstr ""
+msgstr "Prezime:"
 
 #: ../templates/default/objects_edit.html.twig:25
 #: ../templates/default/take_object.html.twig:27
 msgid "Description:"
-msgstr ""
+msgstr "Opis:"
 
 #: ../templates/default/objects_edit.html.twig:30
 msgid "--- Select a category ---"
@@ -793,7 +793,7 @@ msgstr ""
 
 #: ../templates/default/category_edit.html.twig:33
 msgid "Picture:"
-msgstr ""
+msgstr "Fotografija:"
 
 #: ../templates/default/category_edit.html.twig:39
 msgid "Category photo"
@@ -801,11 +801,11 @@ msgstr ""
 
 #: ../templates/default/list_lent_object.html.twig:13
 msgid "Begin date"
-msgstr ""
+msgstr "Datum početka"
 
 #: ../templates/default/list_lent_object.html.twig:13
 msgid "End date"
-msgstr ""
+msgstr "Datum završetka"
 
 #: ../templates/default/list_lent_object.html.twig:54
 msgid "No lend found"
@@ -938,7 +938,7 @@ msgstr ""
 
 #: ../templates/default/take_object.html.twig:136
 msgid "Comments:"
-msgstr ""
+msgstr "Napomene:"
 
 #: ../templates/default/take_object.html.twig:142
 msgid "remaining characters"
