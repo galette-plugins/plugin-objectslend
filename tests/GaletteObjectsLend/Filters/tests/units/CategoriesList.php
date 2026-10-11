@@ -57,8 +57,8 @@ class CategoriesList extends GaletteTestCase
         //not existing order, same kept
         $filters->setDirection('abcd');
         $this->expectLogEntry(
-            Analog::WARNING,
-            '[GaletteObjectsLend\Filters\CategoriesList|Pagination] "abcd" is not a valid backing value for enum Galette\Enums\SQLOrder'
+            Analog::INFO,
+            '[GaletteObjectsLend\Filters\CategoriesList|Pagination] Invalid direction | "abcd" is not a valid backing value for enum Galette\Enums\SQLOrder'
         );
         $this->assertSame(\GaletteObjectsLend\Repository\Categories::ORDERBY_ACTIVITY, $filters->orderby);
         $this->assertSame(\Galette\Enums\SQLOrder::DESC->value, $filters->getDirection());

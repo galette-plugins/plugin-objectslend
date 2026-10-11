@@ -60,8 +60,8 @@ class ObjectsList extends GaletteTestCase
         $this->assertSame(\GaletteObjectsLend\Repository\Objects::ORDERBY_STATUS, $filters->orderby);
         $this->assertSame(\Galette\Enums\SQLOrder::DESC->value, $filters->getDirection());
         $this->expectLogEntry(
-            Analog::WARNING,
-            '[GaletteObjectsLend\Filters\ObjectsList|Pagination] "abcde" is not a valid backing value for enum Galette\Enums\SQLOrder'
+            Analog::INFO,
+            '[GaletteObjectsLend\Filters\ObjectsList|Pagination] Invalid direction | "abcde" is not a valid backing value for enum Galette\Enums\SQLOrder'
         );
 
         //change direction only

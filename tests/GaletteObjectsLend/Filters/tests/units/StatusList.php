@@ -56,8 +56,8 @@ class StatusList extends GaletteTestCase
         //not existing order, same kept
         $filters->setDirection('abcd');
         $this->expectLogEntry(
-            Analog::WARNING,
-            '[GaletteObjectsLend\Filters\StatusList|Pagination] "abcd" is not a valid backing value for enum Galette\Enums\SQLOrder'
+            Analog::INFO,
+            '[GaletteObjectsLend\Filters\StatusList|Pagination] Invalid direction | "abcd" is not a valid backing value for enum Galette\Enums\SQLOrder'
         );
         $this->assertSame(\GaletteObjectsLend\Repository\Status::ORDERBY_STOCK, $filters->orderby);
         $this->assertSame(\Galette\Enums\SQLOrder::DESC->value, $filters->getDirection());
