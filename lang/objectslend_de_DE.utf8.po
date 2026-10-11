@@ -1,4 +1,4 @@
-# Johan Cwiklinski <trasher@x-tnd.be>, 2020.
+# Johan Cwiklinski <trasher@x-tnd.be>, 2020, 2026.
 # Stefanie Schreiner <stefanie-schreiner@hotmail.de>, 2020.
 # Ricardo Santos <buehnenarbeiter@gmail.com>, 2021.
 # klausellus-wallace <muetze.polka0e@icloud.com>, 2023.
@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: translations@galette.eu\n"
 "POT-Creation-Date: 2026-09-30 12:08+0200\n"
-"PO-Revision-Date: 2026-06-21 03:01+0000\n"
-"Last-Translator: Poly <robloxlucak@gmail.com>\n"
+"PO-Revision-Date: 2026-10-11 06:55+0000\n"
+"Last-Translator: Johan Cwiklinski <trasher@x-tnd.be>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/galette/"
 "objectslend-plugin/de/>\n"
 "Language: de_DE\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.7.dev0\n"
+"X-Generator: Weblate 2026.10.1.dev0\n"
 
 #. TRANS: this is a filename
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:52
@@ -236,7 +236,7 @@ msgstr ""
 
 #: ../lib/GaletteObjectsLend/Entity/LendStatus.php:113
 msgid "Status has not been added :("
-msgstr ""
+msgstr "Status wurde nicht hinzugefügt :("
 
 #: ../lib/GaletteObjectsLend/Entity/LendObject.php:183
 msgid "Object has not been added :("
