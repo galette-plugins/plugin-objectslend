@@ -2,13 +2,15 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Marko Puljic <markopuljic.uo@gmail.com>, 2026.
+# Marko Puljic <markopuljic.uo@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: translations@galette.eu\n"
 "POT-Creation-Date: 2026-09-30 12:08+0200\n"
-"PO-Revision-Date: 2026-10-10 11:51+0000\n"
-"Last-Translator: Marko Puljic <markopuljic.uo@gmail.com>\n"
+"PO-Revision-Date: 2026-10-13 08:39+0000\n"
+"Last-Translator: Marko Puljic "
+"<markopuljic.uo@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Croatian <https://hosted.weblate.org/projects/galette/"
 "objectslend-plugin/hr/>\n"
 "Language: hr\n"
@@ -17,16 +19,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 2026.10.1.dev0\n"
+"X-Generator: Weblate 2026.11.dev0\n"
 
 #. TRANS: this is a filename
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:52
 msgid "object_card"
-msgstr ""
+msgstr "karton_predmeta"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:61
 msgid "Object card"
-msgstr ""
+msgstr "Karton predmeta"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:63
 msgid "Labels"
@@ -52,32 +54,32 @@ msgstr "Opis"
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:133
 #: ../templates/default/category_edit.html.twig:15
 msgid "Category"
-msgstr ""
+msgstr "Kategorija"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:136
 #: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:174
 msgid "Serial number"
-msgstr ""
+msgstr "Serijski broj"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:139
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:139
 #: ../templates/default/objects_list.html.twig:44
 #: ../templates/default/objects_list.html.twig:200
 msgid "Price"
-msgstr "Cijena"
+msgstr "Nabavna cijena"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:143
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:140
 #: ../templates/default/objects_list.html.twig:50
 #: ../templates/default/objects_list.html.twig:205
 msgid "Borrow price"
-msgstr ""
+msgstr "Cijena najma"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:145
 #: ../templates/default/objects_list.html.twig:208
 #: ../templates/default/take_object.html.twig:69
 msgid "(per day)"
-msgstr ""
+msgstr "(po danu)"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:150
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:141
@@ -85,26 +87,26 @@ msgstr ""
 #: ../templates/default/objects_list.html.twig:56
 #: ../templates/default/objects_list.html.twig:215
 msgid "Dimensions"
-msgstr ""
+msgstr "Dimenzije"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:150
 #: ../templates/default/objects_edit.html.twig:74
 #: ../templates/default/take_object.html.twig:46
 msgid "Cm"
-msgstr ""
+msgstr "cm"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:153
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:142
 #: ../templates/default/objects_list.html.twig:62
 #: ../templates/default/objects_list.html.twig:220
 msgid "Weight"
-msgstr ""
+msgstr "Težina"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:153
 #: ../templates/default/objects_edit.html.twig:81
 #: ../templates/default/take_object.html.twig:52
 msgid "Kg"
-msgstr ""
+msgstr "kg"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:155
 #: ../templates/default/categories_list.html.twig:13
@@ -122,14 +124,14 @@ msgstr "Aktivan"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:156
 msgid "Location"
-msgstr ""
+msgstr "Lokacija"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:157
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:144
 #: ../templates/default/objects_list.html.twig:67
 #: ../templates/default/objects_list.html.twig:229
 msgid "Since"
-msgstr ""
+msgstr "Od"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:158
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:184
@@ -144,11 +146,11 @@ msgstr "Član"
 #: ../templates/default/objects_list.html.twig:77
 #: ../templates/default/objects_list.html.twig:238
 msgid "Return"
-msgstr ""
+msgstr "Povrat"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:178
 msgid "History of object loans"
-msgstr ""
+msgstr "Povijest posudbi predmeta"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:180
 msgid "Begin"
@@ -175,18 +177,18 @@ msgstr "Status"
 #: ../templates/default/status_list.html.twig:96
 #: ../templates/default/objects_list.html.twig:226
 msgid "In stock"
-msgstr ""
+msgstr "Na zalihi"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:185
 #: ../templates/default/objects_edit.html.twig:169
 #: ../templates/default/list_lent_object.html.twig:13
 msgid "Comments"
-msgstr ""
+msgstr "Napomene"
 
 #. TRANS: this is a filename
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:54
 msgid "objects_cards"
-msgstr ""
+msgstr "kartoni_predmeta"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:66
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:68
@@ -194,41 +196,41 @@ msgstr ""
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:154
 #: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:54
 msgid "Objects list"
-msgstr ""
+msgstr "Popis predmeta"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:98
 #, php-format
 msgid "Printed on %date"
-msgstr ""
+msgstr "Ispisano %date"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:138
 #: ../templates/default/objects_list.html.twig:38
 #: ../templates/default/objects_list.html.twig:195
 msgid "Serial"
-msgstr ""
+msgstr "Serijski broj"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:177
 #, php-format
 msgid "Category: %category"
-msgstr ""
+msgstr "Kategorija: %category"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:180
 #: ../lib/GaletteObjectsLend/Entity/LendCategory.php:194
 #: ../templates/default/categories_list.html.twig:115
 msgid "No category"
-msgstr ""
+msgstr "Bez kategorije"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:220
 msgid "Total:"
-msgstr ""
+msgstr "Ukupno:"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:227
 msgid "Borrowed"
-msgstr ""
+msgstr "Posuđeno"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:229
 msgid "Available"
-msgstr ""
+msgstr "Dostupno"
 
 #: ../lib/GaletteObjectsLend/Entity/LendStatus.php:113
 msgid "Status has not been added :("
@@ -236,59 +238,59 @@ msgstr "Status nije dodan :("
 
 #: ../lib/GaletteObjectsLend/Entity/LendObject.php:183
 msgid "Object has not been added :("
-msgstr ""
+msgstr "Predmet nije dodan :("
 
 #: ../lib/GaletteObjectsLend/Entity/LendRent.php:141
 msgid "Rent has not been added"
-msgstr ""
+msgstr "Najam nije dodan"
 
 #: ../lib/GaletteObjectsLend/Entity/LendRent.php:249
 #: ../lib/GaletteObjectsLend/Entity/LendRent.php:287
 msgid "Y-m-d H:i"
-msgstr ""
+msgstr "d.m.Y H:i"
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:47
 msgid "ObjectsLend preferences"
-msgstr ""
+msgstr "Postavke dodatka ObjectsLend"
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:87
 msgid "Generated contributions must be of a donation type."
-msgstr ""
+msgstr "Automatski stvorene uplate moraju biti vrste donacija."
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:109
 msgid "Preferences have been successfully stored!"
-msgstr ""
+msgstr "Postavke su uspješno spremljene!"
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:138
 msgid "Sample data can only be loaded into an empty catalog."
-msgstr ""
+msgstr "Primjeri podataka mogu se učitati samo u prazan katalog."
 
 #. TRANS: %1$d is the number of objects, %2$d the number of rents
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:147
 #, php-format
 msgid "Sample data loaded: %1$d objects, %2$d rents."
-msgstr ""
+msgstr "Primjeri podataka su učitani: %1$d predmeta, %2$d najmova."
 
 #: ../lib/GaletteObjectsLend/Controllers/MainController.php:156
 msgid "Sample data could not be loaded."
-msgstr ""
+msgstr "Primjere podataka nije bilo moguće učitati."
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:88
 msgid "Please add at last one status \"in stock\"!"
-msgstr ""
+msgstr "Dodajte barem jedan status „na zalihi”!"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:94
 msgid "Please add at least one status \"object borrowed\"!"
-msgstr ""
+msgstr "Dodajte barem jedan status „predmet posuđen”!"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:101
 msgid "Status list"
-msgstr ""
+msgstr "Popis statusa"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:148
 #, php-format
 msgid "Edit status %status"
-msgstr ""
+msgstr "Uredi status %status"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:151
 msgid "New status"
@@ -296,33 +298,35 @@ msgstr "Novi status"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:168
 msgid "Status has been saved"
-msgstr ""
+msgstr "Status je spremljen"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:176
 msgid "An error occurred while storing the status."
-msgstr ""
+msgstr "Došlo je do pogreške pri spremanju statusa."
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:187
 msgid ""
 "This status is used by lends, it cannot be removed. Deactivate it instead."
 msgstr ""
+"Ovaj status koristi se u posudbama pa se ne može ukloniti. Umjesto toga ga "
+"isključite."
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/StatusController.php:200
 #, php-format
 msgid "Remove status %1$s"
-msgstr ""
+msgstr "Ukloni status %1$s"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:79
 msgid "Categories list"
-msgstr ""
+msgstr "Popis kategorija"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:125
 msgid "Edit category"
-msgstr ""
+msgstr "Uredi kategoriju"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:126
 msgid "New category"
-msgstr ""
+msgstr "Nova kategorija"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:154
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:403
@@ -331,157 +335,159 @@ msgstr "Brisanje nije uspjelo"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:168
 msgid "Category has been saved"
-msgstr ""
+msgstr "Kategorija je spremljena"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:176
 msgid "An error occurred while storing the category."
-msgstr ""
+msgstr "Došlo je do pogreške pri spremanju kategorije."
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/CategoriesController.php:187
 #, php-format
 msgid "Remove category %1$s"
-msgstr ""
+msgstr "Ukloni kategoriju %1$s"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:225
 #, php-format
 msgid "Rents list for %object"
-msgstr ""
+msgstr "Popis najmova za %object"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:273
 msgid "No object was selected, please check at least one."
-msgstr ""
+msgstr "Nijedan predmet nije odabran. Označite barem jedan."
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:307
 #: ../templates/default/objects_list.html.twig:255
 msgid "Edit object"
-msgstr ""
+msgstr "Uredi predmet"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:309
 msgid "New object"
-msgstr ""
+msgstr "Novi predmet"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:411
 msgid "Something went wrong saving object :("
-msgstr ""
+msgstr "Došlo je do pogreške pri spremanju predmeta :("
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:436
 msgid "Object has been saved"
-msgstr ""
+msgstr "Predmet je spremljen"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:502
 msgid "Status has been updated"
-msgstr ""
+msgstr "Status je ažuriran"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:531
 #: ../templates/default/objects_list.html.twig:260
 msgid "Duplicate object"
-msgstr ""
+msgstr "Kopiraj predmet"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:566
 msgid "Successfully cloned from #%id.<br/>You can now edit it."
-msgstr ""
+msgstr "Uspješno kopirano iz #%id.<br/>Sada možete uređivati kopiju."
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:572
 msgid "An error occurred cloning object :("
-msgstr ""
+msgstr "Došlo je do pogreške pri kopiranju predmeta :("
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:602
 msgid "Borrow an object"
-msgstr ""
+msgstr "Posudi predmet"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:603
 msgid "Return a borrowed object"
-msgstr ""
+msgstr "Vrati posuđeni predmet"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:634
 #: ../lib/GaletteObjectsLend/LendService.php:154
 msgid "You do not have rights to borrow objects!"
-msgstr ""
+msgstr "Nemate ovlasti za posuđivanje predmeta!"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:670
 #, php-format
 msgid "%object is currently not available"
-msgstr ""
+msgstr "Predmet %object trenutno nije dostupan"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:696
 #: ../lib/GaletteObjectsLend/LendService.php:202
 msgid "You do not have rights to return objects!"
-msgstr ""
+msgstr "Nemate ovlasti za vraćanje predmeta!"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:761
 #, php-format
 msgid "You have just borrowed %object :)"
-msgstr ""
+msgstr "Upravo ste posudili %object :)"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:795
 #, php-format
 msgid "%object has been returned :)"
-msgstr ""
+msgstr "Predmet %object je vraćen :)"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:897
 #, php-format
 msgid "Remove object %1$s"
-msgstr ""
+msgstr "Ukloni predmet %1$s"
 
 #: ../lib/GaletteObjectsLend/Controllers/Crud/ObjectsController.php:906
 #, php-format
 msgid "You are about to remove %count objects."
-msgstr ""
+msgstr "Uklonit ćete %count predmeta."
 
 #: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:50
 msgid "Objects lend"
-msgstr ""
+msgstr "Posudba predmeta"
 
 #: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:73
 msgid "Borrow status"
-msgstr ""
+msgstr "Statusi posudbe"
 
 #: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:80
 msgid "Object categories"
-msgstr ""
+msgstr "Kategorije predmeta"
 
 #: ../lib/GaletteObjectsLend/PluginGaletteObjectslend.php:87
 msgid "Preferences"
-msgstr ""
+msgstr "Postavke"
 
 #: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:173
 msgid "Name/description"
-msgstr ""
+msgstr "Naziv/opis"
 
 #: ../lib/GaletteObjectsLend/Filters/ObjectsList.php:175
 #: ../templates/default/list_lent_object.html.twig:13
 msgid "Id"
-msgstr ""
+msgstr "ID"
 
 #: ../lib/GaletteObjectsLend/LendService.php:165
 msgid "This object cannot be borrowed."
-msgstr ""
+msgstr "Ovaj predmet nije moguće posuditi."
 
 #: ../lib/GaletteObjectsLend/LendService.php:213
 msgid "This object cannot be returned."
-msgstr ""
+msgstr "Ovaj predmet nije moguće vratiti."
 
 #: ../lib/GaletteObjectsLend/LendService.php:242
 msgid "You do not have rights to change objects status!"
-msgstr ""
+msgstr "Nemate ovlasti za promjenu statusa predmeta!"
 
 #: ../lib/GaletteObjectsLend/LendService.php:251
 msgid "This status cannot be set."
-msgstr ""
+msgstr "Ovaj status nije moguće postaviti."
 
 #: ../lib/GaletteObjectsLend/LendService.php:300
 msgid "Returned on member removal"
-msgstr ""
+msgstr "Vraćeno pri uklanjanju člana"
 
 #: ../lib/GaletteObjectsLend/LendService.php:392
 msgid ""
 "Generated contributions must be of a donation type, check plugin preferences."
 msgstr ""
+"Automatski stvorene uplate moraju biti vrste donacija. Provjerite postavke "
+"dodatka."
 
 #: ../lib/GaletteObjectsLend/LendService.php:439
 #: ../lib/GaletteObjectsLend/LendService.php:451
 msgid "An error occurred while storing the contribution."
-msgstr ""
+msgstr "Došlo je do pogreške pri spremanju uplate."
 
 #: ../templates/default/status_edit.html.twig:20 ../templates/default/take_object.html.twig:98
 #: ../templates/default/take_object.html.twig:128
@@ -490,17 +496,19 @@ msgstr "Status:"
 
 #: ../templates/default/status_edit.html.twig:25 ../templates/default/status_list.html.twig:66
 msgid "In stock:"
-msgstr ""
+msgstr "Na zalihi:"
 
 #: ../templates/default/status_edit.html.twig:25
 msgid "Is object in stock or borrowed"
-msgstr ""
+msgstr "Je li predmet na zalihi ili posuđen"
 
 #: ../templates/default/status_edit.html.twig:30
 msgid ""
 "Check if the object is available to be borrowed;<br/>uncheck if object is "
 "already borrowed and should be given back"
 msgstr ""
+"Označite ako je predmet dostupan za posudbu;<br/>odznačite ako je već "
+"posuđen i treba ga vratiti"
 
 #: ../templates/default/status_edit.html.twig:34
 #: ../templates/default/categories_list.html.twig:53
@@ -508,33 +516,33 @@ msgstr ""
 #: ../templates/default/status_list.html.twig:65
 #: ../templates/default/objects_list.html.twig:165
 msgid "Active:"
-msgstr ""
+msgstr "Aktivan:"
 
 #: ../templates/default/status_edit.html.twig:44 ../templates/default/status_list.html.twig:11
 #: ../templates/default/status_list.html.twig:102
 msgid "Days for rent"
-msgstr ""
+msgstr "Trajanje najma u danima"
 
 #: ../templates/default/status_edit.html.twig:44
 msgid "Number of days to rent per default"
-msgstr ""
+msgstr "Zadani broj dana najma"
 
 #: ../templates/default/status_edit.html.twig:44
 msgid "used to compute return date"
-msgstr ""
+msgstr "koristi se za izračun datuma povrata"
 
 #: ../templates/default/macros.twig:49
 msgid "--- Select a status ---"
-msgstr ""
+msgstr "--- Odaberite status ---"
 
 #: ../templates/default/macros.twig:53 ../templates/default/status_list.html.twig:104
 #, php-format
 msgid "%days days"
-msgstr ""
+msgstr "%days dana"
 
 #: ../templates/default/macros.twig:71
 msgid "Click to view fullsize image"
-msgstr ""
+msgstr "Kliknite za sliku u punoj veličini"
 
 #: ../templates/default/clone_object.html.twig:13
 #, php-format
@@ -542,6 +550,7 @@ msgid ""
 "A copy of \"%1$s\" will be created, without its picture nor its lends "
 "history."
 msgstr ""
+"Stvorit će se kopija predmeta „%1$s”, bez fotografije i povijesti posudbi."
 
 #: ../templates/default/clone_object.html.twig:19
 #: ../templates/default/objects_edit.html.twig:105
@@ -552,12 +561,13 @@ msgstr "Kopiraj"
 #, php-format
 msgid "%count category"
 msgid_plural "%count categories"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%count kategorija"
+msgstr[1] "%count kategorije"
+msgstr[2] "%count kategorija"
 
 #: ../templates/default/categories_list.html.twig:44
 msgid "Add a category"
-msgstr ""
+msgstr "Dodaj kategoriju"
 
 #: ../templates/default/categories_list.html.twig:77
 #: ../templates/default/categories_list.html.twig:78
@@ -570,52 +580,55 @@ msgstr "Neaktivan"
 #: ../templates/default/categories_list.html.twig:82
 #, php-format
 msgid "Edit \"%category\""
-msgstr ""
+msgstr "Uredi „%category”"
 
 #: ../templates/default/categories_list.html.twig:94
 #, php-format
 msgid "Remove \"%category\""
-msgstr ""
+msgstr "Ukloni „%category”"
 
 #: ../templates/default/preferences.html.twig:42
 msgid "Plugin preferences"
-msgstr ""
+msgstr "Postavke dodatka"
 
 #: ../templates/default/preferences.html.twig:43
 msgid "Images related"
-msgstr ""
+msgstr "Postavke slika"
 
 #: ../templates/default/preferences.html.twig:44
 msgid "Display preferences"
-msgstr ""
+msgstr "Postavke prikaza"
 
 #: ../templates/default/preferences.html.twig:50
 msgid "Members can borrow:"
-msgstr ""
+msgstr "Članovi mogu posuđivati:"
 
 #: ../templates/default/preferences.html.twig:50
 msgid ""
 "Allow a member (not staff neither admin) to borrow an object. If set to "
 "'No', only admin and staff members can access the 'Take object' page"
 msgstr ""
+"Dopusti običnom članu (koji nije član uprave ni administrator) posudbu "
+"predmeta. Ako je postavljeno na 'Ne', stranici 'Preuzmi predmet' mogu "
+"pristupiti samo administratori i članovi uprave"
 
 #: ../templates/default/preferences.html.twig:50
 msgid "Generate contribution:"
-msgstr ""
+msgstr "Stvori uplatu:"
 
 #: ../templates/default/preferences.html.twig:50
 msgid ""
 "Automatically generate a contribution for the member of the amount of the "
 "rental price of the object"
-msgstr ""
+msgstr "Automatski stvori uplatu za člana u iznosu cijene najma predmeta"
 
 #: ../templates/default/preferences.html.twig:83
 msgid "Contribution text:"
-msgstr ""
+msgstr "Tekst uplate:"
 
 #: ../templates/default/preferences.html.twig:83
 msgid "Comment text to add on generated contribution"
-msgstr ""
+msgstr "Tekst napomene koji se dodaje automatski stvorenoj uplati"
 
 #: ../templates/default/preferences.html.twig:83
 msgid ""
@@ -624,89 +637,96 @@ msgid ""
 "Description<br/>- SERIAL_NUMBER: Serial number<br/>- PRICE: Price<br/>- "
 "RENT_PRICE: Borrow price<br/>- WEIGHT: Weight<br/>- DIMENSION: Dimensions"
 msgstr ""
+"Tekst napomene koji se dodaje automatski stvorenoj uplati. Vrijednosti koje "
+"se automatski zamjenjuju (stavite ih u vitičaste zagrade): <br/>- NAME: "
+"naziv<br/>- DESCRIPTION: opis<br/>- SERIAL_NUMBER: serijski broj<br/>- "
+"PRICE: nabavna cijena<br/>- RENT_PRICE: cijena najma<br/>- WEIGHT: "
+"težina<br/>- DIMENSION: dimenzije"
 
 #: ../templates/default/preferences.html.twig:102
 msgid "Max thumb height (in px)"
-msgstr ""
+msgstr "Najveća visina sličice (px)"
 
 #: ../templates/default/preferences.html.twig:109
 msgid "Max thumb width (in px)"
-msgstr ""
+msgstr "Najveća širina sličice (px)"
 
 #: ../templates/default/preferences.html.twig:116
 msgid "Max picture size (in Ko)"
-msgstr ""
+msgstr "Najveća veličina slike (kB)"
 
 #: ../templates/default/preferences.html.twig:116
 #, php-format
 msgid "0 to use the Galette setting for pictures, currently %1$s"
-msgstr ""
+msgstr "0 za korištenje Galetteove postavke za slike, trenutno %1$s"
 
 #: ../templates/default/preferences.html.twig:121
 msgid "Images in lists:"
-msgstr ""
+msgstr "Slike na popisima:"
 
 #: ../templates/default/preferences.html.twig:121
 msgid "Display images in objects and categories lists"
-msgstr ""
+msgstr "Prikaži slike na popisima predmeta i kategorija"
 
 #: ../templates/default/preferences.html.twig:135
 msgid "View category:"
-msgstr ""
+msgstr "Prikaži kategoriju:"
 
 #: ../templates/default/preferences.html.twig:135
 msgid "View forecast return date:"
-msgstr ""
+msgstr "Prikaži očekivani datum povrata:"
 
 #: ../templates/default/preferences.html.twig:135
 msgid "View description"
-msgstr ""
+msgstr "Prikaži opis"
 
 #: ../templates/default/preferences.html.twig:135
 msgid "View dimensions:"
-msgstr ""
+msgstr "Prikaži dimenzije:"
 
 #: ../templates/default/preferences.html.twig:135
 msgid "View borrow price:"
-msgstr ""
+msgstr "Prikaži cijenu najma:"
 
 #: ../templates/default/preferences.html.twig:135
 msgid "View price sum:"
-msgstr ""
+msgstr "Prikaži zbroj nabavnih cijena:"
 
 #: ../templates/default/preferences.html.twig:135
 msgid "View the objects buy price sum on the list under the category"
-msgstr ""
+msgstr "Prikaži zbroj nabavnih cijena predmeta na popisu ispod kategorije"
 
 #: ../templates/default/preferences.html.twig:135
 msgid "View buy price:"
-msgstr ""
+msgstr "Prikaži nabavnu cijenu:"
 
 #: ../templates/default/preferences.html.twig:135
 msgid "View serial number:"
-msgstr ""
+msgstr "Prikaži serijski broj:"
 
 #: ../templates/default/preferences.html.twig:135
 msgid "View weight"
-msgstr ""
+msgstr "Prikaži težinu"
 
 #: ../templates/default/preferences.html.twig:166
 msgid "Sample data"
-msgstr ""
+msgstr "Primjeri podataka"
 
 #: ../templates/default/preferences.html.twig:167
 msgid ""
 "The catalog is empty. You can fill it with sample categories, statuses and "
 "objects, along with a rents history given to existing members."
 msgstr ""
+"Katalog je prazan. Možete učitati primjere kategorija, statusa i predmeta te "
+"povijest najmova za postojeće članove."
 
 #: ../templates/default/preferences.html.twig:169
 msgid "Load sample data"
-msgstr ""
+msgstr "Učitaj primjere podataka"
 
 #: ../templates/default/objects_edit.html.twig:18 ../templates/default/take_object.html.twig:22
 msgid "Name:"
-msgstr "Prezime:"
+msgstr "Naziv:"
 
 #: ../templates/default/objects_edit.html.twig:25
 #: ../templates/default/take_object.html.twig:27
@@ -715,81 +735,83 @@ msgstr "Opis:"
 
 #: ../templates/default/objects_edit.html.twig:30
 msgid "--- Select a category ---"
-msgstr ""
+msgstr "--- Odaberite kategoriju ---"
 
 #: ../templates/default/objects_edit.html.twig:38
 #: ../templates/default/objects_list.html.twig:140
 msgid "Category:"
-msgstr ""
+msgstr "Kategorija:"
 
 #: ../templates/default/objects_edit.html.twig:46
 #: ../templates/default/take_object.html.twig:33
 msgid "Serial number:"
-msgstr ""
+msgstr "Serijski broj:"
 
 #: ../templates/default/objects_edit.html.twig:52
 #: ../templates/default/take_object.html.twig:39
 msgid "Price:"
-msgstr ""
+msgstr "Nabavna cijena:"
 
 #: ../templates/default/objects_edit.html.twig:59
 #: ../templates/default/take_object.html.twig:57
 #: ../templates/default/take_object.html.twig:64
 msgid "Borrow price:"
-msgstr ""
+msgstr "Cijena najma:"
 
 #: ../templates/default/objects_edit.html.twig:64
 msgid "Price per rental day:"
-msgstr ""
+msgstr "Cijena po danu najma:"
 
 #: ../templates/default/objects_edit.html.twig:64
 msgid "The price applies on each rental day if checked, only once otherwise"
 msgstr ""
+"Ako je označeno, cijena se obračunava za svaki dan najma; inače se "
+"obračunava samo jednom"
 
 #: ../templates/default/objects_edit.html.twig:74
 #: ../templates/default/take_object.html.twig:45
 msgid "Dimensions:"
-msgstr ""
+msgstr "Dimenzije:"
 
 #: ../templates/default/objects_edit.html.twig:81
 #: ../templates/default/take_object.html.twig:51
 msgid "Weight:"
-msgstr ""
+msgstr "Težina:"
 
 #: ../templates/default/objects_edit.html.twig:95
 msgid "Where is the object?"
-msgstr ""
+msgstr "Gdje je predmet?"
 
 #: ../templates/default/objects_edit.html.twig:108
 msgid "Print object"
-msgstr ""
+msgstr "Ispiši predmet"
 
 #: ../templates/default/objects_edit.html.twig:121
 #: ../templates/default/objects_edit.html.twig:131
 msgid "Object's photo"
-msgstr ""
+msgstr "Fotografija predmeta"
 
 #: ../templates/default/objects_edit.html.twig:161
 #: ../templates/default/objects_list.html.twig:268
 msgid "Show object lends"
-msgstr ""
+msgstr "Prikaži posudbe predmeta"
 
 #: ../templates/default/objects_edit.html.twig:166
 #: ../templates/default/objects_edit.html.twig:185
 msgid "Change status"
-msgstr ""
+msgstr "Promijeni status"
 
 #: ../templates/default/history_modal.js.twig:22
 msgid "History of object"
-msgstr ""
+msgstr "Povijest predmeta"
 
 #: ../templates/default/history_modal.js.twig:32
 msgid "An error occurred loading history display :("
-msgstr ""
+msgstr "Došlo je do pogreške pri učitavanju povijesti :("
 
 #: ../templates/default/category_edit.html.twig:25
 msgid "Is active"
-msgstr ""
+msgstr "Aktivan"
 
 #: ../templates/default/category_edit.html.twig:33
 msgid "Picture:"
@@ -797,7 +819,7 @@ msgstr "Fotografija:"
 
 #: ../templates/default/category_edit.html.twig:39
 msgid "Category photo"
-msgstr ""
+msgstr "Fotografija kategorije"
 
 #: ../templates/default/list_lent_object.html.twig:13
 msgid "Begin date"
@@ -809,132 +831,133 @@ msgstr "Datum završetka"
 
 #: ../templates/default/list_lent_object.html.twig:54
 msgid "No lend found"
-msgstr ""
+msgstr "Nema pronađenih posudbi"
 
 #: ../templates/default/status_list.html.twig:11 ../templates/default/status_list.html.twig:93
 msgid "Stock"
-msgstr ""
+msgstr "Zaliha"
 
 #: ../templates/default/status_list.html.twig:41
 #, php-format
 msgid "%1$s status"
 msgid_plural "%1$s statuses"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1$s status"
+msgstr[1] "%1$s statusa"
+msgstr[2] "%1$s statusa"
 
 #: ../templates/default/status_list.html.twig:56
 msgid "Add a status"
-msgstr ""
+msgstr "Dodaj status"
 
 #: ../templates/default/status_list.html.twig:98
 #: ../templates/default/status_list.html.twig:99
 msgid "Not in stock"
-msgstr ""
+msgstr "Nije na zalihi"
 
 #: ../templates/default/status_list.html.twig:110
 #, php-format
 msgid "Edit %status"
-msgstr ""
+msgstr "Uredi %status"
 
 #: ../templates/default/status_list.html.twig:115
 #, php-format
 msgid "Remove %status from database"
-msgstr ""
+msgstr "Ukloni %status iz baze podataka"
 
 #: ../templates/default/status_list.html.twig:136
 msgid "No status has been found"
-msgstr ""
+msgstr "Nijedan status nije pronađen"
 
 #: ../templates/default/objects_list.html.twig:67
 #: ../templates/default/objects_list.html.twig:232
 msgid "By"
-msgstr ""
+msgstr "Korisnik"
 
 #: ../templates/default/objects_list.html.twig:347
 msgid "No object selected"
-msgstr ""
+msgstr "Nijedan predmet nije odabran"
 
 #: ../templates/default/objects_list.html.twig:347
 msgid ""
 "Please make sure to select at least one object from the list to perform this "
 "action."
-msgstr ""
+msgstr "Za ovu radnju odaberite barem jedan predmet s popisa."
 
 #: ../templates/default/objects_list.html.twig:357
 msgid "Print objects list"
-msgstr ""
+msgstr "Ispiši popis predmeta"
 
 #: ../templates/default/objects_list.html.twig:120
 msgid "Add an object"
-msgstr ""
+msgstr "Dodaj predmet"
 
 #: ../templates/default/objects_list.html.twig:185
 #: ../templates/default/take_object.html.twig:75
 msgid "Object photo"
-msgstr ""
+msgstr "Fotografija predmeta"
 
 #: ../templates/default/objects_list.html.twig:210
 #: ../templates/default/take_object.html.twig:69
 msgid "(at once)"
-msgstr ""
+msgstr "(jednokratno)"
 
 #: ../templates/default/objects_list.html.twig:246
 msgid "Object is active"
-msgstr ""
+msgstr "Predmet je aktivan"
 
 #: ../templates/default/objects_list.html.twig:246
 msgid "Object is inactive"
-msgstr ""
+msgstr "Predmet je neaktivan"
 
 #: ../templates/default/objects_list.html.twig:277
 msgid "Object card in PDF"
-msgstr ""
+msgstr "Karton predmeta u PDF-u"
 
 #: ../templates/default/objects_list.html.twig:285
 #, php-format
 msgid "Remove %object from database"
-msgstr ""
+msgstr "Ukloni %object iz baze podataka"
 
 #: ../templates/default/objects_list.html.twig:303
 msgid "Take away"
-msgstr ""
+msgstr "Preuzmi"
 
 #: ../templates/default/objects_list.html.twig:318
 msgid "Give back"
-msgstr ""
+msgstr "Vrati"
 
 #: ../templates/default/objects_list.html.twig:340
 msgid "No object has been found"
-msgstr ""
+msgstr "Nijedan predmet nije pronađen"
 
 #: ../templates/default/take_object.html.twig:15
 msgid "Object"
-msgstr ""
+msgstr "Predmet"
 
 #: ../templates/default/take_object.html.twig:85
 msgid "Borrow information"
-msgstr ""
+msgstr "Podaci o posudbi"
 
 #: ../templates/default/take_object.html.twig:89
 msgid "Member:"
-msgstr ""
+msgstr "Član:"
 
 #: ../templates/default/take_object.html.twig:104
 msgid "Expected return:"
-msgstr ""
+msgstr "Očekivani povrat:"
 
 #: ../templates/default/take_object.html.twig:124
 msgid "Return information"
-msgstr ""
+msgstr "Podaci o povratu"
 
 #: ../templates/default/take_object.html.twig:132
 msgid "Time:"
-msgstr ""
+msgstr "Vrijeme:"
 
 #: ../templates/default/take_object.html.twig:133
 #, php-format
 msgid "From %begindate to %enddate"
-msgstr ""
+msgstr "Od %begindate do %enddate"
 
 #: ../templates/default/take_object.html.twig:136
 msgid "Comments:"
@@ -942,15 +965,15 @@ msgstr "Napomene:"
 
 #: ../templates/default/take_object.html.twig:142
 msgid "remaining characters"
-msgstr ""
+msgstr "preostalih znakova"
 
 #: ../templates/default/take_object.html.twig:152
 msgid "I have read and I agree with terms and conditions"
-msgstr ""
+msgstr "Pročitao/la sam i prihvaćam uvjete korištenja"
 
 #: ../templates/default/take_object.html.twig:156
 msgid "Show terms and conditions"
-msgstr ""
+msgstr "Prikaži uvjete korištenja"
 
 #: ../templates/default/take_object.html.twig:160
 msgid ""
@@ -969,11 +992,24 @@ msgid ""
 "other cases not listed above and at the discretion of the seller, the "
 "deposit check may also be collected in whole or party."
 msgstr ""
+"Predmeti ponuđeni za najam u dobrom su stanju, a pri preuzimanju zajednički "
+"se provjerava njihovo stanje. Nakon preuzimanja predmeta reklamacije se ne "
+"prihvaćaju. Popis primjedbi koji sastavi iznajmljivač ne oslobađa korisnika "
+"obveze provjere pri preuzimanju. Plaćanje najma daje korisniku pravo na "
+"uobičajenu uporabu posuđenog predmeta. Ako se predmet vrati u lošijem "
+"stanju, iznajmljivač zadržava pravo naplate cijelog pologa ili njegova "
+"dijela. Ako stanje predmeta odstupa od uobičajenog nakon korištenja, "
+"naplatit će se dodatno čišćenje. U slučaju oštećenja, gubitka ili krađe "
+"unajmljenog predmeta polog se ne vraća, nego ga tvrtka zadržava kao naknadu "
+"štete sukladno članku 1152. Građanskog zakonika, bez drugih sudskih ili "
+"izvansudskih formalnosti. U drugim slučajevima koji nisu gore navedeni "
+"iznajmljivač može, prema vlastitoj procjeni, naplatiti cijeli ček za polog "
+"ili njegov dio."
 
 #: ../templates/default/take_object.html.twig:168
 msgid "Borrow object"
-msgstr ""
+msgstr "Posudi predmet"
 
 #: ../templates/default/take_object.html.twig:168
 msgid "Return object"
-msgstr ""
+msgstr "Vrati predmet"
