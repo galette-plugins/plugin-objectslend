@@ -1,34 +1,35 @@
 ---
 title: Galette ObjectsLend
-description: Object lending and renting
+description: Posudba i najam predmeta
 ---
 
-A [Galette](https://galette.eu) plugin to manage objects, and to lend or rent
-them to members.
+Dodatak za [Galette](https://galette.eu) za upravljanje predmetima te njihovu
+posudbu ili najam članovima.
 
-This plugin provides:
+Dodatak omogućuje:
 
-* objects management (description, size, length, price, ...)
-* groups objects by categories,
-* manage object state, and their presence in stock or not,
-* manage lending and/or renting objects,
-* contribution generation,
-* ...
+* upravljanje predmetima (opis, veličina, duljina, cijena i slično)
+* grupiranje predmeta po kategorijama,
+* praćenje stanja predmeta i dostupnosti na zalihi,
+* upravljanje posudbom i/ili najmom predmeta,
+* izradu zapisa uplata,
+* …
 
-* [documentation](documentation.html)
-* [bugs and
-  features](https://bugs.galette.eu/projects/galette-plugin-objectslend)
-* [source code](https://github.com/galette-plugins/plugin-objectslend)
-* mailing lists:
-  [users](https://lists.mailman3.com/postorius/lists/galette-users.mailman3.com/),
-  [developers](https://lists.mailman3.com/postorius/lists/galette-devel.mailman3.com/)
+* [dokumentacija](documentation.html)
+* [pogreške i nove
+  funkcije](https://bugs.galette.eu/projects/galette-plugin-objectslend)
+* [izvorni kod](https://github.com/galette-plugins/plugin-objectslend)
+* popisi za e-poštu:
+  [korisnici](https://lists.mailman3.com/postorius/lists/galette-users.mailman3.com/),
+  [razvojni
+  tim](https://lists.mailman3.com/postorius/lists/galette-devel.mailman3.com/)
 
-To use it you need a recent enough Galette — the required version is shown at
-the top of this page — and the plugin itself, either by:
+Potrebna je dovoljno nova verzija Galettea; tražena verzija navedena je na vrhu
+stranice. Sam dodatak možete nabaviti:
 
-* downloading it with the buttons at the top of this page,
-* or using the [source code from the
-  repository](https://github.com/galette-plugins/plugin-objectslend), which
-  requires some technical skills.
+* preuzimanjem putem gumba na vrhu stranice,
+* ili uporabom [izvornog koda iz
+  repozitorija](https://github.com/galette-plugins/plugin-objectslend), za što
+  je potrebno tehničko znanje.
 
-See the [documentation](documentation.html) for the installation steps.
+Upute za instalaciju potražite u [dokumentaciji](documentation.html).
