@@ -1,28 +1,28 @@
 ---
-title: Documentation
-description: Object lending and renting
+title: Dokumentacija
+description: Posudba i najam predmeta
 ---
 
-This plugin provides:
+Dodatak omogućuje:
 
-* objects management (description, size, length, price, ...)
-* groups objects by categories,
-* manage object state, and their presence in stock or not,
-* manage lending and/or renting objects,
-* contribution generation,
-* ...
+* upravljanje predmetima (opis, veličina, duljina, cijena i slično)
+* grupiranje predmeta po kategorijama,
+* praćenje stanja predmeta i dostupnosti na zalihi,
+* upravljanje posudbom i/ili najmom predmeta,
+* izradu zapisa uplata,
+* …
 
-## Installation
+## Instalacija
 
-First of all, download the plugin:
+Najprije preuzmite dodatak:
 
-* [Get latest ObjectsLend
-  plugin!](https://github.com/galette-plugins/plugin-objectslend/releases/latest)
-* [Get ObjectsLend plugin nightly
-  build!](https://github.com/galette-plugins/plugin-objectslend/releases/tag/nightly)
+* [Preuzmite najnoviji dodatak
+  ObjectsLend!](https://github.com/galette-plugins/plugin-objectslend/releases/latest)
+* [Preuzmite noćnu razvojnu verziju dodatka
+  ObjectsLend!](https://github.com/galette-plugins/plugin-objectslend/releases/tag/nightly)
 
-Extract the downloaded archive in Galette `plugins` directory. For example,
-under linux (replacing `{url}` and `{version}` with correct values):
+Raspakirajte preuzetu arhivu u Galetteovu mapu `plugins`. Primjerice, na Linuxu
+(zamijenite `{url}` i `{version}` odgovarajućim vrijednostima):
 
 ```bash
 $ cd /var/www/html/galette/plugins
@@ -30,47 +30,46 @@ $ wget {url}
 $ tar xjvf galette-plugin-objectslend-{version}.tar.bz2
 ```
 
-## Database initialisation
+## Inicijalizacija baze podataka
 
-In order to work, this plugin requires several tables in the database. See
-[Galette plugins management
-interface](https://doc.galette.eu/en/master/plugins/index.html#plugins-managment).
+Dodatak zahtijeva nekoliko tablica u bazi. Pogledajte [sučelje za upravljanje
+dodacima
+Galettea](https://doc.galette.eu/en/master/plugins/index.html#plugins-managment).
 
-And this is finished; ObjectsLend plugin is installed :)
+Gotovo; dodatak ObjectsLend je instaliran :)
 
-## Plugin usage
+## Uporaba dodatka
 
-Once plugin has been installed, a `Object lend` group is added to Galette menu.
+Nakon instalacije u Galetteovu izborniku pojavljuje se odjeljak `Posudba
+predmeta`.
 
-Defaults status are provided at installation, but they can not fit your needs,
-you can of course define your own.
+Pri instalaciji se dodaju zadani statusi. Ako vam ne odgovaraju, možete
+definirati vlastite.
 
-![The list of object status](images/status.png)
+![Popis statusa predmeta](images/status.png)
 
-Define status, create categories and objects; users can lend objects with a
-reason, then give them back with location.
+Definirajte statuse, kategorije i predmete. Korisnici mogu posuditi predmet uz
+navođenje razloga te ga vratiti uz navođenje lokacije.
 
-A lend history is provided for administrators and staff members from object
-page.
+Administratori i uprava mogu pregledati povijest posudbi na stranici predmeta.
 
-### Preferences
+### Postavke
 
-Several preferences allows to change plugin behavior.
+Ponašanje dodatka možete prilagoditi postavkama.
 
-![The plugin preferences](images/plugin_preferences.png)
+![Postavke dodatka](images/plugin_preferences.png)
 
-![The images preferences](images/images_preferences.png)
+![Postavke slika](images/images_preferences.png)
 
-![The display preferences](images/display_preferences.png)
+![Postavke prikaza](images/display_preferences.png)
 
-From this screen, you can define if members can lend objects or not, if it
-should create a new contribution (and its type and description), if image should
-be displayed in objects list, and thumbnails size.
+Ovdje određujete mogu li članovi posuđivati predmete, treba li se izraditi zapis
+uplate i koje vrste i opisa te prikazuju li se slike u popisu predmeta i kolike
+su minijature.
 
-It is possible to activate the fullsize photo display.
+Možete uključiti prikaz fotografija u punoj veličini.
 
-> **Note** — Added in version 0.5.
+> **Napomena** — Dodano u verziji 0.5.
 > 
-> Photos sent with previous plugin version were always resized, only the
-> thumbnail was stored. If you want to get fullsize display, you will have to
-> send photos again.
+> Ranije verzije uvijek su smanjivale fotografije i čuvale samo minijaturu. Za
+> prikaz u punoj veličini ponovno učitajte fotografije.
