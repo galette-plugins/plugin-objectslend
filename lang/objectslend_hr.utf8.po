@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: translations@galette.eu\n"
 "POT-Creation-Date: 2026-09-30 12:08+0200\n"
-"PO-Revision-Date: 2026-10-13 08:39+0000\n"
+"PO-Revision-Date: 2026-10-17 11:51+0000\n"
 "Last-Translator: Marko Puljic "
 "<markopuljic.uo@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Croatian <https://hosted.weblate.org/projects/galette/"
@@ -44,7 +44,7 @@ msgstr "Adresne naljepnice"
 #: ../templates/default/objects_list.html.twig:33
 #: ../templates/default/objects_list.html.twig:188
 msgid "Name"
-msgstr "Naziv"
+msgstr "Prezime"
 
 #: ../lib/GaletteObjectsLend/IO/PdfObject.php:130
 #: ../lib/GaletteObjectsLend/IO/PdfObjects.php:137
