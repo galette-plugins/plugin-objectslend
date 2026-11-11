@@ -56,7 +56,7 @@ class StatusController extends GaletteRoutingTestCase
     private function addStatus(string $text, bool $in_stock): LendStatus
     {
         $status = new LendStatus($this->zdb);
-        $status->setText($text)->setInStock($in_stock)->setActive(true);
+        $status->setText($text)->setInStock($in_stock)->setActive(active: true);
         $status->store();
         return $status;
     }
@@ -67,7 +67,7 @@ class StatusController extends GaletteRoutingTestCase
     public function testList(): void
     {
         $this->logSuperAdmin();
-        $this->addStatus('Shelf <A>', true);
+        $this->addStatus('Shelf <A>', in_stock: true);
 
         $test_response = $this->app->handle($this->createRequest(route_name: 'objectslend_statuses'));
         $this->assertSame(200, $test_response->getStatusCode());
@@ -100,10 +100,15 @@ class StatusController extends GaletteRoutingTestCase
         $this->assertSame(Status::IN_STOCK, $filters->stock_filter);
 
         //search string is found
-        $this->addStatus('Shelf <A> & B', true);
-        $this->addStatus('Shelf C', true);
-        $statuses = new Status($this->zdb, $this->preferences, $this->login, $filters);
-        $this->assertCount(1, $statuses->getStatusList(true));
+        $this->addStatus('Shelf <A> & B', in_stock: true);
+        $this->addStatus('Shelf C', in_stock: true);
+        $statuses = new Status(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            filters: $filters
+        );
+        $this->assertCount(1, $statuses->getStatusList(as_stt: true));
 
         $request = $this->createRequest(route_name: 'objectslend_filter_statuses', method: 'POST')
             ->withParsedBody(['clear_filter' => '1']);
@@ -132,7 +137,9 @@ class StatusController extends GaletteRoutingTestCase
         );
         $this->expectFlashData(['success_detected' => ['Status has been saved']]);
 
-        $list = (new Status($this->zdb, $this->preferences, $this->login))->getList(true);
+        $list = (new Status($this->zdb, $this->preferences, $this->login))->getList(
+            as_stt: true
+        );
         $this->assertCount(1, $list);
         $status = $list[0];
         $this->assertSame('Garage', $status->getText());
@@ -179,7 +186,9 @@ class StatusController extends GaletteRoutingTestCase
         $this->expectLogEntry(Analog::ERROR, 'Unable to store status #new');
         $this->expectLogEntry(Analog::ERROR, 'Query error');
         $this->assertSame($text, $this->session->objectslend_status_data['text']);
-        $this->assertCount(0, (new Status($this->zdb, $this->preferences, $this->login))->getList(true));
+        $this->assertCount(0, (new Status($this->zdb, $this->preferences, $this->login))->getList(
+            as_stt: true
+        ));
     }
 
     /**
@@ -188,7 +197,7 @@ class StatusController extends GaletteRoutingTestCase
     public function testRemove(): void
     {
         $this->logSuperAdmin();
-        $status = $this->addStatus('To be removed', true);
+        $status = $this->addStatus('To be removed', in_stock: true);
 
         $test_response = $this->app->handle(
             $this->createRequest(route_name: 'objectslend_remove_status', route_args: ['id' => (string)$status->getId()])
@@ -212,7 +221,7 @@ class StatusController extends GaletteRoutingTestCase
     public function testRemoveUsed(): void
     {
         $this->logSuperAdmin();
-        $status = $this->addStatus('Used status', true);
+        $status = $this->addStatus('Used status', in_stock: true);
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
         $object->setName('Object with history');
@@ -229,7 +238,7 @@ class StatusController extends GaletteRoutingTestCase
                 method: 'POST'
             )->withParsedBody(['confirm' => '1', 'ajax' => 'true']);
             $test_response = $this->app->handle($request);
-            $this->assertSame(['success' => false], json_decode((string)$test_response->getBody(), true));
+            $this->assertSame(['success' => false], json_decode((string)$test_response->getBody(), associative: true));
             $this->expectFlashData([
                 'error_detected' => ['This status is used by lends, it cannot be removed. Deactivate it instead.']
             ]);

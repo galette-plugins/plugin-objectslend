@@ -80,12 +80,12 @@ class ObjectsList extends Pagination
         };
 
         $search = trim($this->filter_str ?? '', '%');
-        if (!in_array($field, $fields, true) || $search === '') {
+        if (!in_array($field, $fields, strict: true) || $search === '') {
             return $html;
         }
 
         //highlight text only, never inside HTML tags
-        $parts = preg_split('/(<[^>]*>)/', $html, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $parts = preg_split(pattern: '/(<[^>]*>)/', subject: $html, limit: -1, flags: PREG_SPLIT_DELIM_CAPTURE);
         if ($parts === false) {
             return $html;
         }
@@ -120,7 +120,7 @@ class ObjectsList extends Pagination
         switch ($name) {
             case 'selected':
                 if (is_array($value)) {
-                    $this->selected = array_map('intval', $value);
+                    $this->selected = array_map(intval(...), $value);
                 } elseif ($value !== null) {
                     $this->warnType($name, 'an array', $value);
                 }

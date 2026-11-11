@@ -186,18 +186,18 @@ final class SampleData
             }
 
             $removed['categories'] = $this->removeUnused(
-                LEND_PREFIX . LendCategory::TABLE,
-                LendCategory::PK,
-                'name',
-                array_column($data['categories'], 'name'),
-                LEND_PREFIX . LendObject::TABLE
+                table: LEND_PREFIX . LendCategory::TABLE,
+                pk: LendCategory::PK,
+                column: 'name',
+                names: array_column($data['categories'], 'name'),
+                referencer: LEND_PREFIX . LendObject::TABLE
             );
             $removed['statuses'] = $this->removeUnused(
-                LEND_PREFIX . LendStatus::TABLE,
-                LendStatus::PK,
-                'status_text',
-                array_column($data['statuses'], 'text'),
-                LEND_PREFIX . LendRent::TABLE
+                table: LEND_PREFIX . LendStatus::TABLE,
+                pk: LendStatus::PK,
+                column: 'status_text',
+                names: array_column($data['statuses'], 'text'),
+                referencer: LEND_PREFIX . LendRent::TABLE
             );
 
             if ($need_transaction) {
@@ -258,7 +258,7 @@ final class SampleData
         if ($contents === false) {
             throw new \RuntimeException(sprintf('Unable to read sample data file %s', $this->file));
         }
-        $data = json_decode($contents, true, flags: JSON_THROW_ON_ERROR);
+        $data = json_decode($contents, associative: true, flags: JSON_THROW_ON_ERROR);
         if (!is_array($data) || !isset($data['categories'], $data['statuses'], $data['objects'])) {
             throw new \RuntimeException(sprintf('Invalid sample data file %s', $this->file));
         }

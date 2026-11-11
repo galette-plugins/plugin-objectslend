@@ -91,19 +91,19 @@ class LendObject extends GaletteTestCase
     public function testCrud(): void
     {
         $objects = new \GaletteObjectsLend\Repository\Objects(
-            $this->zdb,
-            $this->preferences,
-            $this->login,
-            new \GaletteObjectsLend\LendPreferences($this->preferences)
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            lendsprefs: new \GaletteObjectsLend\LendPreferences($this->preferences)
         );
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
 
         $object->setName('An object');
         $object->setCategoryId($this->active_category_id);
-        $object->setActive(true);
+        $object->setActive(active: true);
         $object->setPrice(1500.00);
         $object->setRentPrice(10.00);
-        $object->setPricePerDay(true);
+        $object->setPricePerDay(price_per_day: true);
         $object->setWeight(186.00);
 
         $object->store();
@@ -164,7 +164,7 @@ class LendObject extends GaletteTestCase
         $rm_category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
 
         $rm_category->setName('Category to be removed');
-        $rm_category->setActive(true);
+        $rm_category->setActive(active: true);
         $rm_category->store();
         $category_id = $rm_category->getId();
 
@@ -197,21 +197,21 @@ class LendObject extends GaletteTestCase
     {
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('One active status');
-        $status->setInStock(true);
-        $status->setActive(true);
+        $status->setInStock(in_stock: true);
+        $status->setActive(active: true);
         $status->store();
         $this->active_instock_status = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('Another active status');
-        $status->setInStock(false);
-        $status->setActive(true);
+        $status->setInStock(in_stock: false);
+        $status->setActive(active: true);
         $status->store();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('One inactive status');
-        $status->setInStock(true);
-        $status->setActive(false);
+        $status->setInStock(in_stock: true);
+        $status->setActive(active: false);
         $status->store();
     }
 
@@ -223,7 +223,7 @@ class LendObject extends GaletteTestCase
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
 
         $category->setName('Active test category');
-        $category->setActive(true);
+        $category->setActive(active: true);
 
         $category->store();
         $this->active_category_id = $category->getId();
@@ -232,7 +232,7 @@ class LendObject extends GaletteTestCase
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
 
         $category->setName('Inactive test category');
-        $category->setActive(false);
+        $category->setActive(active: false);
 
         $category->store();
         $this->inactive_category_id = $category->getId();
@@ -265,7 +265,7 @@ class LendObject extends GaletteTestCase
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
         $object->setName('An object');
         $object->setDescription($description);
-        $object->setActive(true);
+        $object->setActive(active: true);
         $object->store();
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb, $object->getId());

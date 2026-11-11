@@ -42,7 +42,7 @@ class CategoriesController extends GaletteRoutingTestCase
     private function addCategory(string $name): LendCategory
     {
         $category = new LendCategory($this->zdb);
-        $category->setName($name)->setActive(true);
+        $category->setName($name)->setActive(active: true);
         $category->store();
         return $category;
     }
@@ -69,8 +69,13 @@ class CategoriesController extends GaletteRoutingTestCase
 
         $filters = $this->session->plugin_objectslend_categories_filter;
         $this->assertSame('<b>', $filters->filter_str);
-        $categories = new Categories($this->zdb, $this->preferences, $this->login, $filters);
-        $this->assertCount(1, $categories->getCategoriesList(true));
+        $categories = new Categories(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            filters: $filters
+        );
+        $this->assertCount(1, $categories->getCategoriesList(as_cat: true));
 
         $test_response = $this->app->handle($this->createRequest(route_name: 'objectslend_categories'));
         $body = (string)$test_response->getBody();
@@ -97,10 +102,12 @@ class CategoriesController extends GaletteRoutingTestCase
         );
         $this->expectFlashData(['success_detected' => ['Category has been saved']]);
 
-        $list = (new Categories($this->zdb, $this->preferences, $this->login))->getList(true);
+        $list = (new Categories($this->zdb, $this->preferences, $this->login))->getList(
+            as_cat: true
+        );
         $this->assertCount(1, $list);
         $category = $list[0];
-        $this->assertSame('Tools', $category->getName(false));
+        $this->assertSame('Tools', $category->getName(count: false));
         $this->assertTrue($category->isActive());
 
         $test_response = $this->app->handle(
@@ -118,7 +125,7 @@ class CategoriesController extends GaletteRoutingTestCase
         $this->expectFlashData(['success_detected' => ['Category has been saved']]);
 
         $category = new LendCategory($this->zdb, $category->getId());
-        $this->assertSame('Tools (edited)', $category->getName(false));
+        $this->assertSame('Tools (edited)', $category->getName(count: false));
         $this->assertFalse($category->isActive());
     }
 

@@ -28,7 +28,7 @@ class Rents
      *
      * @param Db $zdb Database instance
      */
-    public function __construct(private Db $zdb)
+    public function __construct(private readonly Db $zdb)
     {
     }
 
@@ -44,10 +44,10 @@ class Rents
     {
         $select = $this->zdb->select(LEND_PREFIX . LendRent::TABLE, 'r')
             ->join(
-                ['a' => PREFIX_DB . Adherent::TABLE],
-                'a.' . Adherent::PK . ' = r.adherent_id',
-                ['prenom_adh', 'nom_adh'],
-                Select::JOIN_LEFT
+                name: ['a' => PREFIX_DB . Adherent::TABLE],
+                on: 'a.' . Adherent::PK . ' = r.adherent_id',
+                columns: ['prenom_adh', 'nom_adh'],
+                type: Select::JOIN_LEFT
             )
             ->join(
                 ['s' => PREFIX_DB . LEND_PREFIX . LendStatus::TABLE],

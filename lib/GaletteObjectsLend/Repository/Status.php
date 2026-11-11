@@ -58,7 +58,13 @@ class Status extends AbstractRepository
      */
     public function __construct(Db $zdb, Preferences $preferences, Login $login, ?StatusList $filters = null)
     {
-        parent::__construct($zdb, $preferences, $login, 'LendStatus', $filters ?? new StatusList());
+        parent::__construct(
+            zdb: $zdb,
+            preferences: $preferences,
+            login: $login,
+            entity: 'LendStatus',
+            filters: $filters ?? new StatusList()
+        );
     }
 
     /**
@@ -84,7 +90,7 @@ class Status extends AbstractRepository
      */
     public function getList(bool $as_stt = false): array|ResultSet
     {
-        return $this->fetchList($as_stt, false, false);
+        return $this->fetchList($as_stt, count: false, limit: false);
     }
 
     /**
@@ -145,7 +151,7 @@ class Status extends AbstractRepository
      */
     public function getActiveTakeAwayStatuses(): array
     {
-        return $this->getActiveStatuses(false);
+        return $this->getActiveStatuses(in_stock: false);
     }
 
     /**
@@ -155,7 +161,7 @@ class Status extends AbstractRepository
      */
     public function getActiveStockStatuses(): array
     {
-        return $this->getActiveStatuses(true);
+        return $this->getActiveStatuses(in_stock: true);
     }
 
     /**

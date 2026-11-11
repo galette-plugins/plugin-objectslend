@@ -44,10 +44,10 @@ class LendService
      * @param LendPreferences $lendsprefs  Plugin preferences
      */
     public function __construct(
-        private Db $zdb,
-        private CorePreferences $preferences,
-        private Login $login,
-        private LendPreferences $lendsprefs
+        private readonly Db $zdb,
+        private readonly CorePreferences $preferences,
+        private readonly Login $login,
+        private readonly LendPreferences $lendsprefs
     ) {
     }
 
@@ -58,7 +58,12 @@ class LendService
      */
     public function getObject(int $id): LendObject
     {
-        return (new Objects($this->zdb, $this->preferences, $this->login, $this->lendsprefs))->getWithCurrentRent($id);
+        return (new Objects(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            lendsprefs: $this->lendsprefs
+        ))->getWithCurrentRent($id);
     }
 
     /**
@@ -175,10 +180,21 @@ class LendService
         }
 
         return $this->inTransaction(function () use ($object, $status_id, $member_id, $date_forecast, $rent_price, $payment_type) {
-            $rent = $this->openRent($object, $status_id, $member_id, '', $date_forecast);
+            $rent = $this->openRent(
+                object: $object,
+                status_id: $status_id,
+                member_id: $member_id,
+                comments: '',
+                date_forecast: $date_forecast
+            );
 
             if ($this->lendsprefs->isEnabled(LendPreferences::AUTO_GENERATE_CONTRIBUTION) && $rent_price > 0) {
-                return $this->storeContribution($object, $rent, $rent_price, $payment_type);
+                return $this->storeContribution(
+                    object: $object,
+                    rent: $rent,
+                    amount: $rent_price,
+                    payment_type: $payment_type
+                );
             }
             return null;
         });
@@ -215,7 +231,7 @@ class LendService
         }
 
         return $this->inTransaction(
-            fn() => $this->openRent($object, $status_id, null, $comments)
+            fn() => $this->openRent(object: $object, status_id: $status_id, member_id: null, comments: $comments)
         );
     }
 
@@ -253,7 +269,7 @@ class LendService
         }
 
         return $this->inTransaction(
-            fn() => $this->openRent($object, $status_id, $member_id, $comments)
+            fn() => $this->openRent(object: $object, status_id: $status_id, member_id: $member_id, comments: $comments)
         );
     }
 
@@ -294,10 +310,10 @@ class LendService
                     continue;
                 }
                 $this->openRent(
-                    $this->getObject($object_id),
-                    $status_id,
-                    null,
-                    _T("Returned on member removal", "objectslend")
+                    object: $this->getObject($object_id),
+                    status_id: $status_id,
+                    member_id: null,
+                    comments: _T("Returned on member removal", "objectslend")
                 );
             }
         });
@@ -407,9 +423,24 @@ class LendService
                 $object->getName(),
                 $object->getDescription(),
                 $object->getSerialNumber(),
-                number_format($object->getPrice(), 2, ',', ' '),
-                number_format($object->getRentPrice(), 2, ',', ' '),
-                number_format($object->getWeight(), 3, ',', ' '),
+                number_format(
+                    num: $object->getPrice(),
+                    decimals: 2,
+                    decimal_separator: ',',
+                    thousands_separator: ' '
+                ),
+                number_format(
+                    num: $object->getRentPrice(),
+                    decimals: 2,
+                    decimal_separator: ',',
+                    thousands_separator: ' '
+                ),
+                number_format(
+                    num: $object->getWeight(),
+                    decimals: 3,
+                    decimal_separator: ',',
+                    thousands_separator: ' '
+                ),
                 $object->getDimension()
             ],
             $this->lendsprefs->getContributionText()
@@ -447,10 +478,7 @@ class LendService
                 'Unable to store contribution for object #' . $object->getId() . ': ' . $e->getMessage(),
                 Analog::ERROR
             );
-            throw new LendException(
-                _T("An error occurred while storing the contribution.", "objectslend"),
-                previous: $e
-            );
+            throw new LendException(_T("An error occurred while storing the contribution.", "objectslend"), $e->getCode(), previous: $e);
         }
 
         return $contrib;

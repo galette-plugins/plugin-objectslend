@@ -78,7 +78,7 @@ class LendObject
      * @param Db                                 $zdb  Database instance
      * @param int|ArrayObject<string,mixed>|null $args Maybe null, an RS object or an id from database
      */
-    public function __construct(private Db $zdb, int|ArrayObject|null $args = null)
+    public function __construct(private readonly Db $zdb, int|ArrayObject|null $args = null)
     {
         if (is_int($args)) {
             $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
@@ -202,7 +202,7 @@ class LendObject
             }
             //a picture file removed here comes back from the database on rollback
             $picture = $this->getPicture();
-            if ($picture->hasPicture() && !$picture->delete(false)) {
+            if ($picture->hasPicture() && !$picture->delete(transaction: false)) {
                 throw new \RuntimeException('Unable to remove picture');
             }
             //remove rents

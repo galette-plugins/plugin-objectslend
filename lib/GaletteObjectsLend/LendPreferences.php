@@ -23,7 +23,7 @@ use Galette\IO\UploadSize;
  *
  * @author Johan Cwiklinski <johan@x-tnd.be>
  */
-final class LendPreferences
+final readonly class LendPreferences
 {
     public const string PREFIX = 'pref_objectslend_';
 
@@ -67,7 +67,7 @@ final class LendPreferences
      *
      * @param Preferences $preferences Core preferences
      */
-    public function __construct(private readonly Preferences $preferences)
+    public function __construct(private Preferences $preferences)
     {
     }
 

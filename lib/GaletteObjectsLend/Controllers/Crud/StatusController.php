@@ -79,8 +79,13 @@ class StatusController extends AbstractListController
      */
     protected function getListView(Pagination $filters): array
     {
-        $statuses = new Status($this->zdb, $this->preferences, $this->login, $filters);
-        $list = $statuses->getStatusList(true);
+        $statuses = new Status(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            filters: $filters
+        );
+        $list = $statuses->getStatusList(as_stt: true);
 
         if (count($statuses->getActiveStockStatuses()) == 0) {
             $this->flash->addMessage(
@@ -128,7 +133,7 @@ class StatusController extends AbstractListController
             ->setText($post['text'])
             ->setInStock(isset($post['in_stock']))
             ->setActive(isset($post['is_active']))
-            ->setRentDayNumber(strlen($days) > 0 ? (int)$days : null);
+            ->setRentDayNumber($days !== '' ? (int)$days : null);
     }
 
     /**

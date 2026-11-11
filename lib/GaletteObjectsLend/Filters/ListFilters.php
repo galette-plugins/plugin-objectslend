@@ -134,7 +134,7 @@ trait ListFilters
      */
     protected function toChoice(string $name, mixed $value, array $choices): ?int
     {
-        if (is_numeric($value) && in_array((int)$value, $choices, true)) {
+        if (is_numeric($value) && in_array((int)$value, $choices, strict: true)) {
             return (int)$value;
         }
 
@@ -144,7 +144,7 @@ trait ListFilters
                 static::class,
                 $name,
                 implode(', ', $choices),
-                var_export($value, true)
+                var_export($value, return: true)
             ),
             Analog::WARNING
         );

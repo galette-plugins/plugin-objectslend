@@ -59,7 +59,13 @@ class Categories extends AbstractRepository
      */
     public function __construct(Db $zdb, Preferences $preferences, Login $login, ?CategoriesList $filters = null)
     {
-        parent::__construct($zdb, $preferences, $login, 'LendCategory', $filters ?? new CategoriesList());
+        parent::__construct(
+            zdb: $zdb,
+            preferences: $preferences,
+            login: $login,
+            entity: 'LendCategory',
+            filters: $filters ?? new CategoriesList()
+        );
     }
 
     /**
@@ -85,7 +91,7 @@ class Categories extends AbstractRepository
      */
     public function getList(bool $as_cat = false): array|ResultSet
     {
-        return $this->fetchList($as_cat, false, false);
+        return $this->fetchList($as_cat, count: false, limit: false);
     }
 
     /**
@@ -101,20 +107,20 @@ class Categories extends AbstractRepository
         ]);
 
         $select->join(
-            ['o' => PREFIX_DB . LEND_PREFIX . LendObject::TABLE],
-            'o.' . LendCategory::PK . '=c.' . LendCategory::PK,
-            [],
-            $select::JOIN_LEFT
+            name: ['o' => PREFIX_DB . LEND_PREFIX . LendObject::TABLE],
+            on: 'o.' . LendCategory::PK . '=c.' . LendCategory::PK,
+            columns: [],
+            type: $select::JOIN_LEFT
         );
 
         //categories of filtered objects only
         if ($this->filters->objects_filters instanceof ObjectsList) {
             $objects = new Objects(
-                $this->zdb,
-                $this->preferences,
-                $this->login,
-                new LendPreferences($this->preferences),
-                $this->filters->objects_filters
+                zdb: $this->zdb,
+                preferences: $this->preferences,
+                login: $this->login,
+                lendsprefs: new LendPreferences($this->preferences),
+                filters: $this->filters->objects_filters
             );
             $objects->applyFilters($select);
         }

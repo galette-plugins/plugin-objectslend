@@ -24,8 +24,6 @@ class LendStatus
     public const string TABLE = 'status';
     public const string PK = 'status_id';
 
-    private Db $zdb;
-
     /** @var array<string,string> */
     private array $fields = [
         'status_id' => 'integer',
@@ -46,10 +44,8 @@ class LendStatus
      * @param Db                                 $zdb  Database instance
      * @param int|ArrayObject<string,mixed>|null $args Can be null, an ID or a database row
      */
-    public function __construct(Db $zdb, int|ArrayObject|null $args = null)
+    public function __construct(private readonly Db $zdb, int|ArrayObject|null $args = null)
     {
-        $this->zdb = $zdb;
-
         if (is_int($args)) {
             $select = $this->zdb->select(LEND_PREFIX . self::TABLE)
                     ->where([self::PK => $args]);

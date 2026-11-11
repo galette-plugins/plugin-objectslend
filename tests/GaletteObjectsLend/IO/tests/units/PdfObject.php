@@ -46,7 +46,7 @@ class PdfObject extends GaletteTestCase
         $object->setDescription(
             '<p>A <strong>nice</strong> object</p><img src="' . realpath(GALETTE_ROOT . '../tests/fake_image.jpg') . '" alt=""/>'
         );
-        $object->setActive(true);
+        $object->setActive(active: true);
         $object->store();
         //no picture of its own: any image in the card would come from the description
         $this->assertFalse($object->getPicture()->hasPicture());
