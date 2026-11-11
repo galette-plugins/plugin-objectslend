@@ -125,7 +125,7 @@ class LendRent extends GaletteTestCase
         $this->assertCount(2, $object_rents);
 
         //only last
-        $object_rents = (new \GaletteObjectsLend\Repository\Rents($this->zdb))->getForObject($oid, true);
+        $object_rents = (new \GaletteObjectsLend\Repository\Rents($this->zdb))->getForObject($oid, only_last: true);
         $this->assertCount(1, $object_rents);
 
         //close all rents
@@ -196,22 +196,22 @@ class LendRent extends GaletteTestCase
     {
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('One active status');
-        $status->setInStock(true);
-        $status->setActive(true);
+        $status->setInStock(in_stock: true);
+        $status->setActive(active: true);
         $status->store();
         $this->active_instock_status = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('Another active status');
-        $status->setInStock(false);
-        $status->setActive(true);
+        $status->setInStock(in_stock: false);
+        $status->setActive(active: true);
         $status->store();
         $this->active_notinstock_status = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('One inactive status');
-        $status->setInStock(true);
-        $status->setActive(false);
+        $status->setInStock(in_stock: true);
+        $status->setActive(active: false);
         $status->store();
     }
 }

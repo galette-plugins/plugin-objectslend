@@ -75,10 +75,16 @@ class Objects extends AbstractRepository
         Db $zdb,
         Preferences $preferences,
         Login $login,
-        private LendPreferences $lendsprefs,
+        private readonly LendPreferences $lendsprefs,
         ?ObjectsList $filters = null
     ) {
-        parent::__construct($zdb, $preferences, $login, 'LendObject', $filters ?? new ObjectsList());
+        parent::__construct(
+            zdb: $zdb,
+            preferences: $preferences,
+            login: $login,
+            entity: 'LendObject',
+            filters: $filters ?? new ObjectsList()
+        );
     }
 
     /**
@@ -104,7 +110,7 @@ class Objects extends AbstractRepository
      */
     public function getList(bool $as_objects = false): array|ResultSet
     {
-        return $this->fetchList($as_objects, false, false);
+        return $this->fetchList($as_objects, count: false, limit: false);
     }
 
     /**
@@ -123,7 +129,7 @@ class Objects extends AbstractRepository
             //a picture file removed here comes back from the database on rollback
             foreach ($ids as $id) {
                 $picture = new ObjectPicture($id);
-                if ($picture->hasPicture() && !$picture->delete(false)) {
+                if ($picture->hasPicture() && !$picture->delete(transaction: false)) {
                     throw new \RuntimeException('Unable to remove picture for object #' . $id);
                 }
             }
@@ -160,31 +166,31 @@ class Objects extends AbstractRepository
         $select = $this->zdb->select(LEND_PREFIX . self::TABLE, 'o');
 
         $select->join(
-            ['r' => PREFIX_DB . LEND_PREFIX . LendRent::TABLE],
-            'o.' . LendRent::PK . '=r.' . LendRent::PK,
-            ['date_begin', 'date_forecast', 'date_end', 'comments'],
-            $select::JOIN_LEFT
+            name: ['r' => PREFIX_DB . LEND_PREFIX . LendRent::TABLE],
+            on: 'o.' . LendRent::PK . '=r.' . LendRent::PK,
+            columns: ['date_begin', 'date_forecast', 'date_end', 'comments'],
+            type: $select::JOIN_LEFT
         );
 
         $select->join(
-            ['s' => PREFIX_DB . LEND_PREFIX . LendStatus::TABLE],
-            'r.' . LendStatus::PK . '=s.' . LendStatus::PK,
-            ['status_id', 'status_text', 'in_stock'],
-            $select::JOIN_LEFT
+            name: ['s' => PREFIX_DB . LEND_PREFIX . LendStatus::TABLE],
+            on: 'r.' . LendStatus::PK . '=s.' . LendStatus::PK,
+            columns: ['status_id', 'status_text', 'in_stock'],
+            type: $select::JOIN_LEFT
         );
 
         $select->join(
-            ['a' => PREFIX_DB . Adherent::TABLE],
-            'r.adherent_id=a.' . Adherent::PK,
-            [Adherent::PK, 'nom_adh', 'prenom_adh'],
-            $select::JOIN_LEFT
+            name: ['a' => PREFIX_DB . Adherent::TABLE],
+            on: 'r.adherent_id=a.' . Adherent::PK,
+            columns: [Adherent::PK, 'nom_adh', 'prenom_adh'],
+            type: $select::JOIN_LEFT
         );
 
         $select->join(
-            ['c' => PREFIX_DB . LEND_PREFIX . LendCategory::TABLE],
-            'o.' . LendCategory::PK . '=c.' . LendCategory::PK,
-            ['cat_active'   => 'is_active', 'cat_name' => 'name'],
-            $select::JOIN_LEFT
+            name: ['c' => PREFIX_DB . LEND_PREFIX . LendCategory::TABLE],
+            on: 'o.' . LendCategory::PK . '=c.' . LendCategory::PK,
+            columns: ['cat_active'   => 'is_active', 'cat_name' => 'name'],
+            type: $select::JOIN_LEFT
         );
 
         return $select;

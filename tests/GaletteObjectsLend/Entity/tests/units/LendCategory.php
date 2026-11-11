@@ -38,7 +38,7 @@ class LendCategory extends GaletteTestCase
     {
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
         $this->assertSame('No category (0)', $category->getName());
-        $this->assertSame('No category', $category->getName(false));
+        $this->assertSame('No category', $category->getName(count: false));
         $this->assertInstanceOf(\GaletteObjectsLend\Entity\CategoryPicture::class, $category->getPicture());
         $this->assertSame(0.0, $category->getSum());
         $this->assertSame(0, $category->getObjectsNb());
@@ -47,8 +47,8 @@ class LendCategory extends GaletteTestCase
 
         $category = new \GaletteObjectsLend\Entity\LendCategory(
             $this->zdb,
-            null,
-            ['picture' => false]
+            args: null,
+            deps: ['picture' => false]
         );
         $this->assertNull($category->getPicture());
     }
@@ -61,7 +61,7 @@ class LendCategory extends GaletteTestCase
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
 
         $category->setName('Test category');
-        $category->setActive(false);
+        $category->setActive(active: false);
 
         $category->store();
         $cid = $category->getId();

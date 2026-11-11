@@ -43,8 +43,6 @@ class LendCategory
         'picture'   => true
     ];
 
-    private Db $zdb;
-
     /**
      * Default constructor
      *
@@ -52,10 +50,8 @@ class LendCategory
      * @param int|ArrayObject<string,mixed>|null $args Maybe null, an RS object or an id from database
      * @param ?array<string,bool>                $deps Dependencies configuration, see LendCategory::$deps
      */
-    public function __construct(Db $zdb, int|ArrayObject|null $args = null, ?array $deps = null)
+    public function __construct(private readonly Db $zdb, int|ArrayObject|null $args = null, ?array $deps = null)
     {
-        $this->zdb = $zdb;
-
         if ($deps !== null) {
             $this->deps = array_merge(
                 $this->deps,
@@ -156,7 +152,7 @@ class LendCategory
             }
             //a picture file removed here comes back from the database on rollback
             $picture = new CategoryPicture($this->category_id);
-            if ($picture->hasPicture() && !$picture->delete(false)) {
+            if ($picture->hasPicture() && !$picture->delete(transaction: false)) {
                 throw new \RuntimeException('Unable to remove picture');
             }
             $select = $this->zdb->select(LEND_PREFIX . LendObject::TABLE)
@@ -191,7 +187,7 @@ class LendCategory
      */
     public function getName(bool $count = true): string
     {
-        $name = $this->name !== null ? $this->name : _T("No category", "objectslend");
+        $name = $this->name ?? _T("No category", "objectslend");
 
         if ($count === true) {
             $name .= " ({$this->objects_nb})";

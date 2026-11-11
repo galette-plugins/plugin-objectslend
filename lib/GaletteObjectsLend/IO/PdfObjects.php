@@ -28,10 +28,6 @@ class PdfObjects extends Pdf
 {
     public const int LIST_FONT = self::FONT_SIZE - 2;
 
-    private Db $zdb;
-    private LendPreferences $lendsprefs;
-    private Login $login;
-
     /**
      * Main constructor, set creator and author
      *
@@ -41,20 +37,17 @@ class PdfObjects extends Pdf
      * @param Login           $login      Login instance
      */
     public function __construct(
-        Db $zdb,
+        private readonly Db $zdb,
         Preferences $prefs,
-        LendPreferences $lendsprefs,
-        Login $login,
+        private readonly LendPreferences $lendsprefs,
+        private readonly Login $login,
     ) {
         parent::__construct($prefs);
         // Enable Auto Page breaks
-        $this->SetAutoPageBreak(true, $this->footer_height + 10);
+        $this->SetAutoPageBreak(auto: true, margin: $this->footer_height + 10);
 
         //TRANS: this is a filename
         $this->filename = _T('objects_cards', 'objectslend') . '.pdf';
-        $this->zdb = $zdb;
-        $this->lendsprefs = $lendsprefs;
-        $this->login = $login;
     }
 
     /**
@@ -86,26 +79,39 @@ class PdfObjects extends Pdf
         // @phpcs:enable
         $this->SetFont(Pdf::FONT, 'B');
         $x = $this->getX();
-        $this->Cell(0, 10, _T("Objects list", "objectslend"), 0, 0, 'C', false, '', 0, false, 'M', 'M');
+        $this->Cell(
+            w: 0,
+            h: 10,
+            txt: _T("Objects list", "objectslend"),
+            border: 0,
+            ln: 0,
+            align: 'C',
+            fill: false,
+            link: '',
+            stretch: 0,
+            ignore_min_height: false,
+            calign: 'M',
+            valign: 'M'
+        );
         $this->SetFont(Pdf::FONT, '', self::LIST_FONT);
         $this->setX($x);
         $this->Cell(
-            0,
-            10,
-            str_replace(
+            w: 0,
+            h: 10,
+            txt: str_replace(
                 '%date',
                 date(_T("Y-m-d")),
                 _T("Printed on %date", "objectslend")
             ),
-            0,
-            0,
-            'R',
-            false,
-            '',
-            0,
-            false,
-            'M',
-            'M'
+            border: 0,
+            ln: 0,
+            align: 'R',
+            fill: false,
+            link: '',
+            stretch: 0,
+            ignore_min_height: false,
+            calign: 'M',
+            valign: 'M'
         );
     }
 
@@ -132,18 +138,114 @@ class PdfObjects extends Pdf
         $w_date = 22;
         $w_adherent = 26;
 
-        $this->Cell($w_checkbox, 0, $this->stretchHead('', $w_checkbox), 1, 0, 'C', true);
-        $this->Cell($w_name, 0, $this->stretchHead(_T("Name", "objectslend"), $w_name), 1, 0, 'C', true);
-        $this->Cell($w_description, 0, $this->stretchHead(_T("Description", "objectslend"), $w_description), 1, 0, 'C', true);
-        $this->Cell($w_serial, 0, $this->stretchHead(_T("Serial", "objectslend"), $w_serial), 1, 0, 'C', true);
-        $this->Cell($w_price, 0, $this->stretchHead(_T("Price", "objectslend"), $w_price), 1, 0, 'C', true);
-        $this->Cell($w_price, 0, $this->stretchHead(_T("Borrow price", "objectslend"), $w_price), 1, 0, 'C', true);
-        $this->Cell($w_dimension, 0, $this->stretchHead(_T("Dimensions", "objectslend"), $w_dimension), 1, 0, 'C', true);
-        $this->Cell($w_weight, 0, $this->stretchHead(_T("Weight", "objectslend"), $w_weight), 1, 0, 'C', true);
-        $this->Cell($w_status, 0, $this->stretchHead(_T("Status", "objectslend"), $w_status), 1, 0, 'C', true);
-        $this->Cell($w_date, 0, $this->stretchHead(_T("Since", "objectslend"), $w_date), 1, 0, 'C', true);
-        $this->Cell($w_adherent, 0, $this->stretchHead(_T("Member", "objectslend"), $w_adherent), 1, 0, 'C', true);
-        $this->Cell($w_date, 0, $this->stretchHead(_T("Return", "objectslend"), $w_date), 1, 1, 'C', true);
+        $this->Cell(
+            w: $w_checkbox,
+            h: 0,
+            txt: $this->stretchHead('', $w_checkbox),
+            border: 1,
+            ln: 0,
+            align: 'C',
+            fill: true
+        );
+        $this->Cell(
+            w: $w_name,
+            h: 0,
+            txt: $this->stretchHead(_T("Name", "objectslend"), $w_name),
+            border: 1,
+            ln: 0,
+            align: 'C',
+            fill: true
+        );
+        $this->Cell(
+            w: $w_description,
+            h: 0,
+            txt: $this->stretchHead(_T("Description", "objectslend"), $w_description),
+            border: 1,
+            ln: 0,
+            align: 'C',
+            fill: true
+        );
+        $this->Cell(
+            w: $w_serial,
+            h: 0,
+            txt: $this->stretchHead(_T("Serial", "objectslend"), $w_serial),
+            border: 1,
+            ln: 0,
+            align: 'C',
+            fill: true
+        );
+        $this->Cell(
+            w: $w_price,
+            h: 0,
+            txt: $this->stretchHead(_T("Price", "objectslend"), $w_price),
+            border: 1,
+            ln: 0,
+            align: 'C',
+            fill: true
+        );
+        $this->Cell(
+            w: $w_price,
+            h: 0,
+            txt: $this->stretchHead(_T("Borrow price", "objectslend"), $w_price),
+            border: 1,
+            ln: 0,
+            align: 'C',
+            fill: true
+        );
+        $this->Cell(
+            w: $w_dimension,
+            h: 0,
+            txt: $this->stretchHead(_T("Dimensions", "objectslend"), $w_dimension),
+            border: 1,
+            ln: 0,
+            align: 'C',
+            fill: true
+        );
+        $this->Cell(
+            w: $w_weight,
+            h: 0,
+            txt: $this->stretchHead(_T("Weight", "objectslend"), $w_weight),
+            border: 1,
+            ln: 0,
+            align: 'C',
+            fill: true
+        );
+        $this->Cell(
+            w: $w_status,
+            h: 0,
+            txt: $this->stretchHead(_T("Status", "objectslend"), $w_status),
+            border: 1,
+            ln: 0,
+            align: 'C',
+            fill: true
+        );
+        $this->Cell(
+            w: $w_date,
+            h: 0,
+            txt: $this->stretchHead(_T("Since", "objectslend"), $w_date),
+            border: 1,
+            ln: 0,
+            align: 'C',
+            fill: true
+        );
+        $this->Cell(
+            w: $w_adherent,
+            h: 0,
+            txt: $this->stretchHead(_T("Member", "objectslend"), $w_adherent),
+            border: 1,
+            ln: 0,
+            align: 'C',
+            fill: true
+        );
+        $this->Cell(
+            w: $w_date,
+            h: 0,
+            txt: $this->stretchHead(_T("Return", "objectslend"), $w_date),
+            border: 1,
+            ln: 1,
+            align: 'C',
+            fill: true
+        );
 
         $this->SetFont('');
 
@@ -164,7 +266,14 @@ class PdfObjects extends Pdf
 
                 if (($this->login->isAdmin() || $this->login->isStaff()) && $sum_price > 0) {
                     $width = $w_checkbox + $w_name + $w_description + $w_serial + $w_price;
-                    $this->Cell($width, 0, number_format($sum_price, 2, ',', ''), '', 0, 'R');
+                    $this->Cell(
+                        w: $width,
+                        h: 0,
+                        txt: number_format(num: $sum_price, decimals: 2, decimal_separator: ',', thousands_separator: ''),
+                        border: '',
+                        ln: 0,
+                        align: 'R'
+                    );
                     $sum_price = 0;
                     $this->Ln();
                 }
@@ -173,13 +282,13 @@ class PdfObjects extends Pdf
                     $category = new LendCategory($this->zdb, $category_id);
                     $text = str_replace(
                         '%category',
-                        $category->getName(false),
+                        $category->getName(count: false),
                         _T("Category: %category", "objectslend")
                     );
                 } else {
                     $text = _T("No category", "objectslend");
                 }
-                $this->Cell(0, 0, $text, 0, 1, 'C');
+                $this->Cell(w: 0, h: 0, txt: $text, border: 0, ln: 1, align: 'C');
                 $current_category = $category_id;
 
                 $this->SetFont('');
@@ -192,18 +301,121 @@ class PdfObjects extends Pdf
             }
 
             $fill = !$object->inStock();
-            $this->Cell($w_checkbox, 0, '□', 'B', 0, 'L', $fill);
-            $this->Cell($w_name, 0, $this->cut($object->getName(), $w_name), 'B', 0, 'L', $fill);
-            $this->Cell($w_description, 0, $this->cut($this->oneLine($object->getDescriptionHtml()), $w_description), 'B', 0, 'L', $fill);
-            $this->Cell($w_serial, 0, $this->cut($object->getSerialNumber(), $w_serial), 'B', 0, 'L', $fill);
-            $this->Cell($w_price, 0, $this->cut(number_format($object->getPrice(), 2, ',', ' '), $w_price), 'B', 0, 'R', $fill);
-            $this->Cell($w_price, 0, $this->cut(number_format($object->getRentPrice(), 2, ',', ' '), $w_price) . '€', 'B', 0, 'R', $fill);
-            $this->Cell($w_dimension, 0, $this->cut($object->getDimension(), $w_dimension), 'B', 0, 'L', $fill);
-            $this->Cell($w_weight, 0, $this->cut(number_format($object->getWeight(), 3, ',', ' '), $w_weight), 'B', 0, 'R', $fill);
-            $this->Cell($w_status, 0, $this->cut($object->getStatusText(), $w_status), 'B', 0, 'L', $fill);
-            $this->Cell($w_date, 0, $this->cut($object->getDateBegin(), $w_date), 'B', 0, 'L', $fill);
-            $this->Cell($w_adherent, 0, $this->cut($object->getMemberName(), $w_adherent), 'B', 0, 'L', $fill);
-            $this->Cell($w_date, 0, $this->cut($object->getDateForecast(), $w_date), 'B', 1, 'L', $fill);
+            $this->Cell(w: $w_checkbox, h: 0, txt: '□', border: 'B', ln: 0, align: 'L', fill: $fill);
+            $this->Cell(
+                w: $w_name,
+                h: 0,
+                txt: $this->cut($object->getName(), $w_name),
+                border: 'B',
+                ln: 0,
+                align: 'L',
+                fill: $fill
+            );
+            $this->Cell(
+                w: $w_description,
+                h: 0,
+                txt: $this->cut($this->oneLine($object->getDescriptionHtml()), $w_description),
+                border: 'B',
+                ln: 0,
+                align: 'L',
+                fill: $fill
+            );
+            $this->Cell(
+                w: $w_serial,
+                h: 0,
+                txt: $this->cut($object->getSerialNumber(), $w_serial),
+                border: 'B',
+                ln: 0,
+                align: 'L',
+                fill: $fill
+            );
+            $this->Cell(
+                w: $w_price,
+                h: 0,
+                txt: $this->cut(number_format(
+                    num: $object->getPrice(),
+                    decimals: 2,
+                    decimal_separator: ',',
+                    thousands_separator: ' '
+                ), $w_price),
+                border: 'B',
+                ln: 0,
+                align: 'R',
+                fill: $fill
+            );
+            $this->Cell(
+                w: $w_price,
+                h: 0,
+                txt: $this->cut(number_format(
+                    num: $object->getRentPrice(),
+                    decimals: 2,
+                    decimal_separator: ',',
+                    thousands_separator: ' '
+                ), $w_price) . '€',
+                border: 'B',
+                ln: 0,
+                align: 'R',
+                fill: $fill
+            );
+            $this->Cell(
+                w: $w_dimension,
+                h: 0,
+                txt: $this->cut($object->getDimension(), $w_dimension),
+                border: 'B',
+                ln: 0,
+                align: 'L',
+                fill: $fill
+            );
+            $this->Cell(
+                w: $w_weight,
+                h: 0,
+                txt: $this->cut(number_format(
+                    num: $object->getWeight(),
+                    decimals: 3,
+                    decimal_separator: ',',
+                    thousands_separator: ' '
+                ), $w_weight),
+                border: 'B',
+                ln: 0,
+                align: 'R',
+                fill: $fill
+            );
+            $this->Cell(
+                w: $w_status,
+                h: 0,
+                txt: $this->cut($object->getStatusText(), $w_status),
+                border: 'B',
+                ln: 0,
+                align: 'L',
+                fill: $fill
+            );
+            $this->Cell(
+                w: $w_date,
+                h: 0,
+                txt: $this->cut($object->getDateBegin(), $w_date),
+                border: 'B',
+                ln: 0,
+                align: 'L',
+                fill: $fill
+            );
+            $this->Cell(
+                w: $w_adherent,
+                h: 0,
+                txt: $this->cut($object->getMemberName(), $w_adherent),
+                border: 'B',
+                ln: 0,
+                align: 'L',
+                fill: $fill
+            );
+            $this->Cell(
+                w: $w_date,
+                h: 0,
+                txt: $this->cut($object->getDateForecast(), $w_date),
+                border: 'B',
+                ln: 1,
+                align: 'L',
+                fill: $fill
+            );
 
             if ($this->login->isAdmin() || $this->login->isStaff()) {
                 $sum_price += $object->getPrice();
@@ -213,20 +425,34 @@ class PdfObjects extends Pdf
 
         if (($this->login->isAdmin() || $this->login->isStaff())) {
             $width = $w_checkbox + $w_name + $w_description + $w_serial + $w_price;
-            $this->Cell($width, 0, number_format($sum_price, 2, ',', ''), '', 0, 'R');
+            $this->Cell(
+                w: $width,
+                h: 0,
+                txt: number_format(num: $sum_price, decimals: 2, decimal_separator: ',', thousands_separator: ''),
+                border: '',
+                ln: 0,
+                align: 'R'
+            );
             $this->Ln();
             $this->Ln();
 
-            $this->Cell($width, 0, _T("Total:", "objectslend") . ' ' . number_format($grant_total, 2, ',', ''), '', 0, 'R');
+            $this->Cell(
+                w: $width,
+                h: 0,
+                txt: _T("Total:", "objectslend") . ' ' . number_format(num: $grant_total, decimals: 2, decimal_separator: ',', thousands_separator: ''),
+                border: '',
+                ln: 0,
+                align: 'R'
+            );
             $this->Ln();
         }
 
         $this->Ln();
 
-        $this->Cell($w_price, 0, '', true, 0, '', true);
-        $this->Cell(0, 0, _T("Borrowed", "objectslend"), 0, 1);
-        $this->Cell($w_price, 0, '', true);
-        $this->Cell(0, 0, _T("Available", "objectslend"), 0, 1);
+        $this->Cell(w: $w_price, h: 0, txt: '', border: true, ln: 0, align: '', fill: true);
+        $this->Cell(w: 0, h: 0, txt: _T("Borrowed", "objectslend"), border: 0, ln: 1);
+        $this->Cell(w: $w_price, h: 0, txt: '', border: true);
+        $this->Cell(w: 0, h: 0, txt: _T("Available", "objectslend"), border: 0, ln: 1);
     }
 
     /**

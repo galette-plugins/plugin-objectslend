@@ -44,64 +44,69 @@ class Categories extends GaletteTestCase
         $rs_list = $categories->getList();
         $this->assertInstanceOf(\Laminas\Db\ResultSet\ResultSet::class, $rs_list);
         $this->assertSame(0, $rs_list->count());
-        $this->assertSame([], $categories->getList(true));
+        $this->assertSame([], $categories->getList(as_cat: true));
         $this->assertNull($categories->getCount());
 
-        $this->assertSame([], $categories->getCategoriesList(true));
+        $this->assertSame([], $categories->getCategoriesList(as_cat: true));
         $this->assertSame(0, $categories->getCount());
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
         $category->setName('One category');
-        $category->setActive(true);
+        $category->setActive(active: true);
         $category->store();
         $cat_one_id = $category->getId();
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
         $category->setName('Another category');
-        $category->setActive(true);
+        $category->setActive(active: true);
         $category->store();
         $cat_two_id = $category->getId();
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
         $category->setName('Yet another category');
-        $category->setActive(false);
+        $category->setActive(active: false);
         $category->store();
 
         $filters = new \GaletteObjectsLend\Filters\CategoriesList();
-        $categories = new \GaletteObjectsLend\Repository\Categories($this->zdb, $this->preferences, $this->login, $filters);
+        $categories = new \GaletteObjectsLend\Repository\Categories(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            filters: $filters
+        );
 
-        $this->assertCount(3, $categories->getCategoriesList(true));
+        $this->assertCount(3, $categories->getCategoriesList(as_cat: true));
         $this->assertSame(3, $categories->getCount());
 
         $filters->filter_str = 'category';
-        $this->assertCount(3, $categories->getCategoriesList(true));
+        $this->assertCount(3, $categories->getCategoriesList(as_cat: true));
 
         $filters->filter_str = 'Yet';
-        $this->assertCount(1, $categories->getCategoriesList(true));
+        $this->assertCount(1, $categories->getCategoriesList(as_cat: true));
 
         $filters->filter_str = 'noone';
-        $this->assertCount(0, $categories->getCategoriesList(true));
+        $this->assertCount(0, $categories->getCategoriesList(as_cat: true));
 
         $filters->reinit();
         $filters->not_empty = true;
-        $this->assertCount(0, $categories->getCategoriesList(true));
+        $this->assertCount(0, $categories->getCategoriesList(as_cat: true));
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
         $object->setName('One object');
         $object->setCategoryId($cat_one_id);
         $object->store();
 
-        $this->assertCount(1, $categories->getCategoriesList(true));
+        $this->assertCount(1, $categories->getCategoriesList(as_cat: true));
 
         $filters->reinit();
         $filters->active_filter = \GaletteObjectsLend\Repository\Categories::ALL_CATEGORIES;
-        $this->assertCount(3, $categories->getCategoriesList(true));
+        $this->assertCount(3, $categories->getCategoriesList(as_cat: true));
 
         $filters->active_filter = \GaletteObjectsLend\Repository\Categories::ACTIVE_CATEGORIES;
-        $this->assertCount(2, $categories->getCategoriesList(true));
+        $this->assertCount(2, $categories->getCategoriesList(as_cat: true));
 
         $filters->active_filter = \GaletteObjectsLend\Repository\Categories::INACTIVE_CATEGORIES;
-        $this->assertCount(1, $categories->getCategoriesList(true));
+        $this->assertCount(1, $categories->getCategoriesList(as_cat: true));
 
         //categories are counted once, whatever the number of their objects
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
@@ -110,7 +115,7 @@ class Categories extends GaletteTestCase
         $object->store();
 
         $filters->reinit();
-        $this->assertCount(3, $categories->getCategoriesList(true));
+        $this->assertCount(3, $categories->getCategoriesList(as_cat: true));
         $this->assertSame(3, $categories->getCount());
 
         //count takes grouping into account
@@ -120,7 +125,7 @@ class Categories extends GaletteTestCase
         $object->store();
 
         $filters->not_empty = true;
-        $this->assertCount(2, $categories->getCategoriesList(true));
+        $this->assertCount(2, $categories->getCategoriesList(as_cat: true));
         $this->assertSame(2, $categories->getCount());
     }
 }

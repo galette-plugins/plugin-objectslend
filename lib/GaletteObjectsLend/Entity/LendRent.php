@@ -57,7 +57,7 @@ class LendRent
      * @param Db                                 $zdb  Database instance
      * @param int|ArrayObject<string,mixed>|null $args Either an int with rent id, null, or a resultset row
      */
-    public function __construct(private Db $zdb, int|ArrayObject|null $args = null)
+    public function __construct(private readonly Db $zdb, int|ArrayObject|null $args = null)
     {
         $this->date_begin = date('Y-m-d H:i:s');
 
@@ -256,7 +256,7 @@ class LendRent
      */
     public function setDateBegin(string $date): self
     {
-        $this->date_begin = $this->parseDate($date, true) ?? $this->date_begin;
+        $this->date_begin = $this->parseDate($date, datetime: true) ?? $this->date_begin;
         return $this;
     }
 
@@ -275,7 +275,7 @@ class LendRent
      */
     public function setDateForecast(string $date): self
     {
-        $this->date_forecast = $this->parseDate($date, false);
+        $this->date_forecast = $this->parseDate($date, datetime: false);
         return $this;
     }
 
@@ -294,7 +294,7 @@ class LendRent
      */
     public function setDateEnd(string $date): self
     {
-        $this->date_end = $this->parseDate($date, true);
+        $this->date_end = $this->parseDate($date, datetime: true);
         return $this;
     }
 

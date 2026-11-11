@@ -80,7 +80,7 @@ class ObjectsController extends AbstractPluginController
      */
     public function add(Request $request, Response $response): Response
     {
-        return $this->edit($request, $response, null, 'add');
+        return $this->edit(request: $request, response: $response, id: null, action: 'add');
     }
 
     /**
@@ -91,7 +91,7 @@ class ObjectsController extends AbstractPluginController
      */
     public function doAdd(Request $request, Response $response): Response
     {
-        return $this->doEdit($request, $response, null, 'add');
+        return $this->doEdit(request: $request, response: $response, id: null, action: 'add');
     }
 
     // /CRUD - Create
@@ -127,14 +127,20 @@ class ObjectsController extends AbstractPluginController
         }
 
         $lendsprefs = new LendPreferences($this->preferences);
-        $objects = new Objects($this->zdb, $this->preferences, $this->login, $lendsprefs, $filters);
-        $list = $objects->getObjectsList(true);
+        $objects = new Objects(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            lendsprefs: $lendsprefs,
+            filters: $filters
+        );
+        $list = $objects->getObjectsList(as_objects: true);
 
         $this->session->{$this->getFiltersKey()} = $filters;
 
         //assign pagination variables to the template and add pagination links
         $filters->setViewCommonsFilters($lendsprefs, $this->view);
-        $filters->setViewPagination($this->routeparser, $this->view, false);
+        $filters->setViewPagination($this->routeparser, $this->view, restricted: false);
 
         $cat_filters = new CategoriesList();
         $cat_filters->active_filter = Categories::ACTIVE_CATEGORIES; //retrieve only active categories
@@ -143,8 +149,13 @@ class ObjectsController extends AbstractPluginController
         $objects_filters = clone $filters;
         $objects_filters->category_filter = null;
         $cat_filters->setObjectsFilter($objects_filters);
-        $categories = new Categories($this->zdb, $this->preferences, $this->login, $cat_filters);
-        $categories_list = $categories->getCategoriesList(true, false, false);
+        $categories = new Categories(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            filters: $cat_filters
+        );
+        $categories_list = $categories->getCategoriesList(as_cat: true, count: false, limit: false);
 
         // display page
         $this->view->render(
@@ -301,7 +312,7 @@ class ObjectsController extends AbstractPluginController
         unset($this->session->objectslend_object_data);
 
         $categories = new Categories($this->zdb, $this->preferences, $this->login);
-        $categories_list = $categories->getCategoriesList(true);
+        $categories_list = $categories->getCategoriesList(as_cat: true);
 
         if ($object->getId() !== null) {
             $title = _T("Edit object", "objectslend");
@@ -311,8 +322,13 @@ class ObjectsController extends AbstractPluginController
 
         $sfilter = new StatusList();
         $sfilter->active_filter = \GaletteObjectsLend\Repository\Status::ACTIVE;
-        $statuses = new Status($this->zdb, $this->preferences, $this->login, $sfilter);
-        $slist = $statuses->getStatusList(true);
+        $statuses = new Status(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            filters: $sfilter
+        );
+        $slist = $statuses->getStatusList(as_stt: true);
 
         $lendsprefs = new LendPreferences($this->preferences);
         $params = [
@@ -492,10 +508,10 @@ class ObjectsController extends AbstractPluginController
 
         try {
             $this->getLendService()->changeStatus(
-                $object,
-                (int)($post['new_status'] ?? 0),
-                empty($post['new_adh']) ? null : (int)$post['new_adh'],
-                $post['new_comment'] ?? ''
+                object: $object,
+                status_id: (int)($post['new_status'] ?? 0),
+                member_id: empty($post['new_adh']) ? null : (int)$post['new_adh'],
+                comments: $post['new_comment'] ?? ''
             );
             $this->flash->addMessage(
                 'success_detected',
@@ -729,15 +745,15 @@ class ObjectsController extends AbstractPluginController
 
         try {
             $contribution = $service->take(
-                $object,
-                (int)($post['status'] ?? 0),
-                $post['expected_return'] ?? null,
-                empty($post[Adherent::PK]) ? null : (int)$post[Adherent::PK],
-                empty($post['rent_price'])
+                object: $object,
+                status_id: (int)($post['status'] ?? 0),
+                date_forecast: $post['expected_return'] ?? null,
+                member_id: empty($post[Adherent::PK]) ? null : (int)$post[Adherent::PK],
+                rent_price: empty($post['rent_price'])
                     ? null
                     //FIXME: better currency format handler
                     : (float)str_replace([' ', ','], ['', '.'], $post['rent_price']),
-                empty($post['payment_type']) ? null : (int)$post['payment_type']
+                payment_type: empty($post['payment_type']) ? null : (int)$post['payment_type']
             );
         } catch (LendException $e) {
             $this->flash->addMessage('error_detected', $e->getMessage());
@@ -832,7 +848,12 @@ class ObjectsController extends AbstractPluginController
      */
     private function getLendService(?LendPreferences $lendsprefs = null): LendService
     {
-        return new LendService($this->zdb, $this->preferences, $this->login, $lendsprefs ?? new LendPreferences($this->preferences));
+        return new LendService(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            lendsprefs: $lendsprefs ?? new LendPreferences($this->preferences)
+        );
     }
 
     // /CRUD - Update
@@ -918,7 +939,13 @@ class ObjectsController extends AbstractPluginController
     {
         $filters = $this->getFilters();
         $lendsprefs = new LendPreferences($this->preferences);
-        $objects = new Objects($this->zdb, $this->preferences, $this->login, $lendsprefs, $filters);
+        $objects = new Objects(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            lendsprefs: $lendsprefs,
+            filters: $filters
+        );
 
         if (!is_array($post['id'])) {
             $ids = (array)$post['id'];

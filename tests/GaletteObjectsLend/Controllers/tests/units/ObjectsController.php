@@ -47,15 +47,15 @@ class ObjectsController extends GaletteRoutingTestCase
 
         $status = new LendStatus($this->zdb);
         $status->setText('In stock');
-        $status->setInStock(true);
-        $status->setActive(true);
+        $status->setInStock(in_stock: true);
+        $status->setActive(active: true);
         $status->store();
         $this->instock_status = $status->getId();
 
         $status = new LendStatus($this->zdb);
         $status->setText('Lent');
-        $status->setInStock(false);
-        $status->setActive(true);
+        $status->setInStock(in_stock: false);
+        $status->setActive(active: true);
         $status->store();
         $this->lent_status = $status->getId();
 
@@ -238,7 +238,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testMemberCannotTakeForAnotherMember(): void
     {
-        $this->setPrefs(true);
+        $this->setPrefs(member_rent: true);
         $mdata = $this->dataAdherentOne();
         $member_one = $this->getMemberOne();
         $member_two = $this->getMemberTwo();
@@ -260,7 +260,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testAdminTakeForAMember(): void
     {
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
         $member_one = $this->getMemberOne();
 
         $this->logSuperAdmin();
@@ -280,7 +280,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testTakeLentObject(): void
     {
-        $this->setPrefs(true);
+        $this->setPrefs(member_rent: true);
         $member_one = $this->getMemberOne();
         $this->lendObject($member_one->id);
 
@@ -307,7 +307,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testTakeWithInStockStatus(): void
     {
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
 
         $this->logSuperAdmin();
         $test_response = $this->app->handle(
@@ -324,7 +324,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testAdminReturnWhenMemberRentDisabled(): void
     {
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
         $member_one = $this->getMemberOne();
         $this->lendObject($member_one->id);
 
@@ -343,7 +343,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testMemberReturnObjectHeldByAnotherMember(): void
     {
-        $this->setPrefs(true);
+        $this->setPrefs(member_rent: true);
         $member_one = $this->getMemberOne();
         $this->lendObject($member_one->id);
 
@@ -362,7 +362,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testMemberReturnOwnObject(): void
     {
-        $this->setPrefs(true);
+        $this->setPrefs(member_rent: true);
         $mdata = $this->dataAdherentOne();
         $member_one = $this->getMemberOne();
         $this->lendObject($member_one->id);
@@ -379,7 +379,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testReturnComments(): void
     {
-        $this->setPrefs(true);
+        $this->setPrefs(member_rent: true);
         $this->logSuperAdmin();
         $this->lendObject($this->getMemberOne()->id);
 
@@ -400,7 +400,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testReturnInvalid(): void
     {
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
         $this->logSuperAdmin();
 
         //object is not lent
@@ -491,8 +491,14 @@ class ObjectsController extends GaletteRoutingTestCase
         $filters = $this->session->plugin_objectslend_objects_filter;
         $this->assertSame(\GaletteObjectsLend\Repository\Objects::FILTER_SERIAL, $filters->field_filter);
 
-        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->preferences, $this->login, new LendPreferences($this->preferences), $filters);
-        $list = $objects->getObjectsList(true);
+        $objects = new \GaletteObjectsLend\Repository\Objects(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            lendsprefs: new LendPreferences($this->preferences),
+            filters: $filters
+        );
+        $list = $objects->getObjectsList(as_objects: true);
         $this->assertCount(1, $list);
     }
 
@@ -590,7 +596,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testMemberCannotTakeWhenMemberRentDisabled(): void
     {
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
         $mdata = $this->dataAdherentOne();
         $this->getMemberOne();
 
@@ -610,7 +616,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testStaffTakeForAMember(): void
     {
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
         $mdata = $this->dataAdherentOne();
         $member_one = $this->getMemberOne();
         $member_two = $this->getMemberTwo();
@@ -634,7 +640,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testStaffTakeForThemselves(): void
     {
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
         $mdata = $this->dataAdherentOne();
         $member_one = $this->getMemberOne();
         $this->getStaffMember($member_one);
@@ -657,9 +663,9 @@ class ObjectsController extends GaletteRoutingTestCase
     public function testTakeInactiveObject(): void
     {
         $object = new LendObject($this->zdb, $this->object_id);
-        $object->setActive(false);
+        $object->setActive(active: false);
         $object->store();
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
 
         $this->logSuperAdmin();
         $test_response = $this->app->handle($this->takeRequest([]));
@@ -674,7 +680,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testTakeClosesCurrentRent(): void
     {
-        $this->setPrefs(true);
+        $this->setPrefs(member_rent: true);
         $rent = new LendRent($this->zdb);
         $rent->setObjectId($this->object_id);
         $rent->setStatusId($this->instock_status);
@@ -709,12 +715,12 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testTakeAjax(): void
     {
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
         $this->logSuperAdmin();
 
         $test_response = $this->app->handle($this->takeRequest(['mode' => 'ajax']));
         $this->assertSame(200, $test_response->getStatusCode());
-        $this->assertSame(['success' => 'true'], json_decode((string)$test_response->getBody(), true));
+        $this->assertSame(['success' => 'true'], json_decode((string)$test_response->getBody(), associative: true));
         $this->expectFlashData(['success_detected' => ['You have just borrowed Test object :)']]);
         $this->assertCount(1, $this->getRents());
     }
@@ -737,7 +743,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testTakeGeneratesContributionWithPostedPrice(): void
     {
-        $this->setPrefs(false, true);
+        $this->setPrefs(member_rent: false, auto_contrib: true);
         $this->setRentPrice(3.5);
         $member_one = $this->getMemberOne();
 
@@ -769,7 +775,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testMemberTakeGeneratesContribution(): void
     {
-        $this->setPrefs(true, true);
+        $this->setPrefs(member_rent: true, auto_contrib: true);
         $this->setRentPrice(3.5);
         $mdata = $this->dataAdherentOne();
         $member_one = $this->getMemberOne();
@@ -804,7 +810,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testTakeWithInvalidContribution(): void
     {
-        $this->setPrefs(false, true);
+        $this->setPrefs(member_rent: false, auto_contrib: true);
         $this->setRentPrice(3.5);
         $member_one = $this->getMemberOne();
 
@@ -829,7 +835,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testTakeFreeObjectGeneratesNoContribution(): void
     {
-        $this->setPrefs(false, true);
+        $this->setPrefs(member_rent: false, auto_contrib: true);
         $this->setRentPrice(0);
         $member_one = $this->getMemberOne();
 
@@ -852,7 +858,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testStaffReturnWhenMemberRentDisabled(): void
     {
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
         $mdata = $this->dataAdherentOne();
         $member_one = $this->getMemberOne();
         $member_two = $this->getMemberTwo();
@@ -879,7 +885,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testMemberReturnOwnObjectWhenMemberRentDisabled(): void
     {
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
         $mdata = $this->dataAdherentOne();
         $member_one = $this->getMemberOne();
         $this->lendObject($member_one->id);
@@ -897,14 +903,14 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testReturnAjax(): void
     {
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
         $member_one = $this->getMemberOne();
         $this->lendObject($member_one->id);
 
         $this->logSuperAdmin();
         $test_response = $this->app->handle($this->returnRequest(['mode' => 'ajax']));
         $this->assertSame(200, $test_response->getStatusCode());
-        $this->assertSame(['success' => 'true'], json_decode((string)$test_response->getBody(), true));
+        $this->assertSame(['success' => 'true'], json_decode((string)$test_response->getBody(), associative: true));
         $this->expectFlashData(['success_detected' => ['Test object has been returned :)']]);
         $this->assertCount(2, $this->getRents());
     }
@@ -987,7 +993,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testMemberCannotUpdateStatus(): void
     {
-        $this->setPrefs(true);
+        $this->setPrefs(member_rent: true);
         $mdata = $this->dataAdherentOne();
         $member_one = $this->getMemberOne();
         $this->lendObject($member_one->id);
@@ -1022,7 +1028,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testTakePage(): void
     {
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
         $this->logSuperAdmin();
 
         $test_response = $this->app->handle($this->lendPageRequest('take'));
@@ -1040,7 +1046,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testTakePageRefusedToMember(): void
     {
-        $this->setPrefs(false);
+        $this->setPrefs(member_rent: false);
         $this->getMemberOne();
         $this->logMember($this->dataAdherentOne());
 
@@ -1055,7 +1061,7 @@ class ObjectsController extends GaletteRoutingTestCase
      */
     public function testReturnPage(): void
     {
-        $this->setPrefs(true);
+        $this->setPrefs(member_rent: true);
         $member_one = $this->getMemberOne();
         $this->lendObject($member_one->id);
 

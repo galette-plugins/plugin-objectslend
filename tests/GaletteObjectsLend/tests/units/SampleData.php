@@ -73,14 +73,14 @@ class SampleData extends GaletteTestCase
     {
         $data = json_decode(
             (string)file_get_contents(\GaletteObjectsLend\SampleData::FILE),
-            true,
+            associative: true,
             flags: JSON_THROW_ON_ERROR
         );
         $this->assertIsArray($data);
 
         //an existing category is reused
         $category = new LendCategory($this->zdb);
-        $category->setName($data['categories'][0]['name'])->setActive(true);
+        $category->setName($data['categories'][0]['name'])->setActive(active: true);
         $category->store();
 
         $member = $this->getMemberOne();
@@ -129,7 +129,7 @@ class SampleData extends GaletteTestCase
     {
         $data = json_decode(
             (string)file_get_contents(\GaletteObjectsLend\SampleData::FILE),
-            true,
+            associative: true,
             flags: JSON_THROW_ON_ERROR
         );
         $this->assertIsArray($data);

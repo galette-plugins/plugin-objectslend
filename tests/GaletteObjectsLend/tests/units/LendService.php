@@ -60,15 +60,15 @@ class LendService extends GaletteTestCase
 
         $status = new LendStatus($this->zdb);
         $status->setText('In stock');
-        $status->setInStock(true);
-        $status->setActive(true);
+        $status->setInStock(in_stock: true);
+        $status->setActive(active: true);
         $status->store();
         $this->instock_status = $status->getId();
 
         $status = new LendStatus($this->zdb);
         $status->setText('Lent');
-        $status->setInStock(false);
-        $status->setActive(true);
+        $status->setInStock(in_stock: false);
+        $status->setActive(active: true);
         $status->store();
         $this->lent_status = $status->getId();
 
@@ -116,7 +116,12 @@ class LendService extends GaletteTestCase
      */
     private function getService(): \GaletteObjectsLend\LendService
     {
-        return new \GaletteObjectsLend\LendService($this->zdb, $this->preferences, $this->login, new LendPreferences($this->preferences));
+        return new \GaletteObjectsLend\LendService(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            lendsprefs: new LendPreferences($this->preferences)
+        );
     }
 
     /**
@@ -163,8 +168,8 @@ class LendService extends GaletteTestCase
 
         try {
             $service->take(
-                $service->getObject($this->object_id),
-                $this->lent_status,
+                object: $service->getObject($this->object_id),
+                status_id: $this->lent_status,
                 member_id: $member->id,
                 payment_type: 999999
             );
@@ -223,8 +228,8 @@ class LendService extends GaletteTestCase
     {
         $status = new LendStatus($this->zdb);
         $status->setText('Inactive');
-        $status->setInStock(true);
-        $status->setActive(false);
+        $status->setInStock(in_stock: true);
+        $status->setActive(active: false);
         $status->store();
 
         $this->logSuperAdmin();
@@ -255,8 +260,8 @@ class LendService extends GaletteTestCase
         //first in stock status, but not the last one the object had
         $status = new LendStatus($this->zdb);
         $status->setText('A first stock');
-        $status->setInStock(true);
-        $status->setActive(true);
+        $status->setInStock(in_stock: true);
+        $status->setActive(active: true);
         $status->store();
 
         $repair = new LendObject($this->zdb);
@@ -299,8 +304,8 @@ class LendService extends GaletteTestCase
     {
         $status = new LendStatus($this->zdb);
         $status->setText('A first stock');
-        $status->setInStock(true);
-        $status->setActive(true);
+        $status->setInStock(in_stock: true);
+        $status->setActive(active: true);
         $status->store();
 
         $member = $this->getMemberOne();

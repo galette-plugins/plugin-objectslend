@@ -62,22 +62,22 @@ class LendStatus extends GaletteTestCase
     {
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('One active status');
-        $status->setInStock(true);
-        $status->setActive(true);
+        $status->setInStock(in_stock: true);
+        $status->setActive(active: true);
         $status->store();
         $status_one = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('Another active status');
-        $status->setInStock(false);
-        $status->setActive(true);
+        $status->setInStock(in_stock: false);
+        $status->setActive(active: true);
         $status->store();
         $status_two = $status->getId();
 
         $status = new \GaletteObjectsLend\Entity\LendStatus($this->zdb);
         $status->setText('One inactive status');
-        $status->setInStock(true);
-        $status->setActive(false);
+        $status->setInStock(in_stock: true);
+        $status->setActive(active: false);
         $status->store();
 
         $list = (new \GaletteObjectsLend\Repository\Status($this->zdb, $this->preferences, $this->login))->getActiveTakeAwayStatuses();

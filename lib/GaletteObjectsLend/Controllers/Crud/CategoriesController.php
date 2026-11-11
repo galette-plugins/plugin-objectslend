@@ -70,8 +70,13 @@ class CategoriesController extends AbstractListController
      */
     protected function getListView(Pagination $filters): array
     {
-        $categories = new Categories($this->zdb, $this->preferences, $this->login, $filters);
-        $list = $categories->getCategoriesList(true);
+        $categories = new Categories(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            filters: $filters
+        );
+        $list = $categories->getCategoriesList(as_cat: true);
 
         return [
             'categories_list',
@@ -185,7 +190,7 @@ class CategoriesController extends AbstractListController
     {
         return sprintf(
             _T('Remove category %1$s', 'objectslend'),
-            $this->loadEntity((int)$args['id'])->getName(false)
+            $this->loadEntity((int)$args['id'])->getName(count: false)
         );
     }
 }

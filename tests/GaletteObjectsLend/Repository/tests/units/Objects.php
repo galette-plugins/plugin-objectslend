@@ -52,27 +52,32 @@ class Objects extends GaletteTestCase
      */
     public function testGetList(): void
     {
-        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->preferences, $this->login, $this->lend_prefs);
+        $objects = new \GaletteObjectsLend\Repository\Objects(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            lendsprefs: $this->lend_prefs
+        );
 
         $rs_list = $objects->getList();
         $this->assertInstanceOf(\Laminas\Db\ResultSet\ResultSet::class, $rs_list);
         $this->assertSame(0, $rs_list->count());
-        $this->assertSame([], $objects->getList(true));
+        $this->assertSame([], $objects->getList(as_objects: true));
         $this->assertNull($objects->getCount());
 
-        $this->assertSame([], $objects->getObjectsList(true));
+        $this->assertSame([], $objects->getObjectsList(as_objects: true));
         $this->assertSame(0, $objects->getCount());
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
         $category->setName('First category');
-        $category->setActive(true);
+        $category->setActive(active: true);
         $category->store();
         $first_category_id = $category->getId();
         $this->assertGreaterThan(0, $first_category_id);
 
         $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
         $category->setName('Second category');
-        $category->setActive(true);
+        $category->setActive(active: true);
         $category->store();
         $second_category_id = $category->getId();
         $this->assertGreaterThan(0, $second_category_id);
@@ -80,7 +85,7 @@ class Objects extends GaletteTestCase
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
         $object->setName('First object');
         $object->setCategoryId($first_category_id);
-        $object->setActive(true);
+        $object->setActive(active: true);
         $object->store();
         $first_object_id = $object->getId();
 
@@ -88,14 +93,14 @@ class Objects extends GaletteTestCase
         $object->setName('Second object');
         $object->setDescription('First description');
         $object->setCategoryId($first_category_id);
-        $object->setActive(true);
+        $object->setActive(active: true);
         $object->store();
         $second_object_id = $object->getId();
 
         $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
         $object->setName('Third object');
         $object->setCategoryId($second_category_id);
-        $object->setActive(true);
+        $object->setActive(active: true);
         $object->store();
         $third_object_id = $object->getId();
 
@@ -103,15 +108,21 @@ class Objects extends GaletteTestCase
         $object->setName('Fourth object');
         $object->setSerialNumber('GGABCDEXX');
         $object->setDimension('210x297');
-        $object->setActive(false);
+        $object->setActive(active: false);
         $object->store();
         //ids are not reset between tests, a hardcoded one may exist
         $missing_id = $object->getId() + 1;
 
         $filters = new \GaletteObjectsLend\Filters\ObjectsList();
-        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->preferences, $this->login, $this->lend_prefs, $filters);
+        $objects = new \GaletteObjectsLend\Repository\Objects(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            lendsprefs: $this->lend_prefs,
+            filters: $filters
+        );
 
-        $this->assertCount(4, $objects->getObjectsList(true));
+        $this->assertCount(4, $objects->getObjectsList(as_objects: true));
         $this->assertSame(4, $objects->getCount());
 
         $selected = [
@@ -119,38 +130,38 @@ class Objects extends GaletteTestCase
             $third_object_id
         ];
         $filters->selected = $selected;
-        $this->assertCount(2, $objects->getObjectsList(true));
+        $this->assertCount(2, $objects->getObjectsList(as_objects: true));
         $this->assertSame(2, $objects->getCount());
 
         $filters->reinit();
         $filters->active_filter = \GaletteObjectsLend\Repository\Objects::ACTIVE_OBJECTS;
-        $this->assertCount(3, $objects->getObjectsList(true));
+        $this->assertCount(3, $objects->getObjectsList(as_objects: true));
         $this->assertSame(3, $objects->getCount());
 
         $filters->active_filter = \GaletteObjectsLend\Repository\Objects::INACTIVE_OBJECTS;
-        $this->assertCount(1, $objects->getObjectsList(true));
+        $this->assertCount(1, $objects->getObjectsList(as_objects: true));
         $this->assertSame(1, $objects->getCount());
 
         $filters->reinit();
         $filters->category_filter = -1;
-        $this->assertCount(1, $objects->getObjectsList(true));
+        $this->assertCount(1, $objects->getObjectsList(as_objects: true));
         $this->assertSame(1, $objects->getCount());
 
         $filters->category_filter = $first_category_id;
-        $this->assertCount(2, $objects->getObjectsList(true));
+        $this->assertCount(2, $objects->getObjectsList(as_objects: true));
         $this->assertSame(2, $objects->getCount());
 
         $filters->category_filter = $second_category_id;
-        $this->assertCount(1, $objects->getObjectsList(true));
+        $this->assertCount(1, $objects->getObjectsList(as_objects: true));
         $this->assertSame(1, $objects->getCount());
 
         $filters->reinit();
         $filters->filter_str = 'OBJECT';
-        $this->assertCount(4, $objects->getObjectsList(true));
+        $this->assertCount(4, $objects->getObjectsList(as_objects: true));
         $this->assertSame(4, $objects->getCount());
 
         $filters->filter_str = 'first';
-        $this->assertCount(2, $objects->getObjectsList(true));
+        $this->assertCount(2, $objects->getObjectsList(as_objects: true));
         $this->assertSame(2, $objects->getCount());
 
         //disable view description
@@ -159,7 +170,7 @@ class Objects extends GaletteTestCase
         );
 
         //only one result (first in name only)
-        $this->assertCount(1, $objects->getObjectsList(true));
+        $this->assertCount(1, $objects->getObjectsList(as_objects: true));
         $this->assertSame(1, $objects->getCount());
 
         //reset prefs
@@ -169,58 +180,58 @@ class Objects extends GaletteTestCase
 
         $filters->field_filter = \GaletteObjectsLend\Repository\Objects::FILTER_ID;
         $filters->filter_str = (string)$third_object_id;
-        $this->assertCount(1, $objects->getObjectsList(true));
+        $this->assertCount(1, $objects->getObjectsList(as_objects: true));
         $this->assertSame(1, $objects->getCount());
 
         $filters->filter_str = (string)$missing_id;
-        $this->assertCount(0, $objects->getObjectsList(true));
+        $this->assertCount(0, $objects->getObjectsList(as_objects: true));
         $this->assertSame(0, $objects->getCount());
 
         $filters->field_filter = \GaletteObjectsLend\Repository\Objects::FILTER_SERIAL;
         $filters->filter_str = 'ABCDE';
-        $this->assertCount(1, $objects->getObjectsList(true));
+        $this->assertCount(1, $objects->getObjectsList(as_objects: true));
         $this->assertSame(1, $objects->getCount());
 
         $filters->field_filter = \GaletteObjectsLend\Repository\Objects::FILTER_DIM;
         $filters->filter_str = '297';
-        $this->assertCount(1, $objects->getObjectsList(true));
+        $this->assertCount(1, $objects->getObjectsList(as_objects: true));
         $this->assertSame(1, $objects->getCount());
 
         //quick test ordering
         $filters->reinit();
 
         $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_NAME;
-        $this->assertCount(4, $objects->getObjectsList(true));
+        $this->assertCount(4, $objects->getObjectsList(as_objects: true));
 
         $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_SERIAL;
-        $this->assertCount(4, $objects->getObjectsList(true));
+        $this->assertCount(4, $objects->getObjectsList(as_objects: true));
 
         $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_PRICE;
-        $this->assertCount(4, $objects->getObjectsList(true));
+        $this->assertCount(4, $objects->getObjectsList(as_objects: true));
 
         $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_RENTPRICE;
-        $this->assertCount(4, $objects->getObjectsList(true));
+        $this->assertCount(4, $objects->getObjectsList(as_objects: true));
 
         $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_WEIGHT;
-        $this->assertCount(4, $objects->getObjectsList(true));
+        $this->assertCount(4, $objects->getObjectsList(as_objects: true));
 
         $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_STATUS;
-        $this->assertCount(4, $objects->getObjectsList(true));
+        $this->assertCount(4, $objects->getObjectsList(as_objects: true));
 
         $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_BDATE;
-        $this->assertCount(4, $objects->getObjectsList(true));
+        $this->assertCount(4, $objects->getObjectsList(as_objects: true));
 
         $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_FDATE;
-        $this->assertCount(4, $objects->getObjectsList(true));
+        $this->assertCount(4, $objects->getObjectsList(as_objects: true));
 
         $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_MEMBER;
-        $this->assertCount(4, $objects->getObjectsList(true));
+        $this->assertCount(4, $objects->getObjectsList(as_objects: true));
 
         $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_CATEGORY;
-        $this->assertCount(4, $objects->getObjectsList(true));
+        $this->assertCount(4, $objects->getObjectsList(as_objects: true));
 
         $objects->removeObjects([$first_object_id, $second_object_id, $third_object_id]);
-        $this->assertCount(1, $objects->getObjectsList(true));
+        $this->assertCount(1, $objects->getObjectsList(as_objects: true));
     }
 
     /**
@@ -232,7 +243,7 @@ class Objects extends GaletteTestCase
         foreach ([1, 2] as $i) {
             $category = new \GaletteObjectsLend\Entity\LendCategory($this->zdb);
             $category->setName('Same name');
-            $category->setActive(true);
+            $category->setActive(active: true);
             $category->store();
             $category_ids[] = $category->getId();
         }
@@ -242,14 +253,20 @@ class Objects extends GaletteTestCase
             $object = new \GaletteObjectsLend\Entity\LendObject($this->zdb);
             $object->setName('Object ' . $i);
             $object->setCategoryId($category_ids[$index]);
-            $object->setActive(true);
+            $object->setActive(active: true);
             $object->store();
         }
 
         $filters = new \GaletteObjectsLend\Filters\ObjectsList();
         $filters->orderby = \GaletteObjectsLend\Repository\Objects::ORDERBY_CATEGORY;
-        $objects = new \GaletteObjectsLend\Repository\Objects($this->zdb, $this->preferences, $this->login, $this->lend_prefs, $filters);
-        $list = $objects->getObjectsList(true, true, false);
+        $objects = new \GaletteObjectsLend\Repository\Objects(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            lendsprefs: $this->lend_prefs,
+            filters: $filters
+        );
+        $list = $objects->getObjectsList(as_objects: true, count: true, limit: false);
         $this->assertCount(6, $list);
 
         $sequence = array_map(fn($object) => $object->getCategoryId(), $list);

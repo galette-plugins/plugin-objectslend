@@ -182,7 +182,12 @@ class Picture extends GaletteTestCase
         }
         $this->assertTrue(is_file($store_path . $ids[0] . '_th.jpg'));
 
-        $objects = new Objects($this->zdb, $this->preferences, $this->login, $prefs);
+        $objects = new Objects(
+            zdb: $this->zdb,
+            preferences: $this->preferences,
+            login: $this->login,
+            lendsprefs: $prefs
+        );
         $objects->removeObjects($ids);
 
         foreach ($ids as $id) {

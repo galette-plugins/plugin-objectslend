@@ -30,9 +30,6 @@ class PdfObject extends Pdf
         'li', 'ol', 'p', 's', 'span', 'strong', 'sub', 'sup', 'u', 'ul'
     ];
 
-    private Db $zdb;
-    private LendPreferences $lprefs;
-
     /**
      * Main constructor
      *
@@ -40,14 +37,11 @@ class PdfObject extends Pdf
      * @param Preferences     $prefs  Preferences instance
      * @param LendPreferences $lprefs Plugin Preferences instance
      */
-    public function __construct(Db $zdb, Preferences $prefs, LendPreferences $lprefs)
+    public function __construct(private readonly Db $zdb, Preferences $prefs, private readonly LendPreferences $lprefs)
     {
         parent::__construct($prefs);
         // Disable Auto Page breaks
-        $this->SetAutoPageBreak(false, $this->footer_height + 10);
-
-        $this->zdb = $zdb;
-        $this->lprefs = $lprefs;
+        $this->SetAutoPageBreak(auto: false, margin: $this->footer_height + 10);
         //TRANS: this is a filename
         $this->filename = _T('object_card', 'objectslend') . '.pdf';
     }
@@ -122,7 +116,7 @@ class PdfObject extends Pdf
                 $hpic = (int)round($wpic / $ratio);
             }
 
-            $this->Image($pic->getThumb($this->lprefs), 10, 10, $wpic, $hpic);
+            $this->Image(file: $pic->getThumb($this->lprefs), x: 10, y: 10, w: $wpic, h: $hpic);
         }
 
         $this->addCell(_T("Name", "objectslend"), $object->getName(), $wpic);
@@ -136,12 +130,22 @@ class PdfObject extends Pdf
             $this->addCell(_T("Serial number", "objectslend"), $object->getSerialNumber(), $wpic);
         }
         if ($this->lprefs->isEnabled(LendPreferences::VIEW_PRICE)) {
-            $this->addCell(_T("Price", "objectslend"), number_format($object->getPrice(), 2, ',', ' '), $wpic);
+            $this->addCell(_T("Price", "objectslend"), number_format(
+                num: $object->getPrice(),
+                decimals: 2,
+                decimal_separator: ',',
+                thousands_separator: ' '
+            ), $wpic);
         }
         if ($this->lprefs->isEnabled(LendPreferences::VIEW_LEND_PRICE)) {
             $this->addCell(
                 _T("Borrow price", "objectslend"),
-                number_format($object->getRentPrice(), 2, ',', ' ') . ' €'
+                number_format(
+                    num: $object->getRentPrice(),
+                    decimals: 2,
+                    decimal_separator: ',',
+                    thousands_separator: ' '
+                ) . ' €'
                     . ($object->isPricePerDay() ? ' ' . _T("(per day)", "objectslend") : ''),
                 $wpic
             );
@@ -150,7 +154,12 @@ class PdfObject extends Pdf
             $this->addCell(_T("Dimensions", "objectslend"), $object->getDimension() . ' ' . _T('Cm', 'objectslend'), $wpic);
         }
         if ($this->lprefs->isEnabled(LendPreferences::VIEW_WEIGHT)) {
-            $this->addCell(_T("Weight", "objectslend"), number_format($object->getWeight(), 3, ',', ' ') . ' ' . _T('Kg', 'objectslend'), $wpic);
+            $this->addCell(_T("Weight", "objectslend"), number_format(
+                num: $object->getWeight(),
+                decimals: 3,
+                decimal_separator: ',',
+                thousands_separator: ' '
+            ) . ' ' . _T('Kg', 'objectslend'), $wpic);
         }
         $this->addCell(_T("Active", "objectslend"), $object->isObjectActive() ? 'X' : '', $wpic);
         $this->addCell(_T("Location", "objectslend"), $object->getStatusText(), $wpic);
@@ -175,24 +184,61 @@ class PdfObject extends Pdf
         $col_comments = 40;
 
         $this->SetFont(Pdf::FONT, 'B', 10);
-        $this->Cell(0, 0, _T("History of object loans", "objectslend"), 0, 1, 'C');
+        $this->Cell(
+            w: 0,
+            h: 0,
+            txt: _T("History of object loans", "objectslend"),
+            border: 0,
+            ln: 1,
+            align: 'C'
+        );
         $this->Ln();
-        $this->Cell($col_begin, 0, $this->stretchHead(_T("Begin", "objectslend"), $col_begin), 'B');
-        $this->Cell($col_end, 0, $this->stretchHead(_T("End", "objectslend"), $col_end), 'B');
-        $this->Cell($col_status, 0, $this->stretchHead(_T("Status", "objectslend"), $col_status), 'B');
-        $this->Cell($col_stock, 0, $this->stretchHead(_T("In stock", "objectslend"), $col_stock), 'B');
-        $this->Cell($col_adh, 0, $this->stretchHead(_T("Member", "objectslend"), $col_adh), 'B');
-        $this->Cell($col_comments, 0, $this->stretchHead(_T("Comments", "objectslend"), $col_comments), 'B');
+        $this->Cell(
+            w: $col_begin,
+            h: 0,
+            txt: $this->stretchHead(_T("Begin", "objectslend"), $col_begin),
+            border: 'B'
+        );
+        $this->Cell(
+            w: $col_end,
+            h: 0,
+            txt: $this->stretchHead(_T("End", "objectslend"), $col_end),
+            border: 'B'
+        );
+        $this->Cell(
+            w: $col_status,
+            h: 0,
+            txt: $this->stretchHead(_T("Status", "objectslend"), $col_status),
+            border: 'B'
+        );
+        $this->Cell(
+            w: $col_stock,
+            h: 0,
+            txt: $this->stretchHead(_T("In stock", "objectslend"), $col_stock),
+            border: 'B'
+        );
+        $this->Cell(
+            w: $col_adh,
+            h: 0,
+            txt: $this->stretchHead(_T("Member", "objectslend"), $col_adh),
+            border: 'B'
+        );
+        $this->Cell(
+            w: $col_comments,
+            h: 0,
+            txt: $this->stretchHead(_T("Comments", "objectslend"), $col_comments),
+            border: 'B'
+        );
         $this->Ln();
         $this->SetFont(Pdf::FONT, '', 9);
 
         foreach ($rents as $rt) {
-            $this->Cell($col_begin, 0, $this->cut($rt->getDateBegin(), $col_begin), 'B');
-            $this->Cell($col_end, 0, $this->cut($rt->getDateEnd(), $col_end), 'B');
-            $this->Cell($col_status, 0, $this->cut($rt->getStatusText(), $col_status), 'B');
-            $this->Cell($col_stock, 0, $rt->isInStock() ? '    X' : '', 'B');
-            $this->Cell($col_adh, 0, $this->cut($rt->getMemberName(), $col_adh), 'B');
-            $this->Cell($col_comments, 0, $this->cut($rt->getComments(), $col_comments), 'B');
+            $this->Cell(w: $col_begin, h: 0, txt: $this->cut($rt->getDateBegin(), $col_begin), border: 'B');
+            $this->Cell(w: $col_end, h: 0, txt: $this->cut($rt->getDateEnd(), $col_end), border: 'B');
+            $this->Cell(w: $col_status, h: 0, txt: $this->cut($rt->getStatusText(), $col_status), border: 'B');
+            $this->Cell(w: $col_stock, h: 0, txt: $rt->isInStock() ? '    X' : '', border: 'B');
+            $this->Cell(w: $col_adh, h: 0, txt: $this->cut($rt->getMemberName(), $col_adh), border: 'B');
+            $this->Cell(w: $col_comments, h: 0, txt: $this->cut($rt->getComments(), $col_comments), border: 'B');
             $this->Ln();
         }
     }
@@ -221,7 +267,7 @@ class PdfObject extends Pdf
             if ($i++ > 0) {
                 $this->Cell($width + $padding, 0, '');
             }
-            $this->MultiCell(0, 0, $w, 0, 'L');
+            $this->MultiCell(w: 0, h: 0, txt: $w, border: 0, align: 'L');
         }
     }
 
@@ -247,6 +293,19 @@ class PdfObject extends Pdf
         $this->Cell($padding, 0, $this->cut($title, $padding));
 
         $this->SetFont(Pdf::FONT, '', 9);
-        $this->MultiCell(0, 0, $html, 0, 'L', false, 1, null, null, true, 0, true);
+        $this->MultiCell(
+            w: 0,
+            h: 0,
+            txt: $html,
+            border: 0,
+            align: 'L',
+            fill: false,
+            ln: 1,
+            x: null,
+            y: null,
+            reseth: true,
+            stretch: 0,
+            ishtml: true
+        );
     }
 }
