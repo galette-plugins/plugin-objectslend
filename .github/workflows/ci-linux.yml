@@ -97,6 +97,17 @@ jobs:
           cd galette-core/galette/plugins/plugin-objectslend
           ../../vendor/bin/php-cs-fixer check --show-progress=dots --verbose --diff
 
+      # Core configuration, with the plugin paths given on the command line;
+      # run from the core root, where withPhpSets() reads the PHP version
+      - name: Rector
+        if: matrix.php-is-min
+        run: |
+          cd galette-core
+          galette/vendor/bin/rector process --dry-run --ansi \
+            galette/plugins/plugin-objectslend/lib \
+            galette/plugins/plugin-objectslend/tests \
+            galette/plugins/plugin-objectslend/*.php
+
       - name: Twig CS
         run: |
           cd galette-core/galette/plugins/plugin-objectslend
